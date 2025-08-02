@@ -6,6 +6,7 @@ import Modal from './components/Modal/ServiceModal';
 import Contact from './components/Contact';
 import './App.css';
 import servicesData from './data/servicesData';
+import BeautySalonDashboard from './components/admin/BeautySalonDashboard/BeautySalonDashboard';
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,6 +43,11 @@ function App() {
     setOverview(true);
   };
   return (
+
+    <>
+      <BeautySalonDashboard />
+    </>
+    /*
     <>
     <Header openModal={openModal} 
       closeScheduleAppointment={closeScheduleAppointment} />
@@ -61,7 +67,9 @@ function App() {
       {ScheduleAppointment && (
         <Contact services={selectedServices} />
       )}
-    </>  
+    </>  */
+
+    
   );
      
 }
