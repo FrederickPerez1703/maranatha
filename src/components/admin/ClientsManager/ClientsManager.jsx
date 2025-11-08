@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { User, Calendar, DollarSign, Users, Clock, Settings, LogOut, Eye, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { useState } from 'react';
 
 // Componente de Gestión de Clientes
 const ClientsManager = () => {

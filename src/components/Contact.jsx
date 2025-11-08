@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Scissors, User, Mail, Phone, CheckCircle } from 'lucide-react';
+import { Calendar, Scissors, User, Mail, Phone, CheckCircle } from 'lucide-react';
 import SendService from '../services/send/SendService'; // Ajusta la ruta según tu estructura
 
 

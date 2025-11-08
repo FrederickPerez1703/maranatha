@@ -6,7 +6,8 @@ import Modal from './components/Modal/ServiceModal';
 import Contact from './components/Contact';
 import './App.css';
 import servicesData from './data/servicesData';
-import BeautySalonDashboard from './components/admin/BeautySalonDashboard/BeautySalonDashboard';
+import Footer from './components/footer/Footer';
+
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -14,6 +15,7 @@ function App() {
   const [overview, setOverview] = useState(true);
   const [ScheduleAppointment, setScheduleAppointment] = useState(false);
   const [currentService, setCurrentService] = useState(null);
+  const [showBackButton, setShowBackButton] = useState(false);
 
   const openServiceModal = (type) => {
   setCurrentService(type); // <-- esto es lo importante
@@ -32,6 +34,7 @@ function App() {
    const closeServiceModal = () => {
     setModalOpen(false);
     setCurrentService(null);
+    setShowBackButton(true);
   };
 
   const openModalScheduleAppointment = (service) => {
@@ -41,34 +44,33 @@ function App() {
   const closeScheduleAppointment = () => {
     setScheduleAppointment(false);
     setOverview(true);
+    setShowBackButton(false);
   };
   return (
-
-    <>
-      <BeautySalonDashboard />
-    </>
-    /*
     <>
     <Header openModal={openModal} 
-      closeScheduleAppointment={closeScheduleAppointment} />
-    {overview && (
-      <>
-        
-        <Hero />
-        <Services openServiceModal={openServiceModal} />
-        <Modal 
-          isOpen={modalOpen} 
-          serviceType={currentService}
-          onClose={closeServiceModal}
-          openScheduleAppointment={openModalScheduleAppointment}
-        />
-      </>  
+      closeScheduleAppointment={closeScheduleAppointment}
+      showBackButton = {showBackButton} />
+      {overview && (
+        <>
+          <Hero />
+          <Services openServiceModal={openServiceModal} />
+          <Modal 
+            isOpen={modalOpen} 
+            serviceType={currentService}
+            onClose={closeServiceModal}
+            openScheduleAppointment={openModalScheduleAppointment}
+          />
+          <Footer />
+        </>  
     )}
       {ScheduleAppointment && (
         <Contact services={selectedServices} />
       )}
-    </>  */
 
+
+    </> 
+    
     
   );
      

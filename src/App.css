@@ -12,7 +12,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -198,7 +198,7 @@
 
         .beauty-item {
             background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
+            padding: 1rem;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(255, 107, 157, 0.2);
             transition: all 0.3s ease;
@@ -572,3 +572,48 @@
             padding-Right: '40px'
           }
         }
+
+.back-button-wrapper {
+  position: fixed;
+  top: 1.5rem;  /* equivalente a Tailwind top-6 */
+  left: 1.5rem; /* equivalente a Tailwind left-6 */
+  z-index: 50;
+}
+
+.back-button {
+   background: #ff6b9d;
+   color: white;
+   padding: 18px 36px;
+   border-radius: 50px;
+   text-decoration: none;
+   font-weight: bold;
+   font-size: 1.1rem;
+   display: inline-flex;
+   align-items: center;
+   gap: 10px;
+   transition: all 0.3s ease;
+   animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.back-button:hover {
+  transform: translateY(-3px);
+}
+
+.back-button::before {
+    content: "←";
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover::before {
+    transform: translateX(7px);
+}
+
+.button-text {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .button-text {
+    display: inline;
+  }
+}
