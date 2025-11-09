@@ -1,5 +1,5 @@
-import {AppointmentModel}  from './models/AppointmentModel';
+import {Appointment}  from '../../utils/types';
 
 export default interface SendInterface {
-  sendMessage(AppointmentModel : AppointmentModel ): void;
+  sendMessage(AppointmentModel : Appointment ): void;
 }
