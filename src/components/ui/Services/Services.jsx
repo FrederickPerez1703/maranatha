@@ -1,17 +1,20 @@
 import React from 'react';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function Services({ openServiceModal }) {
+  const { t, language } = useLanguage();
+
   const services = [
-    { icon: '💅', title: 'Cuidado de Uñas', desc: 'Manicura, pedicura, uñas acrílicas, etc.', type: 'nails' },
-    { icon: '💇‍♀️', title: 'Peluquería Completa', desc: 'Corte, color, mechas y más', type: 'hair' },
-    { icon: '✨', title: 'Tratamientos Faciales', desc: 'Limpiezas, hidratación, anti-edad', type: 'facial' },
-    { icon: '💄', title: 'Maquillaje Profesional', desc: 'Bodas, quinceañeras y eventos', type: 'makeup' }
+    { icon: '💅', title: t('services.nails'), desc: language === 'es' ? 'Manicura, pedicura, uñas acrílicas, etc.' : 'Manicure, pedicure, acrylic nails, etc.', type: 'nails' },
+    { icon: '💇‍♀️', title: t('services.hair'), desc: language === 'es' ? 'Corte, color, mechas y más' : 'Cut, color, highlights and more', type: 'hair' },
+    { icon: '✨', title: t('services.facial'), desc: language === 'es' ? 'Limpiezas, hidratación, anti-edad' : 'Cleansing, hydration, anti-aging', type: 'facial' },
+    { icon: '💄', title: t('services.makeup'), desc: language === 'es' ? 'Bodas, quinceañeras y eventos' : 'Weddings, sweet 16s and events', type: 'makeup' }
   ];
 
   return (
     <section className="services" id="services">
       <div className="container">
-        <h2>Nuestros Servicios</h2>
+        <h2>{t('services.title')}</h2>
         <div className="services-grid">
           {services.map((s, i) => (
             <div className="service-card" key={i} onClick={() => openServiceModal(s.type)}>

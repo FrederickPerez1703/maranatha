@@ -3,6 +3,7 @@ import DashboardOverview from '../DashboardOverview/DashboardOverview';
 import AppointmentsManager from '../AppointmentsManager/AppointmentsManager';
 import ClientsManager from '../ClientsManager/ClientsManager';
 import ServicesManager from '../ServicesManager/ServicesManager';
+import InvoiceManager from '../InvoiceManager/InvoiceManager';
 import ReportsManager from '../ReportsManager/ReportsManager';
 import { useState } from 'react';
 
@@ -11,7 +12,7 @@ const Dashboard = ({ onLogout }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const renderContent = () => {
-    switch(activeSection) {
+    switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview />;
       case 'appointments':
@@ -20,6 +21,8 @@ const Dashboard = ({ onLogout }) => {
         return <ClientsManager />;
       case 'services':
         return <ServicesManager />;
+      case 'invoices':
+        return <InvoiceManager />;
       case 'reports':
         return <ReportsManager />;
       default:
@@ -28,20 +31,31 @@ const Dashboard = ({ onLogout }) => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa' }}>
-      <Sidebar 
-        activeSection={activeSection} 
-        setActiveSection={setActiveSection}
-        onLogout={onLogout}
-      />
-      <div style={{ 
-        marginLeft: '280px', 
-        flex: 1,
-        overflowY: 'auto'
-      }}>
-        {renderContent()}
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .dashboard-content {
+            margin-left: 0 !important;
+            padding-top: 70px;
+          }
+        }
+      `}</style>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa' }}>
+        <Sidebar
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          onLogout={onLogout}
+        />
+        <div className="dashboard-content" style={{
+          marginLeft: '280px',
+          flex: 1,
+          overflowY: 'auto'
+        }}>
+          {renderContent()}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
+
 export default Dashboard;

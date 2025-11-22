@@ -3,10 +3,12 @@ import Header from '../ui/HeaderSection/HeaderSection';
 import Services from '../ui/Services/Services';
 import Hero from '../ui/Hero/HeroSection';
 import Modal from '../ui/Modal/ServiceModal';
-import Contact from '../Contact';
+import ContactModal from '../ui/Modal/ContactModal';
+import Toast from '../ui/Toast/Toast';
 import '../../App.css';
 import servicesData from '../../data/servicesData';
 import Footer from '../ui/Footer/Footer';
+import { useLanguage } from '../../context/LanguageContext';
 
 
 function LandingPage() {
@@ -14,61 +16,89 @@ function LandingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [overview, setOverview] = useState(true);
-  const [ScheduleAppointment, setScheduleAppointment] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [currentService, setCurrentService] = useState(null);
   const [showBackButton, setShowBackButton] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [preSelectedService, setPreSelectedService] = useState(null);
+
+  const { language, t } = useLanguage();
+  const currentServicesData = servicesData[language] || servicesData['es'];
 
   const openServiceModal = (type) => {
-  setCurrentService(type); // <-- esto es lo importante
-  setSelectedCategory(type);
-  setModalOpen(true);
-};
+    setCurrentService(type);
+    setSelectedCategory(type);
+    setModalOpen(true);
+  };
 
- const selectedServices = servicesData[selectedCategory]?.services || [];
+  const getAllServices = () => {
+    return Object.values(currentServicesData).reduce((acc, category) => {
+      return [...acc, ...category.services];
+    }, []);
+  };
+
+  const selectedServices = selectedCategory
+    ? currentServicesData[selectedCategory]?.services || []
+    : getAllServices();
 
   const openModal = (type) => {
     if (type === 'booking') {
-      alert('¡Contacta con nosotros para reservar tu cita!');
+      setPreSelectedService(null);
+      setContactModalOpen(true);
     }
   };
 
-   const closeServiceModal = () => {
+  const closeServiceModal = () => {
     setModalOpen(false);
     setCurrentService(null);
-    setShowBackButton(true);
   };
 
-  const openModalScheduleAppointment = (service) => {
-    setScheduleAppointment(true);
-    setOverview(false);
-  }
-  const closeScheduleAppointment = () => {
-    setScheduleAppointment(false);
-    setOverview(true);
-    setShowBackButton(false);
+  const openContactModal = (specificService = null) => {
+    setPreSelectedService(specificService);
+    setContactModalOpen(true);
+    setModalOpen(false);
+  };
+
+  const closeContactModal = () => {
+    setContactModalOpen(false);
+    setPreSelectedService(null);
+  };
+
+  const handleBookingSuccess = () => {
+    setShowToast(true);
   };
 
   return (
     <>
-        <Header openModal={openModal} 
-        closeScheduleAppointment={closeScheduleAppointment}
-        showBackButton = {showBackButton} />
-        {overview && (
-            <>
-            <Hero />
-            <Services openServiceModal={openServiceModal} />
-            <Modal 
-                isOpen={modalOpen} 
-                serviceType={currentService}
-                onClose={closeServiceModal}
-                openScheduleAppointment={openModalScheduleAppointment}
-            />
-            <Footer />
-            </>  
-        )}
-        {ScheduleAppointment && (
-            <Contact services={selectedServices} />
-        )}
+      <Header
+        openModal={openModal}
+        closeScheduleAppointment={closeContactModal}
+        showBackButton={showBackButton}
+        openScheduleAppointment={openContactModal}
+      />
+      <Hero />
+      <Services openServiceModal={openServiceModal} />
+      <Modal
+        isOpen={modalOpen}
+        serviceType={currentService}
+        onClose={closeServiceModal}
+        openScheduleAppointment={openContactModal}
+      />
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={closeContactModal}
+        services={selectedServices}
+        onSuccess={handleBookingSuccess}
+        preSelectedService={preSelectedService}
+      />
+      <Toast
+        title={t('contactModal.successTitle')}
+        message={t('contactModal.successMessage')}
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+        type="success"
+      />
+      <Footer />
     </>
   );
 }
