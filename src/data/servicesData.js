@@ -5,13 +5,13 @@ const servicesData = {
       title: "Cuidado de Uñas",
       subtitle: "Transformamos tus manos y pies con técnicas profesionales",
       services: [
-        { name: "Manicura Clásica", price: "$25" },
-        { name: "Manicura Francesa", price: "$30" },
-        { name: "Uñas Acrílicas", price: "$45" },
-        { name: "Gel Polish", price: "$35" },
-        { name: "Nail Art Personalizado", price: "$50" },
-        { name: "Pedicura Spa", price: "$40" },
-        { name: "Pedicura + Manicura", price: "$60" }
+        { name: "Manicura Clásica" },
+        { name: "Manicura Francesa" },
+        { name: "Uñas Acrílicas" },
+        { name: "Gel Polish" },
+        { name: "Nail Art Personalizado" },
+        { name: "Pedicura Spa" },
+        { name: "Pedicura + Manicura" }
       ],
       benefits: [
         { icon: "✨", title: "Duración", desc: "Hasta 3 semanas" },
@@ -27,13 +27,13 @@ const servicesData = {
       title: "Peluquería Completa",
       subtitle: "Cortes modernos y tratamientos capilares de primera calidad",
       services: [
-        { name: "Corte de Cabello", price: "$30" },
-        { name: "Lavado + Peinado", price: "$20" },
-        { name: "Coloración Completa", price: "$80" },
-        { name: "Mechas/Highlights", price: "$120" },
-        { name: "Tratamiento Keratina", price: "$150" },
-        { name: "Peinado Especial", price: "$50" },
-        { name: "Extensiones", price: "$200" }
+        { name: "Corte de Cabello" },
+        { name: "Lavado + Peinado" },
+        { name: "Coloración Completa" },
+        { name: "Mechas/Highlights" },
+        { name: "Tratamiento Keratina" },
+        { name: "Peinado Especial" },
+        { name: "Extensiones" }
       ],
       benefits: [
         { icon: "✂️", title: "Técnicas", desc: "Modernas" },
@@ -49,13 +49,13 @@ const servicesData = {
       title: "Tratamientos Faciales",
       subtitle: "Cuidado profesional para una piel radiante y saludable",
       services: [
-        { name: "Limpieza Facial Básica", price: "$40" },
-        { name: "Limpieza Profunda", price: "$60" },
-        { name: "Facial Hidratante", price: "$55" },
-        { name: "Tratamiento Anti-edad", price: "$80" },
-        { name: "Peeling Químico", price: "$100" },
-        { name: "Mascarilla de Oro", price: "$120" },
-        { name: "Microdermoabrasión", price: "$90" }
+        { name: "Limpieza Facial Básica" },
+        { name: "Limpieza Profunda" },
+        { name: "Facial Hidratante" },
+        { name: "Tratamiento Anti-edad" },
+        { name: "Peeling Químico" },
+        { name: "Mascarilla de Oro" },
+        { name: "Microdermoabrasión" }
       ],
       benefits: [
         { icon: "🌸", title: "Renovación", desc: "Celular" },
@@ -71,13 +71,13 @@ const servicesData = {
       title: "Maquillaje Profesional",
       subtitle: "Resalta tu belleza natural para ocasiones especiales",
       services: [
-        { name: "Maquillaje de Día", price: "$35" },
-        { name: "Maquillaje de Noche", price: "$50" },
-        { name: "Maquillaje de Novia", price: "$100" },
-        { name: "Maquillaje XV Años", price: "$80" },
-        { name: "Maquillaje Graduación", price: "$60" },
-        { name: "Prueba de Maquillaje", price: "$40" },
-        { name: "Clase de Automaquillaje", price: "$70" }
+        { name: "Maquillaje de Día" },
+        { name: "Maquillaje de Noche" },
+        { name: "Maquillaje de Novia" },
+        { name: "Maquillaje XV Años" },
+        { name: "Maquillaje Graduación" },
+        { name: "Prueba de Maquillaje" },
+        { name: "Clase de Automaquillaje" }
       ],
       benefits: [
         { icon: "🎨", title: "Técnicas", desc: "Profesionales" },
@@ -95,13 +95,13 @@ const servicesData = {
       title: "Nail Care",
       subtitle: "Transform your hands and feet with professional techniques",
       services: [
-        { name: "Classic Manicure", price: "$25" },
-        { name: "French Manicure", price: "$30" },
-        { name: "Acrylic Nails", price: "$45" },
-        { name: "Gel Polish", price: "$35" },
-        { name: "Custom Nail Art", price: "$50" },
-        { name: "Spa Pedicure", price: "$40" },
-        { name: "Pedicure + Manicure", price: "$60" }
+        { name: "Classic Manicure" },
+        { name: "French Manicure" },
+        { name: "Acrylic Nails" },
+        { name: "Gel Polish" },
+        { name: "Custom Nail Art" },
+        { name: "Spa Pedicure" },
+        { name: "Pedicure + Manicure" }
       ],
       benefits: [
         { icon: "✨", title: "Duration", desc: "Up to 3 weeks" },
@@ -117,13 +117,13 @@ const servicesData = {
       title: "Full Hair Salon",
       subtitle: "Modern cuts and premium hair treatments",
       services: [
-        { name: "Haircut", price: "$30" },
-        { name: "Wash + Style", price: "$20" },
-        { name: "Full Color", price: "$80" },
-        { name: "Highlights", price: "$120" },
-        { name: "Keratin Treatment", price: "$150" },
-        { name: "Special Styling", price: "$50" },
-        { name: "Extensions", price: "$200" }
+        { name: "Haircut" },
+        { name: "Wash + Style" },
+        { name: "Full Color" },
+        { name: "Highlights" },
+        { name: "Keratin Treatment" },
+        { name: "Special Styling" },
+        { name: "Extensions" }
       ],
       benefits: [
         { icon: "✂️", title: "Techniques", desc: "Modern" },
@@ -139,13 +139,13 @@ const servicesData = {
       title: "Facial Treatments",
       subtitle: "Professional care for radiant and healthy skin",
       services: [
-        { name: "Basic Facial Cleaning", price: "$40" },
-        { name: "Deep Cleaning", price: "$60" },
-        { name: "Hydrating Facial", price: "$55" },
-        { name: "Anti-aging Treatment", price: "$80" },
-        { name: "Chemical Peel", price: "$100" },
-        { name: "Gold Mask", price: "$120" },
-        { name: "Microdermabrasion", price: "$90" }
+        { name: "Basic Facial Cleaning" },
+        { name: "Deep Cleaning" },
+        { name: "Hydrating Facial" },
+        { name: "Anti-aging Treatment" },
+        { name: "Chemical Peel" },
+        { name: "Gold Mask" },
+        { name: "Microdermabrasion" }
       ],
       benefits: [
         { icon: "🌸", title: "Renewal", desc: "Cellular" },
@@ -161,13 +161,13 @@ const servicesData = {
       title: "Professional Makeup",
       subtitle: "Highlight your natural beauty for special occasions",
       services: [
-        { name: "Day Makeup", price: "$35" },
-        { name: "Night Makeup", price: "$50" },
-        { name: "Bridal Makeup", price: "$100" },
-        { name: "Sweet 16 Makeup", price: "$80" },
-        { name: "Graduation Makeup", price: "$60" },
-        { name: "Makeup Trial", price: "$40" },
-        { name: "Self-makeup Class", price: "$70" }
+        { name: "Day Makeup" },
+        { name: "Night Makeup" },
+        { name: "Bridal Makeup" },
+        { name: "Sweet 16 Makeup" },
+        { name: "Graduation Makeup" },
+        { name: "Makeup Trial" },
+        { name: "Self-makeup Class" }
       ],
       benefits: [
         { icon: "🎨", title: "Techniques", desc: "Professional" },

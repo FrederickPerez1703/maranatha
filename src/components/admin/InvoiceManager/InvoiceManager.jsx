@@ -3,11 +3,9 @@ import { Printer, Calendar, User, Search, Plus, X, Edit2 } from 'lucide-react';
 import servicesData from '../../../data/servicesData';
 
 const InvoiceManager = () => {
+    // Extract only service names since prices are now manually entered
     const allServices = Object.values(servicesData.es).flatMap(category =>
-        category.services.map(service => ({
-            name: service.name,
-            price: parseFloat(service.price.replace('$', ''))
-        }))
+        category.services.map(service => service.name)
     );
 
     const [invoices, setInvoices] = useState([
@@ -471,8 +469,8 @@ const InvoiceManager = () => {
                                     }}
                                 >
                                     <option value="">Servicio...</option>
-                                    {allServices.map((service, idx) => (
-                                        <option key={idx} value={service.name}>{service.name}</option>
+                                    {allServices.map((serviceName, idx) => (
+                                        <option key={idx} value={serviceName}>{serviceName}</option>
                                     ))}
                                 </select>
                                 <input
