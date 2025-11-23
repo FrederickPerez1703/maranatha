@@ -7,7 +7,7 @@ import ContactModal from '../ui/Modal/ContactModal';
 import Toast from '../ui/Toast/Toast';
 import '../../App.css';
 import servicesData from '../../data/servicesData';
-import Footer from '../ui/Footer/footer';
+import Footer from '../ui/Footer/Footer';
 import { useLanguage } from '../../context/LanguageContext';
 
 
