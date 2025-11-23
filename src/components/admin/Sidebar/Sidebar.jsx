@@ -58,7 +58,7 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
         style={{
           position: 'fixed',
           top: '20px',
-          left: '20px',
+          right: '20px',
           zIndex: 1001,
           background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
           border: 'none',

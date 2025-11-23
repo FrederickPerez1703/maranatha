@@ -455,17 +455,20 @@ const InvoiceManager = () => {
 
                         <div style={{ marginBottom: '20px' }}>
                             <label style={{ display: 'block', marginBottom: '12px', fontWeight: '500', color: '#374151' }}>Servicios *</label>
-                            <div className="service-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: '8px', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
                                 <select
                                     value={selectedService}
                                     onChange={(e) => setSelectedService(e.target.value)}
                                     style={{
+                                        flex: '1 1 100%',
+                                        minWidth: '200px',
                                         padding: '10px',
                                         border: '2px solid #e5e7eb',
                                         borderRadius: '8px',
                                         fontSize: '14px',
                                         outline: 'none',
-                                        background: 'white'
+                                        background: 'white',
+                                        boxSizing: 'border-box'
                                     }}
                                 >
                                     <option value="">Servicio...</option>
@@ -481,11 +484,14 @@ const InvoiceManager = () => {
                                     value={servicePrice}
                                     onChange={(e) => setServicePrice(e.target.value)}
                                     style={{
+                                        flex: '1 1 calc(50% - 4px)',
+                                        minWidth: '120px',
                                         padding: '10px',
                                         border: '2px solid #e5e7eb',
                                         borderRadius: '8px',
                                         fontSize: '14px',
-                                        outline: 'none'
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
                                     }}
                                 />
                                 <input
@@ -495,17 +501,21 @@ const InvoiceManager = () => {
                                     value={serviceQuantity}
                                     onChange={(e) => setServiceQuantity(parseInt(e.target.value) || 1)}
                                     style={{
+                                        flex: '1 1 calc(50% - 4px)',
+                                        minWidth: '100px',
                                         padding: '10px',
                                         border: '2px solid #e5e7eb',
                                         borderRadius: '8px',
                                         fontSize: '14px',
-                                        outline: 'none'
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
                                     }}
                                 />
                                 <button
                                     onClick={handleAddService}
                                     disabled={!selectedService || !servicePrice}
                                     style={{
+                                        flex: '1 1 100%',
                                         padding: '10px 16px',
                                         background: (selectedService && servicePrice) ? 'linear-gradient(135deg, #ff6b9d, #ff8fab)' : '#e5e7eb',
                                         color: 'white',
@@ -515,7 +525,7 @@ const InvoiceManager = () => {
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    +
+                                    Agregar Servicio
                                 </button>
                             </div>
 

@@ -1,6 +1,6 @@
-import  SendInterface  from './SendInterface';
-import { Appointment} from '../../utils/types';
-import {splitFullName , formatDate} from '../../utils/date';
+import SendInterface from './SendInterface';
+import { Appointment } from '../../utils/types';
+import { splitFullName, formatDate } from '../../utils/date';
 
 const PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE;
 const URL = import.meta.env.VITE_API_URL;
@@ -11,8 +11,8 @@ export default class SendService implements SendInterface {
    * Envia un mensaje de WhatsApp con los detalles de la cita.
    * @param appointmentModel - Modelo de cita que contiene los detalles del cliente y el servicio.
    */
-  sendMessage(Appointment: Appointment ): void {
-   const message = `
+  sendMessage(Appointment: Appointment): void {
+    const message = `
        ✅*¡Cita Agendada!*
            Hemos recibido tu solicitud de cita para *${Appointment.service.name}* (${Appointment.service.price})
        🗓️ *Fecha:* ${formatDate(Appointment.date, Appointment.time)}
@@ -20,8 +20,14 @@ export default class SendService implements SendInterface {
        📧 *Email:*  ${Appointment.email}
        📞 *Teléfono:* ${Appointment.phone}
        Te contactaremos pronto para confirmar tu cita.`.trim();
-   
-    const url = `${URL}/send?phone=${PHONE_NUMBER}}&text=${encodeURIComponent(message)}`;
+
+    // Detectar si es un dispositivo móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Usar wa.me para móviles (funciona mejor) y api.whatsapp.com para escritorio
+    const baseUrl = isMobile ? 'https://wa.me' : (URL || 'https://api.whatsapp.com');
+    const url = `${baseUrl}/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(message)}`;
+
     window.open(url, '_blank');
   }
 }

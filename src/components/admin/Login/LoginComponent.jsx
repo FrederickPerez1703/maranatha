@@ -16,8 +16,8 @@ const LoginComponent = ({ onLogin }) => {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       background: 'linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffd6e8 100%)',
       display: 'flex',
       alignItems: 'center',
@@ -35,9 +35,9 @@ const LoginComponent = ({ onLogin }) => {
       }}>
         <div style={{ marginBottom: '30px' }}>
           <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🌸</div>
-          <h1 style={{ 
-            color: '#ff6b9d', 
-            fontSize: '24px', 
+          <h1 style={{
+            color: '#ff6b9d',
+            fontSize: '24px',
             fontWeight: 'bold',
             marginBottom: '8px'
           }}>
@@ -61,7 +61,8 @@ const LoginComponent = ({ onLogin }) => {
                 fontSize: '16px',
                 outline: 'none',
                 transition: 'all 0.3s ease',
-                background: '#f9f9f9'
+                background: '#f9f9f9',
+                boxSizing: 'border-box'
               }}
               onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
               onBlur={(e) => e.target.style.borderColor = '#f0f0f0'}
@@ -86,7 +87,8 @@ const LoginComponent = ({ onLogin }) => {
                 fontSize: '16px',
                 outline: 'none',
                 transition: 'all 0.3s ease',
-                background: '#f9f9f9'
+                background: '#f9f9f9',
+                boxSizing: 'border-box'
               }}
               onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
               onBlur={(e) => e.target.style.borderColor = '#f0f0f0'}
@@ -98,8 +100,8 @@ const LoginComponent = ({ onLogin }) => {
             />
           </div>
           {error && (
-            <div style={{ 
-              color: '#ff4444', 
+            <div style={{
+              color: '#ff4444',
               fontSize: '14px',
               padding: '10px',
               background: '#fff0f0',
