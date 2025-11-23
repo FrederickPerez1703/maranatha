@@ -1,8 +1,8 @@
-import LandingPage from './components/home/landingpage';
+import LandingPage from './components/home/Landingpage';
 
 function App() {
   return (
-      <LandingPage />
+    <LandingPage />
   );
 }
 
