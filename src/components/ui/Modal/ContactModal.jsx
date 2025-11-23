@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Scissors, User, Mail, Phone, CheckCircle } from 'lucide-react';
 import SendService from '../../../services/send/SendService';
 import { useLanguage } from '../../../context/LanguageContext';
+import confetti from 'canvas-confetti';
 
 export default function ContactModal({ isOpen, onClose, services, onSuccess, preSelectedService }) {
     const { t, language } = useLanguage();
@@ -49,6 +50,62 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
         return options;
     };
 
+    // Función para disparar confeti (4 segundos)
+    const fireConfetti = () => {
+        const duration = 4000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                colors: ['#ff6b9d', '#ff8fab', '#ffc0cb', '#ff1493', '#ff69b4']
+            });
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                colors: ['#ff6b9d', '#ff8fab', '#ffc0cb', '#ff1493', '#ff69b4']
+            });
+        }, 250);
+    };
+
+    // Función para cerrar el modal
+    const handleClose = () => {
+        if (isSubmitted) {
+            // Disparar confeti
+            fireConfetti();
+            // Notificar al padre para mostrar el toast
+            if (onSuccess) onSuccess();
+        }
+
+        // Cerrar el modal y resetear
+        onClose();
+        setIsSubmitted(false);
+        setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            service: { name: "", price: "" },
+            date: '',
+            time: ''
+        });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -59,23 +116,9 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
         setTimeout(() => {
             setIsLoading(false);
             setIsSubmitted(true);
-
-            // Notificar al padre para mostrar el toast
-            if (onSuccess) onSuccess();
-
-            // Cerrar modal después de mostrar el mensaje de éxito
-            setTimeout(() => {
-                onClose();
-                setIsSubmitted(false);
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    service: { name: "", price: "" },
-                    date: '',
-                    time: ''
-                });
-            }, 2000); // Cerrar modal después de 2 segundos
+            // YA NO cerramos el modal automáticamente
+            // YA NO mostramos la notificación aquí
+            // El usuario debe cerrar manualmente con el botón X
         }, 1000);
     };
 
@@ -147,7 +190,7 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
 
                 {/* Close Button */}
                 <button
-                    onClick={onClose}
+                    onClick={handleClose}
                     style={{
                         position: 'absolute',
                         top: '20px',

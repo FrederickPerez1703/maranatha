@@ -598,45 +598,106 @@
      position: fixed;
      top: 1.5rem;
      /* equivalente a Tailwind top-6 */
-     left: 1.5rem;
-     /* equivalente a Tailwind left-6 */
-     z-index: 50;
  }
 
- .back-button {
-     background: #ff6b9d;
-     color: white;
-     padding: 18px 36px;
-     border-radius: 50px;
-     text-decoration: none;
-     font-weight: bold;
-     font-size: 1.1rem;
-     display: inline-flex;
-     align-items: center;
-     gap: 10px;
-     transition: all 0.3s ease;
-     animation: fadeInUp 1s ease-out 0.4s both;
+ body.dark header {
+     background: #2c3e50;
+     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+     border-bottom: 1px solid #34495e;
  }
 
- .back-button:hover {
-     transform: translateY(-3px);
+ body.dark .hero {
+     background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #3d5a73 100%);
  }
 
- .back-button::before {
-     content: "←";
-     transition: transform 0.3s ease;
+ body.dark .services {
+     background: #2c3e50;
  }
 
- .back-button:hover::before {
-     transform: translateX(7px);
+ body.dark .service-card {
+     background: #1a1a1a;
+     border-color: #34495e;
+     color: #ecf0f1;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
  }
 
- .button-text {
-     display: none;
+ body.dark .service-card:hover {
+     border-color: #ff6b9d;
+     background: #222;
+     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
  }
 
- @media (min-width: 640px) {
-     .button-text {
-         display: inline;
-     }
+ body.dark .service-card h3 {
+     color: #ff6b9d;
+ }
+
+ body.dark .service-card p {
+     color: #bdc3c7;
+ }
+
+ body.dark .beauty-item {
+     background: rgba(26, 26, 26, 0.95);
+     border-color: #34495e;
+ }
+
+ body.dark .beauty-item h3 {
+     color: #ff6b9d;
+ }
+
+ body.dark .beauty-item p {
+     color: #bdc3c7;
+ }
+
+ body.dark .mobile-menu {
+     background: #2c3e50;
+     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+     border-bottom: 1px solid #34495e;
+ }
+
+ body.dark .mobile-menu a {
+     color: #ecf0f1;
+ }
+
+ body.dark .mobile-menu a:hover {
+     background: #34495e;
+     color: #ff6b9d;
+ }
+
+ body.dark .modal-content {
+     background: #2c3e50;
+     color: #ecf0f1;
+     border: 1px solid #34495e;
+ }
+
+ body.dark .modal-header {
+     background: #1a1a1a;
+     border-bottom: 1px solid #34495e;
+ }
+
+ body.dark .modal-body {
+     background: #2c3e50;
+ }
+
+ body.dark .service-list li {
+     border-bottom-color: #34495e;
+     color: #ecf0f1;
+ }
+
+ body.dark .benefit-item {
+     background: #1a1a1a;
+     color: #ecf0f1;
+     border-color: #34495e;
+ }
+
+ body.dark .modal-footer {
+     background: #1a1a1a;
+     border-top: 1px solid #34495e;
+ }
+
+ body.dark .close-modal {
+     background: rgba(255, 255, 255, 0.1);
+ }
+
+ body.dark .close-modal:hover {
+     background: rgba(255, 255, 255, 0.2);
  }

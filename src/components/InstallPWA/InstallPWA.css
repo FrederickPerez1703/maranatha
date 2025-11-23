@@ -1,0 +1,126 @@
+.install-pwa-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: 500px;
+    width: calc(100% - 40px);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.install-pwa-content {
+    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(255, 107, 157, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.install-pwa-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.install-pwa-text {
+    flex: 1;
+}
+
+.install-pwa-text h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.install-pwa-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+.install-pwa-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.install-pwa-button {
+    background: white;
+    color: #ff6b9d;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.install-pwa-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.install-pwa-dismiss {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.install-pwa-dismiss:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 600px) {
+    .install-pwa-banner {
+        bottom: 10px;
+        width: calc(100% - 20px);
+    }
+
+    .install-pwa-content {
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .install-pwa-icon {
+        font-size: 2rem;
+    }
+
+    .install-pwa-text h3 {
+        font-size: 1rem;
+    }
+
+    .install-pwa-text p {
+        font-size: 0.85rem;
+    }
+
+    .install-pwa-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}

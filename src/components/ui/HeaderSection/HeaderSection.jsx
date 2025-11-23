@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
 
 export default function HeaderSection({ openModal, showBackButton, closeScheduleAppointment, openScheduleAppointment }) {
   const [scrolled, setScrolled] = useState(false);
@@ -55,7 +56,8 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
                 <li><a href="#" className="cta-button" onClick={handleReservarClick}>{t('header.bookNow')}</a></li>
               </ul>
               <div className="desktop-lang-switcher">
-                <LanguageSwitcher />
+                <LanguageSwitcher /><ThemeSwitcher />
+
               </div>
             </div>
 
@@ -65,7 +67,7 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? '✕' : '☰'}
+              {mobileMenuOpen ? <span style={{ color: '#333' }}>✕</span> : '☰'}
             </button>
           </nav>
 
@@ -74,8 +76,9 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
             <div className="mobile-menu">
               <a href="#home" onClick={() => scrollToSection('home')}>{t('header.home')}</a>
               <a href="#services" onClick={() => scrollToSection('services')}>{t('header.services')}</a>
-              <div style={{ padding: '10px 20px' }}>
-                <LanguageSwitcher />
+              <div style={{ padding: '10px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <LanguageSwitcher mobile={true} />
+                <ThemeSwitcher mobile={true} />
               </div>
               <a href="#" className="mobile-cta-button" onClick={handleReservarClick}>{t('header.bookNow')}</a>
             </div>
@@ -83,9 +86,96 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
         </header>
       )}
       <style>{`
+        /* Botón de menú móvil */
+        .mobile-menu-button {
+          display: none;
+          background: rgba(255, 255, 255, 0.9);
+          border: 2px solid #ff6b9d;
+          font-size: 32px;
+          color: #ff6b9d;
+          cursor: pointer;
+          padding: 8px 12px;
+          z-index: 1001;
+          border-radius: 8px;
+          line-height: 1;
+          font-weight: bold;
+        }
+
+        /* Menú móvil desplegable */
+        .mobile-menu {
+          display: none;
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: white;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+          flex-direction: column;
+          padding: 20px 0;
+        }
+
+        .mobile-menu a {
+          padding: 15px 30px;
+          color: #333;
+          text-decoration: none;
+          font-weight: 500;
+          transition: background 0.3s ease;
+        }
+
+        .mobile-menu a:hover {
+          background: #f9f9f9;
+        }
+
+        .mobile-cta-button {
+          background: linear-gradient(135deg, #ff6b9d, #ff8fab) !important;
+          color: white !important;
+          margin: 10px 20px;
+          padding: 12px 24px !important;
+          border-radius: 25px;
+          text-align: center;
+          font-weight: bold;
+        }
+
         @media (max-width: 768px) {
+          /* Ocultar navegación de escritorio */
+          .nav-links {
+            display: none !important;
+          }
+
+          /* Mostrar botón de menú móvil */
+          .mobile-menu-button {
+            display: block !important;
+          }
+
+          /* Mostrar menú móvil cuando está abierto */
+          .mobile-menu {
+            display: flex !important;
+          }
+
+          /* Ocultar language switcher de escritorio */
           .desktop-lang-switcher {
             display: none;
+          }
+        }
+
+        @media (min-width: 769px) {
+          /* Ocultar elementos móviles en escritorio */
+          .mobile-menu-button {
+            display: none !important;
+          }
+
+          .mobile-menu {
+            display: none !important;
+          }
+
+          /* Mostrar botones en línea horizontal en desktop */
+          .desktop-lang-switcher {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            margin-left: 20px;
           }
         }
       `}</style>
