@@ -1,6 +1,6 @@
 import SendInterface from './SendInterface';
 import { Appointment } from '../../utils/types';
-import { splitFullName, formatDate } from '../../utils/date';
+import { formatDate } from '../../utils/date';
 
 const PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_PHONE;
 const URL = import.meta.env.VITE_API_URL;
@@ -16,7 +16,7 @@ export default class SendService implements SendInterface {
        ✅*¡Cita Agendada!*
            Hemos recibido tu solicitud de cita para *${Appointment.service.name}* (${Appointment.service.price})
        🗓️ *Fecha:* ${formatDate(Appointment.date, Appointment.time)}
-       👤 *Cliente:* ${splitFullName(Appointment.name)}
+       👤 *Cliente:* ${Appointment.name}
        📧 *Email:*  ${Appointment.email}
        📞 *Teléfono:* ${Appointment.phone}
        Te contactaremos pronto para confirmar tu cita.`.trim();
