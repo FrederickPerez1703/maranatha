@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './components/home/Landingpage';
+import LandingPage from './components/home/landingpage';
 import Dashboard from './components/admin/Dashboard/Dashboard';
 
 function App() {
