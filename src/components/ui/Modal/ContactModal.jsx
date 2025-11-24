@@ -26,6 +26,8 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
 
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isClosed, setIsClosed] = useState(false);
+    const [availableTimes, setAvailableTimes] = useState([]);
 
     const sendService = new SendService();
 
@@ -34,10 +36,49 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
         return new Date(year, month - 1, day);
     };
 
-    const generateTimeOptions = () => {
+    // Verificar si el salón está cerrado
+    const checkIfClosed = (selectedDate) => {
+        if (!selectedDate) return false;
+
+        const now = new Date();
+        const selected = getLocalDateFromInput(selectedDate);
+        const isToday = selected.toDateString() === now.toDateString();
+
+        if (isToday) {
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTimeInMinutes = currentHour * 60 + currentMinutes;
+            const closingTime = 18 * 60 + 30; // 6:30 PM
+
+            return currentTimeInMinutes >= closingTime;
+        }
+
+        return false;
+    };
+
+    // Generar opciones de tiempo disponibles
+    const generateTimeOptions = (selectedDate) => {
         const options = [];
+        const now = new Date();
+        const selected = selectedDate ? getLocalDateFromInput(selectedDate) : null;
+        const isToday = selected && selected.toDateString() === now.toDateString();
+
+        const currentHour = now.getHours();
+        const currentMinutes = now.getMinutes();
+
         for (let hour = 9; hour < 19; hour++) {
             for (let min = 0; min < 60; min += 30) {
+                // Si es hoy, filtrar horas que ya pasaron
+                if (isToday) {
+                    const timeInMinutes = hour * 60 + min;
+                    const currentTimeInMinutes = currentHour * 60 + currentMinutes;
+
+                    // Agregar 30 minutos de buffer para preparación
+                    if (timeInMinutes <= currentTimeInMinutes + 30) {
+                        continue; // Saltar esta hora
+                    }
+                }
+
                 const hour12 = hour % 12 === 0 ? 12 : hour % 12;
                 const period = hour < 12 ? 'AM' : 'PM';
                 const formattedHour = hour.toString().padStart(2, '0');
@@ -47,8 +88,30 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                 options.push(<option key={value} value={value}>{label}</option>);
             }
         }
+
         return options;
     };
+
+    // Actualizar horarios disponibles cuando cambia la fecha
+    useEffect(() => {
+        if (formData.date) {
+            const closed = checkIfClosed(formData.date);
+            setIsClosed(closed);
+
+            if (!closed) {
+                const times = generateTimeOptions(formData.date);
+                setAvailableTimes(times);
+
+                // Si no hay horas disponibles, resetear la hora seleccionada
+                if (times.length === 0) {
+                    setFormData(prev => ({ ...prev, time: '' }));
+                }
+            } else {
+                setAvailableTimes([]);
+                setFormData(prev => ({ ...prev, time: '' }));
+            }
+        }
+    }, [formData.date]);
 
     // Función para disparar confeti (4 segundos)
     const fireConfetti = () => {
@@ -517,30 +580,71 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                                         }}>
                                             {t('contactModal.time')} *
                                         </label>
-                                        <select
-                                            value={formData.time}
-                                            onChange={(e) => handleInputChange('time', e.target.value)}
-                                            required
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 10px',
-                                                border: '1px solid #d1d5db',
+                                        {isClosed ? (
+                                            <div style={{
+                                                padding: '12px 16px',
+                                                border: '2px solid #fbbf24',
                                                 borderRadius: '8px',
-                                                fontSize: '16px',
-                                                backgroundColor: 'white',
-                                                outline: 'none'
-                                            }}
-                                            onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                        >
-                                            <option value="">{t('contactModal.selectTime')}</option>
-                                            {generateTimeOptions()}
-                                        </select>
+                                                backgroundColor: '#fef3c7',
+                                                textAlign: 'center'
+                                            }}>
+                                                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#92400e' }}>
+                                                    🕐 {language === 'es' ? 'Estamos Cerrados' : 'We are Closed'}
+                                                </p>
+                                                <p style={{ margin: 0, fontSize: '12px', color: '#78350f' }}>
+                                                    {language === 'es'
+                                                        ? 'Por favor, agenda tu cita para mañana'
+                                                        : 'Please schedule your appointment for tomorrow'}
+                                                </p>
+                                            </div>
+                                        ) : availableTimes.length === 0 && formData.date ? (
+                                            <div style={{
+                                                padding: '12px 16px',
+                                                border: '2px solid #fbbf24',
+                                                borderRadius: '8px',
+                                                backgroundColor: '#fef3c7',
+                                                textAlign: 'center'
+                                            }}>
+                                                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#92400e' }}>
+                                                    ⏰ {language === 'es' ? 'No hay horarios disponibles hoy' : 'No times available today'}
+                                                </p>
+                                                <p style={{ margin: 0, fontSize: '12px', color: '#78350f' }}>
+                                                    {language === 'es'
+                                                        ? 'Por favor, selecciona otro día'
+                                                        : 'Please select another day'}
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <select
+                                                value={formData.time}
+                                                onChange={(e) => handleInputChange('time', e.target.value)}
+                                                required
+                                                disabled={!formData.date || isClosed}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 10px',
+                                                    border: '1px solid #d1d5db',
+                                                    borderRadius: '8px',
+                                                    fontSize: '16px',
+                                                    backgroundColor: (!formData.date || isClosed) ? '#f3f4f6' : 'white',
+                                                    outline: 'none',
+                                                    cursor: (!formData.date || isClosed) ? 'not-allowed' : 'pointer',
+                                                    opacity: (!formData.date || isClosed) ? 0.6 : 1
+                                                }}
+                                                onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
+                                                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                                            >
+                                                <option value="">{t('contactModal.selectTime')}</option>
+                                                {availableTimes}
+                                            </select>
+                                        )}
                                     </div>
                                 </div>
-                                <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-                                    ⏰ {t('contactModal.businessHours')}: 9:00 AM - 6:30 PM
-                                </p>
+                                {!isClosed && (
+                                    <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                                        ⏰ {t('contactModal.businessHours')}: 9:00 AM - 6:30 PM
+                                    </p>
+                                )}
                             </div>
 
                             {/* Botón de envío */}

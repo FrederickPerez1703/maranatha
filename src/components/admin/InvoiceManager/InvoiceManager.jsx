@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Printer, Calendar, User, Search, Plus, X, Edit2 } from 'lucide-react';
 import servicesData from '../../../data/servicesData';
 
@@ -8,21 +8,37 @@ const InvoiceManager = () => {
         category.services.map(service => service.name)
     );
 
-    const [invoices, setInvoices] = useState([
-        {
-            id: 'INV-001',
-            date: '2024-01-15',
-            clientName: 'María García',
-            services: [
-                { name: 'Manicura Francesa', price: 30, quantity: 1 },
-                { name: 'Pedicura Spa', price: 40, quantity: 1 }
-            ],
-            subtotal: 70,
-            tax: 11.9,
-            total: 81.9,
-            status: 'paid'
+    const [invoices, setInvoices] = useState(() => {
+        // Cargar facturas desde localStorage
+        const saved = localStorage.getItem('maranatha-invoices');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Error loading invoices:', e);
+            }
         }
-    ]);
+        // Datos de ejemplo si no hay nada guardado
+        return [
+            {
+                id: 'INV-001',
+                date: '2024-01-15',
+                clientName: 'María García',
+                services: [
+                    { name: 'Manicura Francesa', price: 30, quantity: 1 },
+                    { name: 'Pedicura Spa', price: 40, quantity: 1 }
+                ],
+                subtotal: 70,
+                total: 70,
+                status: 'paid'
+            }
+        ];
+    });
+
+    // Guardar facturas en localStorage cada vez que cambien
+    useEffect(() => {
+        localStorage.setItem('maranatha-invoices', JSON.stringify(invoices));
+    }, [invoices]);
 
     const [showModal, setShowModal] = useState(false);
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -113,10 +129,6 @@ const InvoiceManager = () => {
               <span>SUBTOTAL:</span>
               <span>$${invoice.subtotal.toFixed(2)}</span>
             </div>
-            <div class="flex" style="margin-bottom: 6px;">
-              <span>ITBIS (17%):</span>
-              <span>$${invoice.tax.toFixed(2)}</span>
-            </div>
             <div class="total-line">
               <div class="flex bold">
                 <span>TOTAL:</span>
@@ -198,16 +210,15 @@ const InvoiceManager = () => {
 
     const calculateTotal = () => {
         const subtotal = formData.services.reduce((sum, s) => sum + s.price * s.quantity, 0);
-        const tax = subtotal * 0.17;
-        return { subtotal, tax, total: subtotal + tax };
+        return { subtotal, total: subtotal };
     };
 
     const handleSave = () => {
-        const { subtotal, tax, total } = calculateTotal();
+        const { subtotal, total } = calculateTotal();
         if (editingInvoice) {
             setInvoices(invoices.map(inv =>
                 inv.id === editingInvoice.id
-                    ? { ...inv, ...formData, subtotal, tax, total }
+                    ? { ...inv, ...formData, subtotal, total }
                     : inv
             ));
         } else {
@@ -216,7 +227,6 @@ const InvoiceManager = () => {
                 date: new Date().toISOString().split('T')[0],
                 ...formData,
                 subtotal,
-                tax,
                 total,
                 status: 'pending'
             };
@@ -251,6 +261,23 @@ const InvoiceManager = () => {
                             💰 Gestión de Facturas
                         </h1>
                         <p style={{ color: '#6b7280', marginTop: '5px', margin: 0 }}>Crea, gestiona e imprime facturas</p>
+
+                        {/* Total General */}
+                        <div style={{
+                            marginTop: '15px',
+                            padding: '12px 20px',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            borderRadius: '12px',
+                            display: 'inline-block',
+                            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                        }}>
+                            <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', fontWeight: '500', marginBottom: '4px' }}>
+                                Total Generado ({invoices.filter(inv => inv.status === 'paid').length} facturas pagadas)
+                            </div>
+                            <div style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+                                ${invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
+                            </div>
+                        </div>
                     </div>
                     <button
                         onClick={openCreateModal}
