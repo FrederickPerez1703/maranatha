@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Scissors, User, Mail, Phone, CheckCircle } from 'lucide-react';
+import { Calendar, Scissors, User, Phone, CheckCircle } from 'lucide-react';
 import SendService from '../../../services/send/SendService';
 import { useLanguage } from '../../../context/LanguageContext';
 import confetti from 'canvas-confetti';
@@ -8,7 +8,6 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
     const { t, language } = useLanguage();
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
         phone: '',
         service: { name: "", price: "" },
         date: '',
@@ -161,7 +160,6 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
         setIsSubmitted(false);
         setFormData({
             name: '',
-            email: '',
             phone: '',
             service: { name: "", price: "" },
             date: '',
@@ -389,88 +387,49 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                                             onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                                         />
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        <div>
-                                            <label style={{
-                                                display: 'block',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                color: '#374151',
-                                                marginBottom: '8px'
-                                            }}>
-                                                {t('contactModal.email')} *
-                                            </label>
-                                            <input
-                                                type="email"
-                                                required
-                                                value={formData.email}
-                                                onChange={(e) => handleInputChange('email', e.target.value)}
-                                                onBlur={(e) => {
-                                                    const value = e.target.value;
-                                                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-                                                    if (!emailRegex.test(value)) {
-                                                        e.target.style.borderColor = '#ef4444';
-                                                    } else {
-                                                        e.target.style.borderColor = '#10b981';
-                                                    }
-                                                }}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '12px 16px',
-                                                    border: '1px solid #d1d5db',
-                                                    borderRadius: '8px',
-                                                    fontSize: '16px',
-                                                    outline: 'none'
-                                                }}
-                                                placeholder="email@example.com"
-                                                onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{
-                                                display: 'block',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                color: '#374151',
-                                                marginBottom: '8px'
-                                            }}>
-                                                {t('contactModal.phone')} *
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                required
-                                                value={formData.phone}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    const phoneRegex = /^[0-9\s()+-]*$/;
-                                                    if (phoneRegex.test(value)) {
-                                                        handleInputChange('phone', value);
-                                                    }
-                                                }}
-                                                onBlur={(e) => {
-                                                    const value = e.target.value;
-                                                    const digitsOnly = value.replace(/\D/g, '');
-                                                    if (digitsOnly.length >= 10) {
-                                                        e.target.style.borderColor = '#10b981';
-                                                    } else if (digitsOnly.length > 0) {
-                                                        e.target.style.borderColor = '#ef4444';
-                                                    } else {
-                                                        e.target.style.borderColor = '#d1d5db';
-                                                    }
-                                                }}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '12px 16px',
-                                                    border: '1px solid #d1d5db',
-                                                    borderRadius: '8px',
-                                                    fontSize: '16px',
-                                                    outline: 'none'
-                                                }}
-                                                placeholder="+1 (555) 123-4567"
-                                                onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                            />
-                                        </div>
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            color: '#374151',
+                                            marginBottom: '8px'
+                                        }}>
+                                            {t('contactModal.phone')} *
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            required
+                                            value={formData.phone}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                const phoneRegex = /^[0-9\s()+-]*$/;
+                                                if (phoneRegex.test(value)) {
+                                                    handleInputChange('phone', value);
+                                                }
+                                            }}
+                                            onBlur={(e) => {
+                                                const value = e.target.value;
+                                                const digitsOnly = value.replace(/\D/g, '');
+                                                if (digitsOnly.length >= 10) {
+                                                    e.target.style.borderColor = '#10b981';
+                                                } else if (digitsOnly.length > 0) {
+                                                    e.target.style.borderColor = '#ef4444';
+                                                } else {
+                                                    e.target.style.borderColor = '#d1d5db';
+                                                }
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                padding: '12px 16px',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '8px',
+                                                fontSize: '16px',
+                                                outline: 'none'
+                                            }}
+                                            placeholder="+1 (555) 123-4567"
+                                            onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -651,7 +610,7 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                             <div style={{ paddingTop: '16px' }}>
                                 <button
                                     type="submit"
-                                    disabled={!formData.name || !formData.email || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading}
+                                    disabled={!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading}
                                     style={{
                                         width: '100%',
                                         padding: '16px 24px',
@@ -660,14 +619,14 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                                         fontWeight: '600',
                                         borderRadius: '50px',
                                         border: 'none',
-                                        cursor: (!formData.name || !formData.email || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 'not-allowed' : 'pointer',
+                                        cursor: (!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 'not-allowed' : 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         gap: '8px',
                                         fontSize: '16px',
                                         transition: 'all 0.3s',
-                                        opacity: (!formData.name || !formData.email || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 0.5 : 1,
+                                        opacity: (!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 0.5 : 1,
                                         boxShadow: '0 4px 15px rgba(255, 107, 157, 0.3)'
                                     }}
                                     onMouseOver={(e) => {

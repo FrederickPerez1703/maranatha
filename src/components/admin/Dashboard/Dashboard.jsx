@@ -6,6 +6,7 @@ import ServicesManager from '../ServicesManager/ServicesManager';
 import InvoiceManager from '../InvoiceManager/InvoiceManager';
 import ReportsManager from '../ReportsManager/ReportsManager';
 import { useState } from 'react';
+import '../AdminResponsive.css';
 
 // Componente principal del Dashboard
 const Dashboard = ({ onLogout }) => {
@@ -37,6 +38,14 @@ const Dashboard = ({ onLogout }) => {
           .dashboard-content {
             margin-left: 0 !important;
             padding-top: 70px;
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .dashboard-content {
+            padding: 20px;
           }
         }
       `}</style>
@@ -49,7 +58,8 @@ const Dashboard = ({ onLogout }) => {
         <div className="dashboard-content" style={{
           marginLeft: '280px',
           flex: 1,
-          overflowY: 'auto'
+          overflowY: 'auto',
+          overflowX: 'hidden'
         }}>
           {renderContent()}
         </div>

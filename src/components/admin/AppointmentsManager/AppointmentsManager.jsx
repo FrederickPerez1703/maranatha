@@ -10,50 +10,50 @@ const AppointmentsManager = () => {
   const [viewingAppointment, setViewingAppointment] = useState(null);
 
   const [appointments, setAppointments] = useState([
-    { 
-      id: 1, 
-      date: '2025-01-31', 
-      time: '10:00', 
-      client: 'María González', 
-      service: 'Manicura Francesa', 
-      price: '$30', 
-      status: 'confirmada', 
+    {
+      id: 1,
+      date: '2025-01-31',
+      time: '10:00',
+      client: 'María González',
+      service: 'Manicura Francesa',
+      price: '$30',
+      status: 'confirmada',
       phone: '+1234567890',
       email: 'maria.gonzalez@email.com',
       notes: 'Cliente prefiere colores neutros'
     },
-    { 
-      id: 2, 
-      date: '2025-01-31', 
-      time: '11:30', 
-      client: 'Ana Rodríguez', 
-      service: 'Corte de Cabello', 
-      price: '$30', 
-      status: 'pendiente', 
+    {
+      id: 2,
+      date: '2025-01-31',
+      time: '11:30',
+      client: 'Ana Rodríguez',
+      service: 'Corte de Cabello',
+      price: '$30',
+      status: 'pendiente',
       phone: '+1234567891',
       email: 'ana.rodriguez@email.com',
       notes: 'Primera visita, consulta sobre tipo de corte'
     },
-    { 
-      id: 3, 
-      date: '2025-02-01', 
-      time: '14:00', 
-      client: 'Sofia López', 
-      service: 'Facial Hidratante', 
-      price: '$55', 
-      status: 'confirmada', 
+    {
+      id: 3,
+      date: '2025-02-01',
+      time: '14:00',
+      client: 'Sofia López',
+      service: 'Facial Hidratante',
+      price: '$55',
+      status: 'confirmada',
       phone: '+1234567892',
       email: 'sofia.lopez@email.com',
       notes: 'Piel sensible, usar productos hipoalergénicos'
     },
-    { 
-      id: 4, 
-      date: '2025-02-01', 
-      time: '16:00', 
-      client: 'Carmen Silva', 
-      service: 'Maquillaje de Noche', 
-      price: '$50', 
-      status: 'cancelada', 
+    {
+      id: 4,
+      date: '2025-02-01',
+      time: '16:00',
+      client: 'Carmen Silva',
+      service: 'Maquillaje de Noche',
+      price: '$50',
+      status: 'cancelada',
       phone: '+1234567893',
       email: 'carmen.silva@email.com',
       notes: 'Canceló por emergencia familiar'
@@ -83,12 +83,12 @@ const AppointmentsManager = () => {
     { name: 'Maquillaje de Día', price: 35 }
   ];
 
-  const filteredAppointments = appointments.filter(apt => 
+  const filteredAppointments = appointments.filter(apt =>
     filter === 'all' || apt.status === filter
   );
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'confirmada': return { bg: '#10b98115', color: '#10b981' };
       case 'pendiente': return { bg: '#f59e0b15', color: '#f59e0b' };
       case 'cancelada': return { bg: '#ef444415', color: '#ef4444' };
@@ -113,8 +113,8 @@ const AppointmentsManager = () => {
   const handleSaveAppointment = () => {
     if (editingAppointment) {
       // Actualizar cita existente
-      setAppointments(appointments.map(apt => 
-        apt.id === editingAppointment.id 
+      setAppointments(appointments.map(apt =>
+        apt.id === editingAppointment.id
           ? { ...newAppointment, id: editingAppointment.id }
           : apt
       ));
@@ -151,7 +151,7 @@ const AppointmentsManager = () => {
   };
 
   const handleStatusChange = (id, newStatus) => {
-    setAppointments(appointments.map(apt => 
+    setAppointments(appointments.map(apt =>
       apt.id === id ? { ...apt, status: newStatus } : apt
     ));
   };
@@ -190,10 +190,10 @@ const AppointmentsManager = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
-        <h2 style={{ 
-          color: '#ff6b9d', 
-          fontSize: 'clamp(24px, 4vw, 32px)', 
+      <div className="appointments-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
+        <h2 style={{
+          color: '#ff6b9d',
+          fontSize: 'clamp(24px, 4vw, 32px)',
           margin: 0,
           fontWeight: 'bold'
         }}>
@@ -225,9 +225,9 @@ const AppointmentsManager = () => {
       </div>
 
       {/* Estadísticas Responsivas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+      <div className="appointments-stats" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '20px',
         marginBottom: '30px'
       }}>
@@ -241,14 +241,14 @@ const AppointmentsManager = () => {
           position: 'relative',
           overflow: 'hidden'
         }}
-        onMouseOver={(e) => {
-          e.target.closest('div').style.transform = 'translateY(-8px)';
-          e.target.closest('div').style.boxShadow = '0 15px 40px #ff6b9d20';
-        }}
-        onMouseOut={(e) => {
-          e.target.closest('div').style.transform = 'translateY(0)';
-          e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
-        }}>
+          onMouseOver={(e) => {
+            e.target.closest('div').style.transform = 'translateY(-8px)';
+            e.target.closest('div').style.boxShadow = '0 15px 40px #ff6b9d20';
+          }}
+          onMouseOut={(e) => {
+            e.target.closest('div').style.transform = 'translateY(0)';
+            e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
+          }}>
           {/* Background decoration */}
           <div style={{
             position: 'absolute',
@@ -260,36 +260,36 @@ const AppointmentsManager = () => {
             borderRadius: '50%',
             opacity: 0.5
           }}></div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
             zIndex: 1
           }}>
             <div style={{ flex: 1 }}>
-              <div style={{ 
-                fontSize: 'clamp(28px, 5vw, 36px)', 
-                fontWeight: 'bold', 
+              <div style={{
+                fontSize: 'clamp(28px, 5vw, 36px)',
+                fontWeight: 'bold',
                 color: '#333',
                 marginBottom: '8px',
                 lineHeight: 1
               }}>
                 {stats.total}
               </div>
-              <div style={{ 
-                fontSize: 'clamp(14px, 2.5vw, 16px)', 
+              <div style={{
+                fontSize: 'clamp(14px, 2.5vw, 16px)',
                 color: '#666',
                 fontWeight: '500'
               }}>
                 Total Citas
               </div>
             </div>
-            
-            <div style={{ 
-              padding: '15px', 
-              borderRadius: '50%', 
+
+            <div style={{
+              padding: '15px',
+              borderRadius: '50%',
               background: '#ff6b9d10',
               color: '#ff6b9d',
               display: 'flex',
@@ -313,14 +313,14 @@ const AppointmentsManager = () => {
           position: 'relative',
           overflow: 'hidden'
         }}
-        onMouseOver={(e) => {
-          e.target.closest('div').style.transform = 'translateY(-8px)';
-          e.target.closest('div').style.boxShadow = '0 15px 40px #10b98120';
-        }}
-        onMouseOut={(e) => {
-          e.target.closest('div').style.transform = 'translateY(0)';
-          e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
-        }}>
+          onMouseOver={(e) => {
+            e.target.closest('div').style.transform = 'translateY(-8px)';
+            e.target.closest('div').style.boxShadow = '0 15px 40px #10b98120';
+          }}
+          onMouseOut={(e) => {
+            e.target.closest('div').style.transform = 'translateY(0)';
+            e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
+          }}>
           {/* Background decoration */}
           <div style={{
             position: 'absolute',
@@ -332,36 +332,36 @@ const AppointmentsManager = () => {
             borderRadius: '50%',
             opacity: 0.5
           }}></div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
             zIndex: 1
           }}>
             <div style={{ flex: 1 }}>
-              <div style={{ 
-                fontSize: 'clamp(28px, 5vw, 36px)', 
-                fontWeight: 'bold', 
+              <div style={{
+                fontSize: 'clamp(28px, 5vw, 36px)',
+                fontWeight: 'bold',
                 color: '#333',
                 marginBottom: '8px',
                 lineHeight: 1
               }}>
                 {stats.confirmed}
               </div>
-              <div style={{ 
-                fontSize: 'clamp(14px, 2.5vw, 16px)', 
+              <div style={{
+                fontSize: 'clamp(14px, 2.5vw, 16px)',
                 color: '#666',
                 fontWeight: '500'
               }}>
                 Confirmadas
               </div>
             </div>
-            
-            <div style={{ 
-              padding: '15px', 
-              borderRadius: '50%', 
+
+            <div style={{
+              padding: '15px',
+              borderRadius: '50%',
               background: '#10b98110',
               color: '#10b981',
               display: 'flex',
@@ -385,14 +385,14 @@ const AppointmentsManager = () => {
           position: 'relative',
           overflow: 'hidden'
         }}
-        onMouseOver={(e) => {
-          e.target.closest('div').style.transform = 'translateY(-8px)';
-          e.target.closest('div').style.boxShadow = '0 15px 40px #f59e0b20';
-        }}
-        onMouseOut={(e) => {
-          e.target.closest('div').style.transform = 'translateY(0)';
-          e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
-        }}>
+          onMouseOver={(e) => {
+            e.target.closest('div').style.transform = 'translateY(-8px)';
+            e.target.closest('div').style.boxShadow = '0 15px 40px #f59e0b20';
+          }}
+          onMouseOut={(e) => {
+            e.target.closest('div').style.transform = 'translateY(0)';
+            e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
+          }}>
           {/* Background decoration */}
           <div style={{
             position: 'absolute',
@@ -404,36 +404,36 @@ const AppointmentsManager = () => {
             borderRadius: '50%',
             opacity: 0.5
           }}></div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
             zIndex: 1
           }}>
             <div style={{ flex: 1 }}>
-              <div style={{ 
-                fontSize: 'clamp(28px, 5vw, 36px)', 
-                fontWeight: 'bold', 
+              <div style={{
+                fontSize: 'clamp(28px, 5vw, 36px)',
+                fontWeight: 'bold',
                 color: '#333',
                 marginBottom: '8px',
                 lineHeight: 1
               }}>
                 {stats.pending}
               </div>
-              <div style={{ 
-                fontSize: 'clamp(14px, 2.5vw, 16px)', 
+              <div style={{
+                fontSize: 'clamp(14px, 2.5vw, 16px)',
                 color: '#666',
                 fontWeight: '500'
               }}>
                 Pendientes
               </div>
             </div>
-            
-            <div style={{ 
-              padding: '15px', 
-              borderRadius: '50%', 
+
+            <div style={{
+              padding: '15px',
+              borderRadius: '50%',
               background: '#f59e0b10',
               color: '#f59e0b',
               display: 'flex',
@@ -457,14 +457,14 @@ const AppointmentsManager = () => {
           position: 'relative',
           overflow: 'hidden'
         }}
-        onMouseOver={(e) => {
-          e.target.closest('div').style.transform = 'translateY(-8px)';
-          e.target.closest('div').style.boxShadow = '0 15px 40px #9333ea20';
-        }}
-        onMouseOut={(e) => {
-          e.target.closest('div').style.transform = 'translateY(0)';
-          e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
-        }}>
+          onMouseOver={(e) => {
+            e.target.closest('div').style.transform = 'translateY(-8px)';
+            e.target.closest('div').style.boxShadow = '0 15px 40px #9333ea20';
+          }}
+          onMouseOut={(e) => {
+            e.target.closest('div').style.transform = 'translateY(0)';
+            e.target.closest('div').style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.08)';
+          }}>
           {/* Background decoration */}
           <div style={{
             position: 'absolute',
@@ -476,36 +476,36 @@ const AppointmentsManager = () => {
             borderRadius: '50%',
             opacity: 0.5
           }}></div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
             zIndex: 1
           }}>
             <div style={{ flex: 1 }}>
-              <div style={{ 
-                fontSize: 'clamp(28px, 5vw, 36px)', 
-                fontWeight: 'bold', 
+              <div style={{
+                fontSize: 'clamp(28px, 5vw, 36px)',
+                fontWeight: 'bold',
                 color: '#333',
                 marginBottom: '8px',
                 lineHeight: 1
               }}>
                 ${stats.totalRevenue}
               </div>
-              <div style={{ 
-                fontSize: 'clamp(14px, 2.5vw, 16px)', 
+              <div style={{
+                fontSize: 'clamp(14px, 2.5vw, 16px)',
                 color: '#666',
                 fontWeight: '500'
               }}>
                 Ingresos
               </div>
             </div>
-            
-            <div style={{ 
-              padding: '15px', 
-              borderRadius: '50%', 
+
+            <div style={{
+              padding: '15px',
+              borderRadius: '50%',
               background: '#9333ea10',
               color: '#9333ea',
               display: 'flex',
@@ -553,7 +553,7 @@ const AppointmentsManager = () => {
           {filteredAppointments.map(appointment => {
             const statusStyle = getStatusColor(appointment.status);
             return (
-              <div key={appointment.id} style={{
+              <div key={appointment.id} className="appointment-row" style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 150px 120px 100px 200px',
                 alignItems: 'center',
@@ -564,14 +564,14 @@ const AppointmentsManager = () => {
                 gap: '20px',
                 transition: 'all 0.3s ease'
               }}
-              onMouseOver={(e) => {
-                e.target.closest('div').style.transform = 'translateY(-2px)';
-                e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
-              }}
-              onMouseOut={(e) => {
-                e.target.closest('div').style.transform = 'translateY(0)';
-                e.target.closest('div').style.boxShadow = 'none';
-              }}>
+                onMouseOver={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(-2px)';
+                  e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(0)';
+                  e.target.closest('div').style.boxShadow = 'none';
+                }}>
                 <div>
                   <div style={{ fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>
                     {appointment.client}
@@ -583,7 +583,7 @@ const AppointmentsManager = () => {
                     📞 {appointment.phone}
                   </div>
                 </div>
-                
+
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
                     {formatDate(appointment.date)}
@@ -610,7 +610,7 @@ const AppointmentsManager = () => {
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div className="appointment-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => handleView(appointment)}
                     style={{
@@ -628,7 +628,7 @@ const AppointmentsManager = () => {
                   >
                     <Eye size={16} />
                   </button>
-                  
+
                   <button
                     onClick={() => handleEdit(appointment)}
                     style={{
@@ -771,7 +771,7 @@ const AppointmentsManager = () => {
                 <input
                   type="date"
                   value={newAppointment.date}
-                  onChange={(e) => setNewAppointment({...newAppointment, date: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -793,7 +793,7 @@ const AppointmentsManager = () => {
                 <input
                   type="time"
                   value={newAppointment.time}
-                  onChange={(e) => setNewAppointment({...newAppointment, time: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, time: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -816,7 +816,7 @@ const AppointmentsManager = () => {
               <input
                 type="text"
                 value={newAppointment.client}
-                onChange={(e) => setNewAppointment({...newAppointment, client: e.target.value})}
+                onChange={(e) => setNewAppointment({ ...newAppointment, client: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '12px 16px',
@@ -840,7 +840,7 @@ const AppointmentsManager = () => {
                 <input
                   type="tel"
                   value={newAppointment.phone}
-                  onChange={(e) => setNewAppointment({...newAppointment, phone: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, phone: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -862,7 +862,7 @@ const AppointmentsManager = () => {
                 <input
                   type="email"
                   value={newAppointment.email}
-                  onChange={(e) => setNewAppointment({...newAppointment, email: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, email: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -913,7 +913,7 @@ const AppointmentsManager = () => {
                 <input
                   type="number"
                   value={newAppointment.price}
-                  onChange={(e) => setNewAppointment({...newAppointment, price: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, price: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -934,7 +934,7 @@ const AppointmentsManager = () => {
                 </label>
                 <select
                   value={newAppointment.status}
-                  onChange={(e) => setNewAppointment({...newAppointment, status: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, status: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -958,7 +958,7 @@ const AppointmentsManager = () => {
               </label>
               <textarea
                 value={newAppointment.notes}
-                onChange={(e) => setNewAppointment({...newAppointment, notes: e.target.value})}
+                onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '12px 16px',
@@ -1004,8 +1004,8 @@ const AppointmentsManager = () => {
                   padding: '15px',
                   border: 'none',
                   borderRadius: '10px',
-                  background: (!newAppointment.date || !newAppointment.time || !newAppointment.client || !newAppointment.phone || !newAppointment.service || !newAppointment.price) 
-                    ? '#ccc' 
+                  background: (!newAppointment.date || !newAppointment.time || !newAppointment.client || !newAppointment.phone || !newAppointment.service || !newAppointment.price)
+                    ? '#ccc'
                     : 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
                   color: 'white',
                   fontSize: '16px',
@@ -1212,7 +1212,7 @@ const AppointmentsManager = () => {
                 <Edit size={16} />
                 Editar Cita
               </button>
-              
+
               {viewingAppointment.status === 'pendiente' && (
                 <button
                   onClick={() => {

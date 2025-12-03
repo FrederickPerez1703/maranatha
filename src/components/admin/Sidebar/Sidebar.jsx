@@ -82,9 +82,11 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'rgba(0, 0, 0, 0.3)', // Overlay más sutil
+          backdropFilter: 'blur(3px)', // Desenfoque sutil en el fondo
           zIndex: 999,
-          display: 'none'
+          display: 'none',
+          transition: 'all 0.3s ease'
         }}
       />
 
@@ -175,28 +177,32 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
         </div>
       </div>
 
-      {/* Sidebar Mobile (slide-in) */}
+      {/* Sidebar Mobile (Estilo Nativo iOS) */}
       <div className="sidebar-mobile" style={{
         width: '280px',
         height: '100vh',
-        background: 'linear-gradient(180deg, #ff6b9d, #ff8fab)',
+        // Fondo translúcido estilo iOS (Glassmorphism)
+        background: 'rgba(255, 107, 157, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)', // Soporte para Safari
         color: 'white',
         position: 'fixed',
         left: 0,
         top: 0,
         padding: '20px 0',
-        boxShadow: '4px 0 20px rgba(255, 107, 157, 0.2)',
+        // Sombra suave y difusa
+        boxShadow: '10px 0 40px rgba(255, 107, 157, 0.3)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 1000,
-        transition: 'transform 0.3s ease',
-        transform: 'translateX(-100%)'
+        // Animación suave estilo iOS (Spring)
+        transition: 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
+        transform: 'translateX(-100%)',
       }}>
         <div style={{
           padding: '0 20px',
           marginBottom: '40px',
-          textAlign: 'center',
-          marginTop: '60px'
+          textAlign: 'center'
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🌸</div>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>En Maranatha</h2>
@@ -205,45 +211,51 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
 
         <nav style={{
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          padding: '0 15px'
         }}>
           {menuItems.map(item => (
             <div
               key={item.id}
               style={{
-                padding: '15px 20px',
+                padding: '16px 20px',
+                marginBottom: '8px',
                 cursor: 'pointer',
-                background: activeSection === item.id ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                borderRight: activeSection === item.id ? '4px solid white' : '4px solid transparent',
-                transition: 'all 0.3s ease',
+                // Estilo de botón seleccionado estilo iOS
+                background: activeSection === item.id ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                borderRadius: '16px', // Bordes redondeados en los items
+                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: '15px',
                 width: '100%',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                fontWeight: activeSection === item.id ? 'bold' : 'normal'
               }}
               onClick={() => handleMenuClick(item.id)}
             >
               {item.icon}
-              <span style={{ fontSize: '16px' }}>{item.label}</span>
+              <span style={{ fontSize: '17px' }}>{item.label}</span>
             </div>
           ))}
         </nav>
 
         <div style={{
           padding: '0 20px',
-          marginTop: 'auto'
+          marginTop: 'auto',
+          marginBottom: '30px' // Espacio para el home indicator
         }}>
           <div
             style={{
-              padding: '15px',
+              padding: '16px',
               cursor: 'pointer',
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '15px',
-              transition: 'all 0.3s ease',
+              background: 'rgba(255, 255, 255, 0.15)',
+              borderRadius: '16px',
+              transition: 'all 0.2s ease',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              gap: '12px',
+              backdropFilter: 'blur(5px)'
             }}
             onClick={() => {
               onLogout();
@@ -251,10 +263,10 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
             }}
           >
             <LogOut size={20} />
-            <span>Cerrar Sesión</span>
+            <span style={{ fontWeight: '500' }}>Cerrar Sesión</span>
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 };

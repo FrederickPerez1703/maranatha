@@ -57,7 +57,7 @@ const ReportsManager = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
         <h2 style={{ color: '#ff6b9d', fontSize: '28px', margin: 0 }}>Reportes y Análisis</h2>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           <select
@@ -96,9 +96,9 @@ const ReportsManager = () => {
       </div>
 
       {/* Resumen Ejecutivo */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '20px',
         marginBottom: '40px'
       }}>
@@ -153,7 +153,7 @@ const ReportsManager = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+      <div className="reports-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
         {/* Gráfico de Ingresos */}
         <div style={{
           background: 'white',
@@ -166,7 +166,7 @@ const ReportsManager = () => {
             {selectedReport === 'services' && 'Servicios Más Populares'}
             {selectedReport === 'clients' && 'Segmentación de Clientes'}
           </h3>
-          
+
           {selectedReport === 'revenue' && (
             <div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -311,7 +311,7 @@ const ReportsManager = () => {
           height: 'fit-content'
         }}>
           <h3 style={{ color: '#ff6b9d', marginBottom: '20px' }}>Insights del Negocio</h3>
-          
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{
               padding: '15px',
@@ -388,8 +388,8 @@ const ReportsManager = () => {
             cursor: 'pointer',
             transition: 'all 0.3s ease'
           }}
-          onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
+            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
             📊 Exportar Reporte PDF
           </button>
         </div>

@@ -1,0 +1,476 @@
+/* ========================================
+   ESTILOS RESPONSIVOS - PANEL DE ADMINISTRACIÓN
+   VERSIÓN CORREGIDA - BOTONES VISIBLES Y AVATARES REDONDOS
+   ======================================== */
+
+/* ========== ESTILOS BASE ========== */
+* {
+    box-sizing: border-box;
+}
+
+/* ========== FORZAR FLEXBOX EN MÓVIL Y TABLET ========== */
+@media (max-width: 1023px) {
+
+    /* CRÍTICO: Convertir todas las filas a flexbox */
+    .appointment-row,
+    .client-row,
+    .service-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 15px !important;
+        align-items: center !important;
+        /* Centrar todo el contenido */
+    }
+
+    /* Asegurar que el contenido de texto tenga ancho completo */
+    .appointment-row>div:not(:first-child),
+    .client-row>div:not(:first-child),
+    .service-row>div:not(:first-child) {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: center !important;
+        /* Centrar texto en móvil para mejor estética */
+    }
+
+    /* CORRECCIÓN DE AVATARES E ICONOS */
+    /* El primer div es siempre el avatar o icono */
+    .client-row>div:first-child,
+    .service-row>div:first-child {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
+        margin: 0 auto 10px auto !important;
+        /* Centrado horizontalmente */
+        align-self: center !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        /* Asegurar que sea redondo */
+    }
+
+    /* Ajuste específico para iconos de servicios que podrían ser cuadrados */
+    .service-row>div:first-child {
+        border-radius: 15px !important;
+    }
+
+    /* BOTONES - SIEMPRE VISIBLES */
+    .appointment-actions,
+    .client-actions,
+    .service-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-top: 12px !important;
+        padding-top: 12px !important;
+        border-top: 2px solid #e5e7eb !important;
+        order: 999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        justify-content: center !important;
+    }
+
+    .appointment-actions button,
+    .client-actions button,
+    .service-actions button {
+        flex: 1 1 calc(33.333% - 6px) !important;
+        min-width: 80px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* ========== OCULTAR BOTÓN DE MENÚ CUANDO HAY MODAL ========== */
+body.modal-open .sidebar-mobile-toggle {
+    display: none !important;
+}
+
+/* ========== TABLET Y MÓVIL (768px y menos) ========== */
+@media (max-width: 768px) {
+
+    /* ===== DASHBOARD OVERVIEW ===== */
+    .dashboard-title {
+        font-size: 22px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .stat-card {
+        padding: 18px !important;
+    }
+
+    .stat-value {
+        font-size: 20px !important;
+    }
+
+    .stat-label {
+        font-size: 12px !important;
+    }
+
+    .appointments-container {
+        padding: 20px !important;
+    }
+
+    .appointment-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 15px !important;
+    }
+
+    .appointment-info {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .appointment-details {
+        font-size: 13px !important;
+    }
+
+    /* ===== HEADERS ===== */
+    .appointments-header,
+    .clients-header,
+    .services-header,
+    .invoice-header,
+    .reports-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
+    }
+
+    .appointments-header h2,
+    .clients-header h2,
+    .services-header h2,
+    .reports-header h2 {
+        font-size: 24px !important;
+    }
+
+    .appointments-header button,
+    .clients-header button,
+    .services-header button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* ===== ESTADÍSTICAS ===== */
+    .appointments-stats,
+    .clients-stats,
+    .services-stats {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+
+    .appointments-stats>div,
+    .clients-stats>div,
+    .services-stats>div {
+        padding: 18px !important;
+    }
+
+    /* ===== FILTROS ===== */
+    .filter-section {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .filter-section select {
+        width: 100% !important;
+    }
+
+    /* ===== INVOICE MANAGER ===== */
+    .invoice-header h1,
+    .invoice-header h2 {
+        font-size: 24px !important;
+    }
+
+    .invoice-header>div:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .invoice-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .invoice-actions button {
+        width: 100% !important;
+    }
+
+    /* ===== MODALES ===== */
+    .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        max-height: 90vh !important;
+        padding: 20px !important;
+        margin: 20px !important;
+    }
+
+    /* Modal de Ver Cliente - Ajuste Responsivo */
+    .view-client-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        /* Una columna en móvil */
+        gap: 20px !important;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* ===== REPORTS ===== */
+    .reports-filters {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .reports-filters select {
+        width: 100% !important;
+    }
+
+    .reports-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .chart-container {
+        overflow-x: auto !important;
+    }
+
+    .reports-header+div {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* ========== MÓVIL PEQUEÑO (480px y menos) ========== */
+@media (max-width: 480px) {
+
+    /* Grids a una sola columna */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .appointments-stats,
+    .clients-stats,
+    .services-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stat-icon {
+        padding: 10px !important;
+    }
+
+    /* Modales responsivos con bordes redondeados */
+    .modal-content {
+        width: 95% !important;
+        height: auto !important;
+        max-height: 90vh !important;
+        border-radius: 20px !important;
+        margin: 10px auto !important;
+        overflow-y: auto !important;
+    }
+
+    /* Botones en columna completa */
+    .appointment-actions button,
+    .client-actions button,
+    .service-actions button {
+        flex: 1 1 calc(50% - 4px) !important;
+        min-width: calc(50% - 4px) !important;
+    }
+
+    /* Títulos más pequeños */
+    h1,
+    h2 {
+        font-size: 20px !important;
+    }
+
+    h3 {
+        font-size: 18px !important;
+    }
+
+    /* Reportes */
+    .reports-header+div {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ========== TABLET GRANDE (769px - 1023px) ========== */
+@media (min-width: 769px) and (max-width: 1023px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .appointments-stats,
+    .clients-stats,
+    .services-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Botones en 3 columnas para tablet */
+    .appointment-actions button,
+    .client-actions button,
+    .service-actions button {
+        flex: 1 1 calc(33.333% - 6px) !important;
+    }
+}
+
+/* ========== DESKTOP (1024px y más) ========== */
+@media (min-width: 1024px) {
+
+    /* Restaurar grid layout en desktop */
+    .appointment-row {
+        display: grid !important;
+        grid-template-columns: 2fr 150px 120px 100px 220px !important;
+    }
+
+    .client-row {
+        display: grid !important;
+        grid-template-columns: 60px 2fr 1fr 1fr 1fr 180px !important;
+    }
+
+    .service-row {
+        display: grid !important;
+        grid-template-columns: 60px 1fr 100px 80px 100px 180px !important;
+    }
+
+    .reports-grid {
+        grid-template-columns: 2fr 1fr !important;
+    }
+
+    /* Botones en fila horizontal */
+    .appointment-actions,
+    .client-actions,
+    .service-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        justify-content: center !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: none !important;
+    }
+
+    /* Modal de Ver Cliente - 2 columnas en desktop */
+    .view-client-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 30px !important;
+    }
+}
+
+/* ========== UTILIDADES GENERALES ========== */
+
+/* Asegurar que los botones sean táctiles */
+@media (max-width: 1023px) {
+    button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation;
+    }
+
+    input,
+    select,
+    textarea {
+        min-height: 44px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* Prevenir scroll horizontal */
+body {
+    overflow-x: hidden;
+}
+
+/* Mejorar legibilidad */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    p {
+        font-size: 14px;
+    }
+
+    small {
+        font-size: 12px;
+    }
+}
+
+/* Animaciones suaves */
+.appointment-row,
+.client-row,
+.service-row {
+    transition: all 0.3s ease;
+}
+
+/* Hover effects solo en desktop */
+@media (min-width: 1024px) {
+
+    .appointment-row:hover,
+    .client-row:hover,
+    .service-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.15) !important;
+    }
+}
+
+/* Ocultar/Mostrar elementos según dispositivo */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .show-mobile-only {
+        display: none !important;
+    }
+}
+
+/* Clases de utilidad */
+.responsive-padding {
+    padding: clamp(15px, 3vw, 25px);
+}
+
+.responsive-gap {
+    gap: clamp(10px, 2vw, 20px);
+}
+
+.responsive-margin {
+    margin: clamp(10px, 2vw, 20px);
+}
+
+.responsive-text {
+    font-size: clamp(14px, 2vw, 16px);
+}
+
+.responsive-title {
+    font-size: clamp(20px, 4vw, 28px);
+}
+
+.responsive-subtitle {
+    font-size: clamp(16px, 3vw, 20px);
+}

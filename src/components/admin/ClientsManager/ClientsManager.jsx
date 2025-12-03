@@ -1,10 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Componente de Gestión de Clientes
 const ClientsManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
+
+  // Efecto para manejar la clase modal-open en el body
+  useEffect(() => {
+    if (showModal || viewingClient) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showModal, viewingClient]);
+
   const [clients, setClients] = useState([
     {
       id: 1,
@@ -131,12 +145,12 @@ const ClientsManager = () => {
     .filter(client => {
       const matchesFilter = filter === 'all' || client.status === filter;
       const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           client.phone.includes(searchTerm);
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.phone.includes(searchTerm);
       return matchesFilter && matchesSearch;
     })
     .sort((a, b) => {
-      switch(sortBy) {
+      switch (sortBy) {
         case 'totalSpent': return b.totalSpent - a.totalSpent;
         case 'totalVisits': return b.totalVisits - a.totalVisits;
         case 'lastVisit': return new Date(b.lastVisit) - new Date(a.lastVisit);
@@ -147,25 +161,25 @@ const ClientsManager = () => {
 
   const handleSaveClient = () => {
     if (editingClient) {
-      setClients(clients.map(client => 
-        client.id === editingClient.id 
-          ? { 
-              ...newClient, 
-              id: editingClient.id,
-              dateJoined: editingClient.dateJoined,
-              totalVisits: editingClient.totalVisits,
-              totalSpent: editingClient.totalSpent,
-              lastVisit: editingClient.lastVisit,
-              loyaltyPoints: editingClient.loyaltyPoints
-            }
+      setClients(clients.map(client =>
+        client.id === editingClient.id
+          ? {
+            ...newClient,
+            id: editingClient.id,
+            dateJoined: editingClient.dateJoined,
+            totalVisits: editingClient.totalVisits,
+            totalSpent: editingClient.totalSpent,
+            lastVisit: editingClient.lastVisit,
+            loyaltyPoints: editingClient.loyaltyPoints
+          }
           : client
       ));
     } else {
       const id = Math.max(...clients.map(c => c.id)) + 1;
       const today = new Date().toISOString().split('T')[0];
-      setClients([...clients, { 
-        ...newClient, 
-        id, 
+      setClients([...clients, {
+        ...newClient,
+        id,
         dateJoined: today,
         lastVisit: today,
         totalVisits: 0,
@@ -237,7 +251,7 @@ const ClientsManager = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="clients-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h2 style={{ color: '#ff6b9d', fontSize: '28px', margin: 0 }}>Gestión de Clientes</h2>
         <button
           onClick={() => setShowModal(true)}
@@ -261,9 +275,9 @@ const ClientsManager = () => {
       </div>
 
       {/* Estadísticas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+      <div className="clients-stats" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: '20px',
         marginBottom: '30px'
       }}>
@@ -318,7 +332,7 @@ const ClientsManager = () => {
         }}>
           <div style={{ fontSize: '24px', marginBottom: '8px' }}>💰</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#9333ea', marginBottom: '5px' }}>
-            ${stats.totalRevenue}
+            {stats.totalRevenue}
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>Ingresos Totales</div>
         </div>
@@ -332,16 +346,16 @@ const ClientsManager = () => {
         }}>
           <div style={{ fontSize: '24px', marginBottom: '8px' }}>📊</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '5px' }}>
-            ${stats.avgSpent}
+            {stats.avgSpent}
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>Gasto Promedio</div>
         </div>
       </div>
 
       {/* Filtros y Búsqueda */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '15px', 
+      <div className="filter-section" style={{
+        display: 'flex',
+        gap: '15px',
         marginBottom: '25px',
         alignItems: 'center',
         flexWrap: 'wrap'
@@ -421,9 +435,9 @@ const ClientsManager = () => {
           {filteredClients.map(client => {
             const status = statusConfig[client.status];
             const segment = getClientSegment(client);
-            
+
             return (
-              <div key={client.id} style={{
+              <div key={client.id} className="client-row" style={{
                 display: 'grid',
                 gridTemplateColumns: '60px 2fr 1fr 1fr 1fr 180px',
                 alignItems: 'center',
@@ -434,15 +448,15 @@ const ClientsManager = () => {
                 gap: '20px',
                 transition: 'all 0.3s ease'
               }}
-              onMouseOver={(e) => {
-                e.target.closest('div').style.transform = 'translateY(-2px)';
-                e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
-              }}
-              onMouseOut={(e) => {
-                e.target.closest('div').style.transform = 'translateY(0)';
-                e.target.closest('div').style.boxShadow = 'none';
-              }}>
-                
+                onMouseOver={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(-2px)';
+                  e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(0)';
+                  e.target.closest('div').style.boxShadow = 'none';
+                }}>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -478,8 +492,8 @@ const ClientsManager = () => {
                     {client.totalVisits}
                   </div>
                   <div style={{ fontSize: '12px', color: '#666' }}>visitas</div>
-                  <div style={{ 
-                    fontSize: '11px', 
+                  <div style={{
+                    fontSize: '11px',
                     marginTop: '5px',
                     padding: '2px 8px',
                     borderRadius: '10px',
@@ -519,7 +533,7 @@ const ClientsManager = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div className="client-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => setViewingClient(client)}
                     style={{
@@ -585,7 +599,7 @@ const ClientsManager = () => {
           justifyContent: 'center',
           zIndex: 1000
         }} onClick={() => setShowModal(false)}>
-          <div style={{
+          <div className="modal-content" style={{
             background: 'white',
             borderRadius: '20px',
             padding: '30px',
@@ -624,7 +638,7 @@ const ClientsManager = () => {
                 <input
                   type="text"
                   value={newClient.name}
-                  onChange={(e) => setNewClient({...newClient, name: e.target.value})}
+                  onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -647,7 +661,7 @@ const ClientsManager = () => {
                   <input
                     type="email"
                     value={newClient.email}
-                    onChange={(e) => setNewClient({...newClient, email: e.target.value})}
+                    onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -669,7 +683,7 @@ const ClientsManager = () => {
                   <input
                     type="tel"
                     value={newClient.phone}
-                    onChange={(e) => setNewClient({...newClient, phone: e.target.value})}
+                    onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -693,7 +707,7 @@ const ClientsManager = () => {
                   <input
                     type="date"
                     value={newClient.birthday}
-                    onChange={(e) => setNewClient({...newClient, birthday: e.target.value})}
+                    onChange={(e) => setNewClient({ ...newClient, birthday: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -713,7 +727,7 @@ const ClientsManager = () => {
                   </label>
                   <select
                     value={newClient.preferredStaff}
-                    onChange={(e) => setNewClient({...newClient, preferredStaff: e.target.value})}
+                    onChange={(e) => setNewClient({ ...newClient, preferredStaff: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -738,7 +752,7 @@ const ClientsManager = () => {
                 </label>
                 <select
                   value={newClient.status}
-                  onChange={(e) => setNewClient({...newClient, status: e.target.value})}
+                  onChange={(e) => setNewClient({ ...newClient, status: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -762,7 +776,7 @@ const ClientsManager = () => {
                 </label>
                 <textarea
                   value={newClient.notes}
-                  onChange={(e) => setNewClient({...newClient, notes: e.target.value})}
+                  onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -808,8 +822,8 @@ const ClientsManager = () => {
                     padding: '15px',
                     border: 'none',
                     borderRadius: '10px',
-                    background: (!newClient.name || !newClient.email || !newClient.phone) 
-                      ? '#ccc' 
+                    background: (!newClient.name || !newClient.email || !newClient.phone)
+                      ? '#ccc'
                       : 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
                     color: 'white',
                     fontSize: '16px',
@@ -839,7 +853,7 @@ const ClientsManager = () => {
           justifyContent: 'center',
           zIndex: 1000
         }} onClick={() => setViewingClient(null)}>
-          <div style={{
+          <div className="modal-content" style={{
             background: 'white',
             borderRadius: '20px',
             padding: '30px',
@@ -895,7 +909,7 @@ const ClientsManager = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
+            <div className="view-client-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
               {/* Información Personal */}
               <div style={{
                 background: '#f8f9fa',
@@ -987,54 +1001,37 @@ const ClientsManager = () => {
               </div>
             </div>
 
-            {/* Servicio Favorito y Última Visita */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #ff6b9d15, #ff8fab15)',
-                padding: '20px',
-                borderRadius: '15px',
-                border: '2px solid #ff6b9d30',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>💅</div>
-                <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Servicio Favorito</div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff6b9d' }}>
-                  {viewingClient.favoriteService}
+            {/* Notas y Preferencias */}
+            <div style={{
+              background: '#f8f9fa',
+              padding: '20px',
+              borderRadius: '15px',
+              border: '2px solid #f0f0f0',
+              marginBottom: '30px'
+            }}>
+              <h4 style={{ color: '#333', marginBottom: '15px', fontSize: '16px' }}>📝 Notas y Preferencias</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Servicio Favorito:</span>
+                  <div style={{ fontSize: '14px', color: '#333', marginTop: '5px' }}>{viewingClient.favoriteService}</div>
                 </div>
-              </div>
-
-              <div style={{
-                background: 'linear-gradient(135deg, #9333ea15, #a855f715)',
-                padding: '20px',
-                borderRadius: '15px',
-                border: '2px solid #9333ea30',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>📅</div>
-                <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Última Visita</div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#9333ea' }}>
-                  {formatDate(viewingClient.lastVisit)}
+                <div>
+                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Notas:</span>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#333',
+                    marginTop: '5px',
+                    background: 'white',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    fontStyle: 'italic'
+                  }}>
+                    "{viewingClient.notes || 'Sin notas adicionales.'}"
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Notas */}
-            {viewingClient.notes && (
-              <div style={{
-                background: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '15px',
-                border: '2px solid #f0f0f0',
-                marginBottom: '25px'
-              }}>
-                <h4 style={{ color: '#333', marginBottom: '10px', fontSize: '16px' }}>📝 Notas</h4>
-                <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.5, margin: 0 }}>
-                  {viewingClient.notes}
-                </p>
-              </div>
-            )}
-
-            {/* Botones de Acción */}
             <div style={{ display: 'flex', gap: '15px' }}>
               <button
                 onClick={() => {
@@ -1046,38 +1043,30 @@ const ClientsManager = () => {
                   padding: '15px',
                   border: 'none',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #9333ea, #a855f7)',
+                  background: 'linear-gradient(135deg, #9333ea, #b794f4)',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  cursor: 'pointer'
                 }}
-                onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
               >
                 ✏️ Editar Cliente
               </button>
               <button
-                onClick={() => {
-                  alert('Funcionalidad de nueva cita próximamente');
-                }}
+                onClick={() => setViewingClient(null)}
                 style={{
                   flex: 1,
                   padding: '15px',
-                  border: 'none',
+                  border: '2px solid #f0f0f0',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #10b981, #34d399)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#666',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  cursor: 'pointer'
                 }}
-                onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
               >
-                📅 Nueva Cita
+                Cerrar
               </button>
             </div>
           </div>

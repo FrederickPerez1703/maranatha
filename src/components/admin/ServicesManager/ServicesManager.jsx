@@ -110,7 +110,7 @@ const ServicesManager = () => {
   const filteredServices = services
     .filter(service => filter === 'all' || service.category === filter)
     .sort((a, b) => {
-      switch(sortBy) {
+      switch (sortBy) {
         case 'price': return b.price - a.price;
         case 'popularity': return b.popularity - a.popularity;
         case 'duration': return b.duration - a.duration;
@@ -120,8 +120,8 @@ const ServicesManager = () => {
 
   const handleSaveService = () => {
     if (editingService) {
-      setServices(services.map(service => 
-        service.id === editingService.id 
+      setServices(services.map(service =>
+        service.id === editingService.id
           ? { ...newService, id: editingService.id, popularity: editingService.popularity }
           : service
       ));
@@ -161,8 +161,8 @@ const ServicesManager = () => {
   };
 
   const toggleStatus = (id) => {
-    setServices(services.map(service => 
-      service.id === id 
+    setServices(services.map(service =>
+      service.id === id
         ? { ...service, status: service.status === 'active' ? 'inactive' : 'active' }
         : service
     ));
@@ -181,7 +181,7 @@ const ServicesManager = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div className="services-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h2 style={{ color: '#ff6b9d', fontSize: '28px', margin: 0 }}>Gestión de Servicios</h2>
         <button
           onClick={() => setShowModal(true)}
@@ -205,9 +205,9 @@ const ServicesManager = () => {
       </div>
 
       {/* Estadísticas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+      <div className="services-stats" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '20px',
         marginBottom: '30px'
       }}>
@@ -273,9 +273,9 @@ const ServicesManager = () => {
       </div>
 
       {/* Filtros y Ordenamiento */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '15px', 
+      <div style={{
+        display: 'flex',
+        gap: '15px',
         marginBottom: '25px',
         alignItems: 'center',
         flexWrap: 'wrap'
@@ -334,7 +334,7 @@ const ServicesManager = () => {
           {filteredServices.map(service => {
             const category = categories[service.category];
             return (
-              <div key={service.id} style={{
+              <div key={service.id} className="service-row" style={{
                 display: 'grid',
                 gridTemplateColumns: '60px 1fr 100px 80px 100px 150px',
                 alignItems: 'center',
@@ -346,15 +346,15 @@ const ServicesManager = () => {
                 opacity: service.status === 'active' ? 1 : 0.7,
                 transition: 'all 0.3s ease'
               }}
-              onMouseOver={(e) => {
-                e.target.closest('div').style.transform = 'translateY(-2px)';
-                e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
-              }}
-              onMouseOut={(e) => {
-                e.target.closest('div').style.transform = 'translateY(0)';
-                e.target.closest('div').style.boxShadow = 'none';
-              }}>
-                
+                onMouseOver={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(-2px)';
+                  e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.closest('div').style.transform = 'translateY(0)';
+                  e.target.closest('div').style.boxShadow = 'none';
+                }}>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -391,9 +391,9 @@ const ServicesManager = () => {
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px'
                   }}>
@@ -417,7 +417,7 @@ const ServicesManager = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <div className="service-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                   <button
                     onClick={() => handleEdit(service)}
                     style={{
@@ -518,7 +518,7 @@ const ServicesManager = () => {
                 <input
                   type="text"
                   value={newService.name}
-                  onChange={(e) => setNewService({...newService, name: e.target.value})}
+                  onChange={(e) => setNewService({ ...newService, name: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -539,7 +539,7 @@ const ServicesManager = () => {
                 </label>
                 <select
                   value={newService.category}
-                  onChange={(e) => setNewService({...newService, category: e.target.value})}
+                  onChange={(e) => setNewService({ ...newService, category: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -564,7 +564,7 @@ const ServicesManager = () => {
                   <input
                     type="number"
                     value={newService.price}
-                    onChange={(e) => setNewService({...newService, price: parseInt(e.target.value) || ''})}
+                    onChange={(e) => setNewService({ ...newService, price: parseInt(e.target.value) || '' })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -586,7 +586,7 @@ const ServicesManager = () => {
                   <input
                     type="number"
                     value={newService.duration}
-                    onChange={(e) => setNewService({...newService, duration: parseInt(e.target.value) || ''})}
+                    onChange={(e) => setNewService({ ...newService, duration: parseInt(e.target.value) || '' })}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -608,7 +608,7 @@ const ServicesManager = () => {
                 </label>
                 <textarea
                   value={newService.description}
-                  onChange={(e) => setNewService({...newService, description: e.target.value})}
+                  onChange={(e) => setNewService({ ...newService, description: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -631,7 +631,7 @@ const ServicesManager = () => {
                 </label>
                 <select
                   value={newService.status}
-                  onChange={(e) => setNewService({...newService, status: e.target.value})}
+                  onChange={(e) => setNewService({ ...newService, status: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -672,8 +672,8 @@ const ServicesManager = () => {
                     padding: '15px',
                     border: 'none',
                     borderRadius: '10px',
-                    background: (!newService.name || !newService.price || !newService.duration) 
-                      ? '#ccc' 
+                    background: (!newService.name || !newService.price || !newService.duration)
+                      ? '#ccc'
                       : 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
                     color: 'white',
                     fontSize: '16px',
