@@ -3,17 +3,23 @@ import LandingPage from './components/Home/HomePage';
 import BeautySalonDashboard from './components/admin/BeautySalonDashboard/BeautySalonDashboard';
 import InstallPWA from './components/InstallPWA/InstallPWA';
 import InstallPWAiOS from './components/InstallPWA/InstallPWAiOS';
+import { NotificationsProvider } from './contexts/NotificationsContext';
+import { InvoicesProvider } from './contexts/InvoicesContext';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/admin" element={<BeautySalonDashboard />} />
-      </Routes>
-      <InstallPWA />
-      <InstallPWAiOS />
-    </Router>
+    <NotificationsProvider>
+      <InvoicesProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/admin" element={<BeautySalonDashboard />} />
+          </Routes>
+          <InstallPWA />
+          <InstallPWAiOS />
+        </Router>
+      </InvoicesProvider>
+    </NotificationsProvider>
   );
 }
 

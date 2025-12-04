@@ -4,19 +4,20 @@ import Dashboard from '../Dashboard/Dashboard';
 
 // Componente principal
 export default function BeautySalonDashboard() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null); // <- ahora guardamos el usuario completo con roles
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+  const handleLogin = (userData) => {
+    console.log(userData);
+    setUser(userData); // userData viene de LoginComponent
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    setUser(null);
   };
 
-  if (!isLoggedIn) {
+  if (!user) {
     return <LoginComponent onLogin={handleLogin} />;
   }
 
-  return <Dashboard onLogout={handleLogout} />;
+  return <Dashboard onLogout={handleLogout} user={user} />;
 }

@@ -73,14 +73,14 @@ const AppointmentsManager = () => {
   });
 
   const services = [
-    { name: 'Manicura Francesa', price: 30 },
-    { name: 'Corte de Cabello', price: 30 },
-    { name: 'Facial Hidratante', price: 55 },
-    { name: 'Maquillaje de Noche', price: 50 },
-    { name: 'Pedicura Spa', price: 40 },
-    { name: 'Coloración Completa', price: 80 },
-    { name: 'Tratamiento Capilar', price: 45 },
-    { name: 'Maquillaje de Día', price: 35 }
+    { name: 'Manicura Francesa' },
+    { name: 'Corte de Cabello' },
+    { name: 'Facial Hidratante' },
+    { name: 'Maquillaje de Noche' },
+    { name: 'Pedicura Spa' },
+    { name: 'Coloración Completa' },
+    { name: 'Tratamiento Capilar' },
+    { name: 'Maquillaje de Día' }
   ];
 
   const filteredAppointments = appointments.filter(apt =>
@@ -854,28 +854,6 @@ const AppointmentsManager = () => {
                   onBlur={(e) => e.target.style.borderColor = '#f0f0f0'}
                 />
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '8px' }}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={newAppointment.email}
-                  onChange={(e) => setNewAppointment({ ...newAppointment, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '2px solid #f0f0f0',
-                    borderRadius: '10px',
-                    fontSize: '16px',
-                    outline: 'none'
-                  }}
-                  placeholder="email@ejemplo.com"
-                  onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                  onBlur={(e) => e.target.style.borderColor = '#f0f0f0'}
-                />
-              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -899,7 +877,7 @@ const AppointmentsManager = () => {
                   <option value="">Seleccionar servicio...</option>
                   {services.map(service => (
                     <option key={service.name} value={service.name}>
-                      {service.name} - ${service.price}
+                      {service.name}
                     </option>
                   ))}
                 </select>
@@ -945,9 +923,9 @@ const AppointmentsManager = () => {
                     background: 'white'
                   }}
                 >
-                  <option value="pendiente">⏳ Pendiente</option>
-                  <option value="confirmada">✅ Confirmada</option>
-                  <option value="cancelada">❌ Cancelada</option>
+                  <option value="pendiente">⏳Pendiente</option>
+                  <option value="confirmada">✅Confirmada</option>
+                  <option value="cancelada">❌Cancelada</option>
                 </select>
               </div>
             </div>

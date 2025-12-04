@@ -5,27 +5,68 @@ import ClientsManager from '../ClientsManager/ClientsManager';
 import ServicesManager from '../ServicesManager/ServicesManager';
 import InvoiceManager from '../InvoiceManager/InvoiceManager';
 import ReportsManager from '../ReportsManager/ReportsManager';
+import AdminManager from '../AdminManager/AdminManager';
+import Alert from '../../ui/Alert/Alert';
 import { useState } from 'react';
 import '../AdminResponsive.css';
 
 // Componente principal del Dashboard
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ onLogout, user }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const hasRole = (role) => user.roles.includes(role);
 
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview />;
       case 'appointments':
-        return <AppointmentsManager />;
+        return hasRole('admin') || hasRole('reception') || hasRole('stylist')
+          ? <AppointmentsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de citas. Por favor, contacta al administrador si necesitas acceso.`}
+          />;
       case 'clients':
-        return <ClientsManager />;
+        return hasRole('admin') || hasRole('reception')
+          ? <ClientsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de clientes. Por favor, contacta al administrador si necesitas acceso.`}
+          />;
       case 'services':
-        return <ServicesManager />;
+        return hasRole('admin') || hasRole('stylist')
+          ? <ServicesManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de servicios. Por favor, contacta al administrador si necesitas acceso.`}
+          />;
       case 'invoices':
-        return <InvoiceManager />;
+        return hasRole('admin') || hasRole('accounting')
+          ? <InvoiceManager user={user} />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de facturas. Por favor, contacta al administrador si necesitas acceso.`}
+          />;
       case 'reports':
-        return <ReportsManager />;
+        return hasRole('admin')
+          ? <ReportsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de reportes. Esta sección está disponible solo para administradores.`}
+          />;
+      case 'admin':
+        return hasRole('admin')
+          ? <AdminManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, esta sección está disponible solo para administradores. Aquí se gestionan usuarios, permisos y notificaciones del sistema.`}
+          />;
       default:
         return <DashboardOverview />;
     }
@@ -49,6 +90,7 @@ const Dashboard = ({ onLogout }) => {
           }
         }
       `}</style>
+
       <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa' }}>
         <Sidebar
           activeSection={activeSection}

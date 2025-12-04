@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Calendar, DollarSign, Users, Clock, Settings, LogOut, FileText, Menu, X } from 'lucide-react';
+import { Calendar, DollarSign, Users, Clock, Settings, LogOut, FileText, Menu, X, Shield } from 'lucide-react';
+import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
 
 const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Calendar size={20} /> },
@@ -10,12 +12,22 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
     { id: 'clients', label: 'Clientes', icon: <Users size={20} /> },
     { id: 'services', label: 'Servicios', icon: <Settings size={20} /> },
     { id: 'invoices', label: 'Facturas', icon: <FileText size={20} /> },
-    { id: 'reports', label: 'Reportes', icon: <DollarSign size={20} /> }
+    { id: 'reports', label: 'Reportes', icon: <DollarSign size={20} /> },
+    { id: 'admin', label: 'Administración', icon: <Shield size={20} /> }
   ];
 
   const handleMenuClick = (id) => {
     setActiveSection(id);
-    setIsOpen(false); // Cerrar menú en móvil después de seleccionar
+    setIsOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    onLogout();
+    setIsOpen(false);
   };
 
   return (
@@ -48,6 +60,14 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
           .sidebar-overlay {
             display: none !important;
           }
+        }
+        /* Ocultar scrollbar pero permitir scroll */
+        .sidebar-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .sidebar-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
       `}</style>
 
@@ -82,8 +102,8 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.3)', // Overlay más sutil
-          backdropFilter: 'blur(3px)', // Desenfoque sutil en el fondo
+          background: 'rgba(0, 0, 0, 0.3)',
+          backdropFilter: 'blur(3px)',
           zIndex: 999,
           display: 'none',
           transition: 'all 0.3s ease'
@@ -91,7 +111,7 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
       />
 
       {/* Sidebar Desktop */}
-      <div className="sidebar-desktop" style={{
+      <div className="sidebar-desktop sidebar-scroll" style={{
         width: '280px',
         height: '100vh',
         background: 'linear-gradient(180deg, #ff6b9d, #ff8fab)',
@@ -103,7 +123,8 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
         boxShadow: '4px 0 20px rgba(255, 107, 157, 0.2)',
         display: 'flex',
         flexDirection: 'column',
-        zIndex: 100
+        zIndex: 100,
+        overflowY: 'auto'
       }}>
         <div style={{
           padding: '0 20px',
@@ -154,7 +175,9 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
 
         <div style={{
           padding: '0 20px',
-          marginTop: 'auto'
+          marginTop: 'auto',
+          paddingTop: '20px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.2)'
         }}>
           <div
             style={{
@@ -167,7 +190,7 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
               alignItems: 'center',
               gap: '12px'
             }}
-            onClick={onLogout}
+            onClick={handleLogoutClick}
             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
           >
@@ -178,26 +201,27 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
       </div>
 
       {/* Sidebar Mobile (Estilo Nativo iOS) */}
-      <div className="sidebar-mobile" style={{
+      <div className="sidebar-mobile sidebar-scroll" style={{
         width: '280px',
         height: '100vh',
-        // Fondo translúcido estilo iOS (Glassmorphism)
         background: 'rgba(255, 107, 157, 0.85)',
         backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)', // Soporte para Safari
+        WebkitBackdropFilter: 'blur(20px)',
         color: 'white',
         position: 'fixed',
         left: 0,
         top: 0,
         padding: '20px 0',
-        // Sombra suave y difusa
         boxShadow: '10px 0 40px rgba(255, 107, 157, 0.3)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 1000,
-        // Animación suave estilo iOS (Spring)
         transition: 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
         transform: 'translateX(-100%)',
+        borderTopRightRadius: '30px',
+        borderBottomRightRadius: '30px',
+        borderRight: '1px solid rgba(255, 255, 255, 0.2)',
+        overflowY: 'auto'
       }}>
         <div style={{
           padding: '0 20px',
@@ -221,9 +245,8 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
                 padding: '16px 20px',
                 marginBottom: '8px',
                 cursor: 'pointer',
-                // Estilo de botón seleccionado estilo iOS
                 background: activeSection === item.id ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
-                borderRadius: '16px', // Bordes redondeados en los items
+                borderRadius: '16px',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
@@ -243,7 +266,9 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
         <div style={{
           padding: '0 20px',
           marginTop: 'auto',
-          marginBottom: '30px' // Espacio para el home indicator
+          marginBottom: '30px',
+          paddingTop: '20px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.2)'
         }}>
           <div
             style={{
@@ -258,7 +283,7 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
               backdropFilter: 'blur(5px)'
             }}
             onClick={() => {
-              onLogout();
+              handleLogoutClick();
               setIsOpen(false);
             }}
           >
@@ -266,7 +291,19 @@ const Sidebar = ({ activeSection, setActiveSection, onLogout }) => {
             <span style={{ fontWeight: '500' }}>Cerrar Sesión</span>
           </div>
         </div>
-      </div >
+      </div>
+
+      {/* Modal de confirmación de logout */}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="¿Cerrar Sesión?"
+        message="¿Estás seguro de que quieres cerrar sesión? Tendrás que volver a iniciar sesión para acceder al panel."
+        type="logout"
+        confirmText="Cerrar Sesión"
+        cancelText="Cancelar"
+      />
     </>
   );
 };

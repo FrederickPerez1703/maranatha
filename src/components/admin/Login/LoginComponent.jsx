@@ -5,10 +5,37 @@ const LoginComponent = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
 
+  const users = [
+    {
+      username: "admin",
+      password: "admin",
+      roles: ["admin"]
+    },
+    {
+      username: "alfre",
+      password: "1234",
+      roles: ["stylist", "accounting"]
+    },
+    {
+      username: "lia",
+      password: "1234",
+      roles: ["reception", "accounting"]
+    },
+    {
+      username: "contabilidad",
+      password: "1234",
+      roles: ["accounting"]
+    }
+  ];
+
   const handleLogin = (e) => {
     e.preventDefault();
-    if (credentials.username === 'admin' && credentials.password === 'admin') {
-      onLogin();
+    const user = users.find(user => user.username === credentials.username && user.password === credentials.password);
+    if (user) {
+      onLogin({
+        username: user.username,
+        roles: user.roles
+      });
       setError('');
     } else {
       setError('Usuario o contraseña incorrectos');

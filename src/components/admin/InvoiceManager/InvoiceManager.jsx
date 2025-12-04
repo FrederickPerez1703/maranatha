@@ -1,53 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Printer, Calendar, User, Search, Plus, X, Edit2, Trash2, History } from 'lucide-react';
 import servicesData from '../../../data/servicesData';
+import { useNotifications } from '../../../contexts/NotificationsContext';
+import { useInvoices } from '../../../contexts/InvoicesContext';
+import Alert from '../../ui/Alert/Alert';
+import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
 
-const InvoiceManager = () => {
+const InvoiceManager = ({ user }) => {
+    // Contexto de notificaciones
+    const { requestDeletion, hasPendingDeletion } = useNotifications();
+    // Contexto de facturas
+    const { invoices, deletedInvoices, addInvoice, updateInvoice, toggleInvoiceStatus } = useInvoices();
+
+    const currentUser = user?.username || 'admin'; // Nombre del usuario actual
+
     // Extract only service names since prices are now manually entered
     const allServices = Object.values(servicesData.es).flatMap(category =>
         category.services.map(service => service.name)
     );
 
-    const [invoices, setInvoices] = useState(() => {
-        // Cargar facturas desde localStorage
-        const saved = localStorage.getItem('maranatha-invoices');
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch (e) {
-                console.error('Error loading invoices:', e);
-            }
-        }
-        // Iniciar con array vacío
-        return [];
-    });
-
-    // Guardar facturas en localStorage cada vez que cambien
-    useEffect(() => {
-        localStorage.setItem('maranatha-invoices', JSON.stringify(invoices));
-    }, [invoices]);
-
-    // Historial de facturas eliminadas
-    const [deletedInvoices, setDeletedInvoices] = useState(() => {
-        const saved = localStorage.getItem('maranatha-deleted-invoices');
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch (e) {
-                console.error('Error loading deleted invoices:', e);
-            }
-        }
-        return [];
-    });
-
-    // Guardar facturas eliminadas en localStorage
-    useEffect(() => {
-        localStorage.setItem('maranatha-deleted-invoices', JSON.stringify(deletedInvoices));
-    }, [deletedInvoices]);
-
     const [showModal, setShowModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
     const [deleteComment, setDeleteComment] = useState('');
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -167,16 +143,6 @@ const InvoiceManager = () => {
         printWindow.document.close();
     };
 
-    const toggleInvoiceStatus = (invoiceId) => {
-        setInvoices(prevInvoices => prevInvoices.map(inv => {
-            if (inv.id === invoiceId) {
-                const newStatus = inv.status === 'paid' ? 'pending' : 'paid';
-                return { ...inv, status: newStatus };
-            }
-            return inv;
-        }));
-    };
-
     const openEditModal = (invoice) => {
         setEditingInvoice(invoice);
         setFormData({
@@ -241,11 +207,12 @@ const InvoiceManager = () => {
         const { subtotal, total } = calculateTotal();
 
         if (editingInvoice) {
-            setInvoices(invoices.map(inv =>
-                inv.id === editingInvoice.id
-                    ? { ...inv, ...formData, subtotal, total }
-                    : inv
-            ));
+            updateInvoice({
+                ...editingInvoice,
+                ...formData,
+                subtotal,
+                total
+            });
         } else {
             // Generar ID único basado en el ID más alto existente
             const maxId = invoices.reduce((max, inv) => {
@@ -261,7 +228,7 @@ const InvoiceManager = () => {
                 total,
                 status: 'pending'
             };
-            setInvoices([newInvoice, ...invoices]);
+            addInvoice(newInvoice);
         }
         setShowModal(false);
     };
@@ -272,24 +239,32 @@ const InvoiceManager = () => {
         setShowDeleteModal(true);
     };
 
-    const handleDelete = () => {
+    const handleRequestDelete = () => {
         if (!deleteComment.trim()) {
             alert('Por favor, ingresa un comentario explicando por qué eliminas esta factura');
             return;
         }
 
-        const deletedInvoice = {
-            ...invoiceToDelete,
-            deletedAt: new Date().toISOString(),
-            deleteComment: deleteComment.trim(),
-            deletedBy: 'Admin' // Puedes cambiar esto por el usuario actual
-        };
+        // Verificar si ya hay una solicitud pendiente
+        if (hasPendingDeletion(invoiceToDelete.id)) {
+            alert('Ya existe una solicitud pendiente para eliminar esta factura. Espera la aprobación del administrador.');
+            setShowDeleteModal(false);
+            setInvoiceToDelete(null);
+            setDeleteComment('');
+            return;
+        }
 
-        // Agregar al historial de eliminadas
-        setDeletedInvoices([deletedInvoice, ...deletedInvoices]);
+        // Crear solicitud de eliminación
+        requestDeletion(
+            'invoice',
+            invoiceToDelete.id,
+            `Factura ${invoiceToDelete.id} - ${invoiceToDelete.clientName}`,
+            currentUser,
+            deleteComment.trim()
+        );
 
-        // Eliminar de facturas activas
-        setInvoices(invoices.filter(inv => inv.id !== invoiceToDelete.id));
+        setSuccessMessage('Solicitud enviada al administrador. La factura se eliminará cuando sea aprobada.');
+        setShowSuccessModal(true);
 
         // Cerrar modal
         setShowDeleteModal(false);
@@ -313,6 +288,17 @@ const InvoiceManager = () => {
           .modal-content { width: 95% !important; max-height: 95vh !important; }
           .form-grid { grid-template-columns: 1fr !important; }
           .service-grid { grid-template-columns: 1fr 1fr 1fr auto !important; }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.02);
+          }
         }
       `}</style>
 
@@ -463,6 +449,24 @@ const InvoiceManager = () => {
                                 >
                                     {invoice.status === 'paid' ? '✓ Pagado' : '⏱ Pendiente'}
                                 </button>
+
+                                {/* Badge de solicitud pendiente */}
+                                {hasPendingDeletion(invoice.id) && (
+                                    <div style={{
+                                        marginTop: '8px',
+                                        padding: '6px 12px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                                        color: 'white',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.3)',
+                                        animation: 'pulse 2s infinite'
+                                    }}>
+                                        ⏳ Pendiente de aprobación
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -740,15 +744,15 @@ const InvoiceManager = () => {
                                     opacity: (!formData.clientName || formData.services.length === 0) ? 0.5 : 1
                                 }}
                             >
-                                {editingInvoice ? 'Guardar Cambios' : 'Crear Factura'}
+                                Guardar
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal de Confirmación de Eliminación */}
-            {showDeleteModal && invoiceToDelete && (
+            {/* Modal de confirmación de eliminación */}
+            {showDeleteModal && (
                 <div style={{
                     position: 'fixed',
                     top: 0,
@@ -766,55 +770,60 @@ const InvoiceManager = () => {
                         background: 'white',
                         borderRadius: '20px',
                         padding: '30px',
-                        maxWidth: '500px',
-                        width: '100%'
+                        maxWidth: '400px',
+                        width: '100%',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
                     }}>
-                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', color: '#ef4444' }}>
-                            ⚠️ Eliminar Factura
-                        </h2>
-
-                        <div style={{ marginBottom: '20px', padding: '15px', background: '#fef2f2', borderRadius: '10px', border: '1px solid #fecaca' }}>
-                            <p style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#991b1b' }}>
-                                <strong>Factura:</strong> {invoiceToDelete.id}
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <div style={{
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '50%',
+                                background: '#fee2e2',
+                                color: '#dc2626',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 15px auto'
+                            }}>
+                                <Trash2 size={30} />
+                            </div>
+                            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '10px' }}>
+                                Solicitud de Eliminación
+                            </h3>
+                            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+                                ¿Estás seguro de que deseas solicitar la eliminación de la factura <strong>{invoiceToDelete?.id}</strong>?
                             </p>
-                            <p style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#991b1b' }}>
-                                <strong>Cliente:</strong> {invoiceToDelete.clientName}
-                            </p>
-                            <p style={{ margin: 0, fontSize: '14px', color: '#991b1b' }}>
-                                <strong>Total:</strong> ${invoiceToDelete.total.toFixed(2)}
+                            <p style={{ color: '#d97706', fontSize: '13px', marginTop: '10px', background: '#fffbeb', padding: '8px', borderRadius: '8px' }}>
+                                ⚠️ Esta acción requiere aprobación del administrador.
                             </p>
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
-                                ¿Por qué eliminas esta factura? *
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+                                Motivo de la eliminación *
                             </label>
                             <textarea
                                 value={deleteComment}
                                 onChange={(e) => setDeleteComment(e.target.value)}
-                                placeholder="Ejemplo: Error en el monto, factura duplicada, cliente canceló..."
+                                placeholder="Ej: Error en el monto, factura duplicada..."
                                 style={{
                                     width: '100%',
-                                    padding: '12px',
+                                    padding: '10px',
                                     border: '2px solid #e5e7eb',
                                     borderRadius: '10px',
                                     fontSize: '14px',
+                                    minHeight: '80px',
                                     outline: 'none',
-                                    boxSizing: 'border-box',
-                                    minHeight: '100px',
                                     resize: 'vertical',
-                                    fontFamily: 'inherit'
+                                    boxSizing: 'border-box'
                                 }}
                             />
                         </div>
 
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button
-                                onClick={() => {
-                                    setShowDeleteModal(false);
-                                    setInvoiceToDelete(null);
-                                    setDeleteComment('');
-                                }}
+                                onClick={() => setShowDeleteModal(false)}
                                 style={{
                                     flex: 1,
                                     padding: '12px',
@@ -829,7 +838,8 @@ const InvoiceManager = () => {
                                 Cancelar
                             </button>
                             <button
-                                onClick={handleDelete}
+                                onClick={handleRequestDelete}
+                                disabled={!deleteComment.trim()}
                                 style={{
                                     flex: 1,
                                     padding: '12px',
@@ -838,17 +848,18 @@ const InvoiceManager = () => {
                                     border: 'none',
                                     borderRadius: '10px',
                                     cursor: 'pointer',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    opacity: !deleteComment.trim() ? 0.5 : 1
                                 }}
                             >
-                                Eliminar Factura
+                                Solicitar Eliminación
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal de Historial de Facturas Eliminadas */}
+            {/* Modal de Historial */}
             {showHistoryModal && (
                 <div style={{
                     position: 'fixed',
@@ -863,73 +874,60 @@ const InvoiceManager = () => {
                     zIndex: 1000,
                     padding: '20px'
                 }}>
-                    <div style={{
+                    <div className="modal-content" style={{
                         background: 'white',
                         borderRadius: '20px',
                         padding: '30px',
-                        maxWidth: '900px',
+                        maxWidth: '800px',
                         width: '100%',
-                        maxHeight: '90vh',
+                        maxHeight: '80vh',
                         overflowY: 'auto'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
-                                📜 Historial de Facturas Eliminadas
+                            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <History size={24} />
+                                Historial de Eliminaciones
                             </h2>
                             <button
                                 onClick={() => setShowHistoryModal(false)}
                                 style={{
-                                    background: '#f3f4f6',
+                                    background: 'none',
                                     border: 'none',
-                                    borderRadius: '50%',
-                                    width: '32px',
-                                    height: '32px',
                                     cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
+                                    color: '#6b7280'
                                 }}
                             >
-                                <X size={20} />
+                                <X size={24} />
                             </button>
                         </div>
 
                         {deletedInvoices.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-                                <History size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                                <p style={{ fontSize: '16px', margin: 0 }}>No hay facturas eliminadas</p>
+                            <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
+                                No hay facturas eliminadas en el historial.
                             </div>
                         ) : (
-                            <div style={{ display: 'grid', gap: '16px' }}>
-                                {deletedInvoices.map((invoice, index) => (
-                                    <div key={index} style={{
+                            <div style={{ display: 'grid', gap: '15px' }}>
+                                {deletedInvoices.map((invoice, idx) => (
+                                    <div key={idx} style={{
                                         background: '#fef2f2',
-                                        border: '2px solid #fecaca',
+                                        border: '1px solid #fee2e2',
                                         borderRadius: '12px',
-                                        padding: '20px'
+                                        padding: '16px'
                                     }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                             <div>
-                                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#991b1b', margin: '0 0 4px 0' }}>
-                                                    {invoice.id}
-                                                </h3>
-                                                <p style={{ fontSize: '14px', color: '#7f1d1d', margin: 0 }}>
-                                                    Cliente: {invoice.clientName}
-                                                </p>
+                                                <span style={{ fontWeight: 'bold', color: '#991b1b' }}>{invoice.id}</span>
+                                                <span style={{ margin: '0 8px', color: '#ef4444' }}>•</span>
+                                                <span style={{ color: '#7f1d1d' }}>{invoice.clientName}</span>
                                             </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#dc2626' }}>
-                                                    ${invoice.total.toFixed(2)}
-                                                </div>
-                                                <div style={{ fontSize: '12px', color: '#991b1b', marginTop: '4px' }}>
-                                                    {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}
-                                                </div>
+                                            <div style={{ fontSize: '12px', color: '#991b1b' }}>
+                                                Eliminado el: {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
                                             </div>
                                         </div>
 
@@ -937,9 +935,19 @@ const InvoiceManager = () => {
                                             <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: '600' }}>
                                                 Motivo de eliminación:
                                             </p>
-                                            <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>
+                                            <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 8px 0' }}>
                                                 {invoice.deleteComment}
                                             </p>
+                                            <div style={{ display: 'flex', gap: '15px', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                                                <span>
+                                                    <strong>Solicitado por:</strong> {invoice.deletedBy || 'N/A'}
+                                                </span>
+                                                {invoice.approvedBy && (
+                                                    <span>
+                                                        <strong>Aprobado por:</strong> {invoice.approvedBy}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div style={{ fontSize: '12px', color: '#991b1b' }}>
@@ -952,6 +960,18 @@ const InvoiceManager = () => {
                     </div>
                 </div>
             )}
+
+            {/* Modal de éxito */}
+            <ConfirmationModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                onConfirm={() => setShowSuccessModal(false)}
+                title="Solicitud Enviada"
+                message={successMessage}
+                type="success"
+                confirmText="Aceptar"
+                showCancel={false}
+            />
         </div>
     );
 };

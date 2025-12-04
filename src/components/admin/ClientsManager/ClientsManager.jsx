@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
+import { Trash2 } from 'lucide-react';
 
 // Componente de Gestión de Clientes
 const ClientsManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Efecto para manejar la clase modal-open en el body
   useEffect(() => {
@@ -18,6 +21,15 @@ const ClientsManager = () => {
       document.body.classList.remove('modal-open');
     };
   }, [showModal, viewingClient]);
+
+  const handleLogoutClick = (id) => {
+    setShowLogoutModal(true);
+    handleConfirmLogout(id);
+  };
+
+  const handleConfirmLogout = (id) => {
+    setClients(clients.filter(client => client.id !== id));
+  };
 
   const [clients, setClients] = useState([
     {
@@ -565,7 +577,7 @@ const ClientsManager = () => {
                     ✏️ Editar
                   </button>
                   <button
-                    onClick={() => handleDelete(client.id)}
+                    onClick={() => handleLogoutClick(client.id)}
                     style={{
                       padding: '8px',
                       borderRadius: '8px',
@@ -576,7 +588,7 @@ const ClientsManager = () => {
                       fontSize: '12px'
                     }}
                   >
-                    🗑️
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -1072,6 +1084,16 @@ const ClientsManager = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="¿Esta seguro que desea eliminar este cliente?"
+        message=""
+        type="warning"
+        confirmText="Sí, Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };
