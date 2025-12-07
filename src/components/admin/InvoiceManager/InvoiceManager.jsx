@@ -447,8 +447,12 @@ const InvoiceManager = ({ user }) => {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        toggleInvoiceStatus(invoice.id);
+                                        // Solo permitir cambio si no está pagado
+                                        if (invoice.status !== 'paid') {
+                                            toggleInvoiceStatus(invoice.id);
+                                        }
                                     }}
+                                    disabled={invoice.status === 'paid'}
                                     style={{
                                         display: 'inline-block',
                                         padding: '4px 12px',
@@ -459,7 +463,8 @@ const InvoiceManager = ({ user }) => {
                                         color: invoice.status === 'paid' ? '#065f46' : '#92400e',
                                         marginTop: '8px',
                                         border: 'none',
-                                        cursor: 'pointer'
+                                        cursor: invoice.status === 'paid' ? 'not-allowed' : 'pointer',
+                                        opacity: invoice.status === 'paid' ? 0.8 : 1
                                     }}
                                 >
                                     {invoice.status === 'paid' ? '✓ Pagado' : '⏱ Pendiente'}
