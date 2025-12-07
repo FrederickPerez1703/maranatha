@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher';
@@ -53,6 +54,7 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
               <ul className="nav-links" style={{ display: 'flex', alignItems: 'center', margin: 0 }}>
                 <li><a href="#home" onClick={() => handleCloseScheduleAppointment()}>{t('header.home')}</a></li>
                 <li><a href="#services" onClick={() => scrollToSection('services')}>{t('header.services')}</a></li>
+                <li><Link to="/about">Sobre Nosotros</Link></li>
                 <li><a href="#" className="cta-button" onClick={handleReservarClick}>{t('header.bookNow')}</a></li>
               </ul>
               <div className="desktop-lang-switcher">
@@ -76,6 +78,7 @@ export default function HeaderSection({ openModal, showBackButton, closeSchedule
             <div className="mobile-menu">
               <a href="#home" onClick={() => scrollToSection('home')}>{t('header.home')}</a>
               <a href="#services" onClick={() => scrollToSection('services')}>{t('header.services')}</a>
+              <Link to="/about" style={{ padding: '15px 30px', color: '#333', textDecoration: 'none', fontWeight: '500', transition: 'background 0.3s ease' }} onClick={() => setMobileMenuOpen(false)}>Sobre Nosotros</Link>
               <div style={{ padding: '10px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <LanguageSwitcher mobile={true} />
                 <ThemeSwitcher mobile={true} />

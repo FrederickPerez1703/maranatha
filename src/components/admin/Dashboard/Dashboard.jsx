@@ -7,13 +7,23 @@ import InvoiceManager from '../InvoiceManager/InvoiceManager';
 import ReportsManager from '../ReportsManager/ReportsManager';
 import AdminManager from '../AdminManager/AdminManager';
 import Alert from '../../ui/Alert/Alert';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../AdminResponsive.css';
 
 // Componente principal del Dashboard
 const Dashboard = ({ onLogout, user }) => {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  // Cargar la sección activa desde localStorage o usar 'dashboard' por defecto
+  const [activeSection, setActiveSection] = useState(() => {
+    const savedSection = localStorage.getItem('adminActiveSection');
+    return savedSection || 'dashboard';
+  });
+
   const hasRole = (role) => user.roles.includes(role);
+
+  // Guardar la sección activa en localStorage cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem('adminActiveSection', activeSection);
+  }, [activeSection]);
 
   const renderContent = () => {
     switch (activeSection) {

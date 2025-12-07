@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 
@@ -14,10 +15,10 @@ export default function Footer() {
   };
 
   const quickLinks = [
-    { name: t('header.home'), id: 'home' },
-    { name: t('header.services'), id: 'services' },
-    { name: t('footer.about'), id: 'about' },
-    { name: t('footer.contact'), id: 'contact' }
+    { name: t('header.home'), id: 'home', isRoute: false },
+    { name: t('header.services'), id: 'services', isRoute: false },
+    { name: 'Sobre Nosotros', id: 'about', isRoute: true },
+    { name: t('footer.contact'), id: 'contact', isRoute: false }
   ];
 
   const services = [
@@ -104,15 +105,26 @@ export default function Footer() {
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {quickLinks.map((link) => (
                 <li key={link.id} style={{ marginBottom: '0.75rem' }}>
-                  <a
-                    href={`#${link.id}`}
-                    onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
-                    style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block' }}
-                    onMouseOver={(e) => { e.currentTarget.style.color = '#ff6b9d'; e.currentTarget.style.transform = 'translateX(5px)'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.color = '#b0b0b0'; e.currentTarget.style.transform = 'translateX(0)'; }}
-                  >
-                    {link.name}
-                  </a>
+                  {link.isRoute ? (
+                    <Link
+                      to={`/${link.id}`}
+                      style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block' }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = '#ff6b9d'; e.currentTarget.style.transform = 'translateX(5px)'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = '#b0b0b0'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a
+                      href={`#${link.id}`}
+                      onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
+                      style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block' }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = '#ff6b9d'; e.currentTarget.style.transform = 'translateX(5px)'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = '#b0b0b0'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                    >
+                      {link.name}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -141,24 +153,17 @@ export default function Footer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                 <MapPin size={20} style={{ color: '#ff6b9d', marginTop: '2px', flexShrink: 0 }} />
-                <span style={{ color: '#b0b0b0', lineHeight: '1.5' }}>Santo Domingo Este, República Dominicana</span>
+                <span style={{ color: '#b0b0b0', lineHeight: '1.5' }}>Long bay, Anguilla.</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Phone size={20} style={{ color: '#ff6b9d', flexShrink: 0 }} />
-                <a href="tel:+18092645832914" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
+                <a href="tel:+12645832914" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
                   onMouseOut={(e) => e.currentTarget.style.color = '#b0b0b0'}>
-                  +1 (809) 264-5832
+                  +1 (264) 583-2914
                 </a>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Mail size={20} style={{ color: '#ff6b9d', flexShrink: 0 }} />
-                <a href="mailto:info@enmaranatha.com" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#b0b0b0'}>
-                  info@enmaranatha.com
-                </a>
-              </div>
+
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                 <Clock size={20} style={{ color: '#ff6b9d', marginTop: '2px', flexShrink: 0 }} />
                 <div style={{ color: '#b0b0b0', lineHeight: '1.5' }}>

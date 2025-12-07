@@ -40,4 +40,45 @@ export default class SendService implements SendInterface {
 
     window.open(url, '_blank');
   }
+
+  /**
+   * Envia una notificación de solicitud de eliminación.
+   * - En móviles: Usa SMS nativo.
+   * - En escritorio: Usa WhatsApp Web (ya que SMS no suele funcionar).
+   */
+  sendDeletionRequestMessage(request: {
+    invoiceId: string;
+    requestedBy: string;
+    reason: string;
+    amount: number;
+    clientName: string;
+  }): void {
+    const message = `
+⚠️ Solicitud de Eliminación de Factura
+🆔 Factura: ${request.invoiceId}
+👤 Cliente: ${request.clientName}
+💰 Monto: $${request.amount.toFixed(2)}
+👤 Solicitado por: ${request.requestedBy}
+📝 Motivo: ${request.reason}
+📅 Fecha: ${new Date().toLocaleString('es-ES')}
+
+Por favor, revisa el panel de administración.`.trim();
+
+    const targetPhone = '8093919890';
+
+    // Detectar si es un dispositivo móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // En móvil usamos SMS nativo
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const separator = isIOS ? '&' : '?';
+      window.location.href = `sms:${targetPhone}${separator}body=${encodeURIComponent(message)}`;
+    } else {
+      // En escritorio usamos WhatsApp porque SMS no funciona sin configuración especial
+      // Usamos api.whatsapp.com que redirige inteligentemente
+      const url = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+  }
 }

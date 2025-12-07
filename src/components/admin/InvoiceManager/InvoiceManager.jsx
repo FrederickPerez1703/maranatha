@@ -5,6 +5,7 @@ import { useNotifications } from '../../../contexts/NotificationsContext';
 import { useInvoices } from '../../../contexts/InvoicesContext';
 import Alert from '../../ui/Alert/Alert';
 import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
+import SendService from '../../../services/send/SendService';
 
 const InvoiceManager = ({ user }) => {
     // Contexto de notificaciones
@@ -13,6 +14,7 @@ const InvoiceManager = ({ user }) => {
     const { invoices, deletedInvoices, addInvoice, updateInvoice, toggleInvoiceStatus } = useInvoices();
 
     const currentUser = user?.username || 'admin'; // Nombre del usuario actual
+    const sendService = new SendService();
 
     // Extract only service names since prices are now manually entered
     const allServices = Object.values(servicesData.es).flatMap(category =>
@@ -23,7 +25,9 @@ const InvoiceManager = ({ user }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showWarningModal, setShowWarningModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [warningMessage, setWarningMessage] = useState('');
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
     const [deleteComment, setDeleteComment] = useState('');
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -241,13 +245,15 @@ const InvoiceManager = ({ user }) => {
 
     const handleRequestDelete = () => {
         if (!deleteComment.trim()) {
-            alert('Por favor, ingresa un comentario explicando por qué eliminas esta factura');
+            setWarningMessage('Por favor, ingresa un comentario explicando por qué eliminas esta factura');
+            setShowWarningModal(true);
             return;
         }
 
         // Verificar si ya hay una solicitud pendiente
         if (hasPendingDeletion(invoiceToDelete.id)) {
-            alert('Ya existe una solicitud pendiente para eliminar esta factura. Espera la aprobación del administrador.');
+            setWarningMessage('Ya existe una solicitud pendiente para eliminar esta factura. Espera la aprobación del administrador.');
+            setShowWarningModal(true);
             setShowDeleteModal(false);
             setInvoiceToDelete(null);
             setDeleteComment('');
@@ -262,6 +268,15 @@ const InvoiceManager = ({ user }) => {
             currentUser,
             deleteComment.trim()
         );
+
+        // Enviar notificación por WhatsApp
+        sendService.sendDeletionRequestMessage({
+            invoiceId: invoiceToDelete.id,
+            requestedBy: currentUser,
+            reason: deleteComment.trim(),
+            amount: invoiceToDelete.total,
+            clientName: invoiceToDelete.clientName
+        });
 
         setSuccessMessage('Solicitud enviada al administrador. La factura se eliminará cuando sea aprobada.');
         setShowSuccessModal(true);
@@ -970,6 +985,18 @@ const InvoiceManager = ({ user }) => {
                 message={successMessage}
                 type="success"
                 confirmText="Aceptar"
+                showCancel={false}
+            />
+
+            {/* Modal de advertencia */}
+            <ConfirmationModal
+                isOpen={showWarningModal}
+                onClose={() => setShowWarningModal(false)}
+                onConfirm={() => setShowWarningModal(false)}
+                title="Atención"
+                message={warningMessage}
+                type="warning"
+                confirmText="Entendido"
                 showCancel={false}
             />
         </div>
