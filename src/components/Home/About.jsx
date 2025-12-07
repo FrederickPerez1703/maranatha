@@ -28,7 +28,7 @@ export default function AboutUs() {
     useEffect(() => {
         window.scrollTo(0, 0);
 
-        // Disparar confetti después de un pequeño delay
+        // Disparar confetti después de un pequeño delay.
         const confettiTimer = setTimeout(() => {
             const duration = 3000;
             const animationEnd = Date.now() + duration;
