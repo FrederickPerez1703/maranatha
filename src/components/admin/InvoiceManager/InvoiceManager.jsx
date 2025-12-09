@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { Printer, Calendar, User, Search, Plus, X, Edit2, Trash2, History } from 'lucide-react';
-import servicesData from '../../../data/servicesData';
 import { useNotifications } from '../../../contexts/NotificationsContext';
 import { useInvoices } from '../../../contexts/InvoicesContext';
+import { useServices } from '../../../contexts/ServicesContext';
 import Alert from '../../ui/Alert/Alert';
 import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
 import SendService from '../../../services/send/SendService';
 
 const InvoiceManager = ({ user }) => {
     // Contexto de notificaciones
-    const { requestDeletion, hasPendingDeletion } = useNotifications();
+    const { requestDeletion, hasPendingDeletion, notifications, removeNotification } = useNotifications();
     // Contexto de facturas
     const { invoices, deletedInvoices, addInvoice, updateInvoice, toggleInvoiceStatus } = useInvoices();
+    // Contexto de servicios
+    const { getActiveServices } = useServices();
 
     const currentUser = user?.username || 'admin'; // Nombre del usuario actual
     const sendService = new SendService();
 
-    // Extract only service names since prices are now manually entered
-    const allServices = Object.values(servicesData.es).flatMap(category =>
-        category.services.map(service => service.name)
-    );
+    // Obtener solo los nombres de servicios activos
+    const allServices = getActiveServices().map(service => service.name);
 
     const [showModal, setShowModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -39,6 +39,27 @@ const InvoiceManager = ({ user }) => {
     const [selectedService, setSelectedService] = useState('');
     const [serviceQuantity, setServiceQuantity] = useState(1);
     const [servicePrice, setServicePrice] = useState('');
+
+    const pendingInvoiceNotifications = notifications.filter(n => n.type === 'invoice_pending');
+
+    const handleCreateFromNotification = (notification) => {
+        const appointment = notification.data;
+        // Intentar parsear el precio, eliminando símbolos no numéricos excepto punto
+        const priceString = appointment.price ? appointment.price.toString().replace(/[^0-9.]/g, '') : '0';
+        const price = parseFloat(priceString) || 0;
+
+        setEditingInvoice(null);
+        setFormData({
+            clientName: appointment.client,
+            services: [{
+                name: appointment.service,
+                price: price,
+                quantity: 1
+            }]
+        });
+        setShowModal(true);
+        removeNotification(notification.id);
+    };
 
     const handlePrint = (invoice) => {
         const printWindow = window.open('', '', 'height=1000,width=800');
@@ -325,22 +346,24 @@ const InvoiceManager = ({ user }) => {
                         </h1>
                         <p style={{ color: '#6b7280', marginTop: '5px', margin: 0 }}>Crea, gestiona e imprime facturas</p>
 
-                        {/* Total General */}
-                        <div style={{
-                            marginTop: '15px',
-                            padding: '12px 20px',
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
-                            borderRadius: '12px',
-                            display: 'inline-block',
-                            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
-                        }}>
-                            <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', fontWeight: '500', marginBottom: '4px' }}>
-                                Total Generado ({invoices.filter(inv => inv.status === 'paid').length} facturas pagadas)
+                        {/* Total General - Solo visible para admin */}
+                        {currentUser === 'admin' && (
+                            <div style={{
+                                marginTop: '15px',
+                                padding: '12px 20px',
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                borderRadius: '12px',
+                                display: 'inline-block',
+                                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                            }}>
+                                <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', fontWeight: '500', marginBottom: '4px' }}>
+                                    Total Generado ({invoices.filter(inv => inv.status === 'paid').length} facturas pagadas)
+                                </div>
+                                <div style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+                                    ${invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
+                                </div>
                             </div>
-                            <div style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
-                                ${invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
-                            </div>
-                        </div>
+                        )}
                     </div>
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         <button
@@ -410,6 +433,78 @@ const InvoiceManager = ({ user }) => {
                     />
                 </div>
             </div>
+
+
+            {/* Notificaciones de Facturas Pendientes */}
+            {
+                pendingInvoiceNotifications.length > 0 && (
+                    <div style={{ marginBottom: '30px', display: 'grid', gap: '15px' }}>
+                        {pendingInvoiceNotifications.map(notification => (
+                            <div key={notification.id} style={{
+                                background: '#fff7ed',
+                                border: '2px solid #f97316',
+                                borderRadius: '12px',
+                                padding: '15px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                boxShadow: '0 4px 12px rgba(249, 115, 22, 0.1)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <div style={{
+                                        background: '#f97316',
+                                        color: 'white',
+                                        padding: '10px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Calendar size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ margin: '0 0 5px 0', color: '#9a3412', fontSize: '16px' }}>Factura Pendiente por Cita Confirmada</h4>
+                                        <p style={{ margin: 0, color: '#c2410c', fontSize: '14px' }}>
+                                            Cliente: <strong>{notification.data.client}</strong> - Servicio: <strong>{notification.data.service}</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button
+                                        onClick={() => removeNotification(notification.id)}
+                                        style={{
+                                            padding: '8px 16px',
+                                            background: 'transparent',
+                                            border: '1px solid #f97316',
+                                            color: '#f97316',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        Ignorar
+                                    </button>
+                                    <button
+                                        onClick={() => handleCreateFromNotification(notification)}
+                                        style={{
+                                            padding: '8px 16px',
+                                            background: '#f97316',
+                                            border: 'none',
+                                            color: 'white',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            boxShadow: '0 2px 5px rgba(249, 115, 22, 0.3)'
+                                        }}
+                                    >
+                                        Generar Factura
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
 
             <div style={{ display: 'grid', gap: '20px' }}>
                 {filteredInvoices.map((invoice) => (
@@ -566,420 +661,426 @@ const InvoiceManager = ({ user }) => {
                 ))}
             </div>
 
-            {showModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000,
-                    padding: '20px'
-                }}>
-                    <div className="modal-content" style={{
-                        background: 'white',
-                        borderRadius: '20px',
-                        padding: '30px',
-                        maxWidth: '800px',
-                        width: '100%',
-                        maxHeight: '90vh',
-                        overflowY: 'auto'
+            {
+                showModal && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '20px'
                     }}>
-                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', color: '#1f2937' }}>
-                            {editingInvoice ? 'Editar Factura' : 'Nueva Factura'}
-                        </h2>
+                        <div className="modal-content" style={{
+                            background: 'white',
+                            borderRadius: '20px',
+                            padding: '30px',
+                            maxWidth: '800px',
+                            width: '100%',
+                            maxHeight: '90vh',
+                            overflowY: 'auto'
+                        }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', color: '#1f2937' }}>
+                                {editingInvoice ? 'Editar Factura' : 'Nueva Factura'}
+                            </h2>
 
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
-                                Nombre del Cliente *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.clientName}
-                                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    border: '2px solid #e5e7eb',
-                                    borderRadius: '10px',
-                                    fontSize: '14px',
-                                    outline: 'none',
-                                    boxSizing: 'border-box'
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '12px', fontWeight: '500', color: '#374151' }}>Servicios *</label>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                                <select
-                                    value={selectedService}
-                                    onChange={(e) => setSelectedService(e.target.value)}
-                                    style={{
-                                        flex: '1 1 100%',
-                                        minWidth: '200px',
-                                        padding: '10px',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        outline: 'none',
-                                        background: 'white',
-                                        boxSizing: 'border-box'
-                                    }}
-                                >
-                                    <option value="">Servicio...</option>
-                                    {allServices.map((serviceName, idx) => (
-                                        <option key={idx} value={serviceName}>{serviceName}</option>
-                                    ))}
-                                </select>
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
+                                    Nombre del Cliente *
+                                </label>
                                 <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="Precio"
-                                    value={servicePrice}
-                                    onChange={(e) => setServicePrice(e.target.value)}
+                                    type="text"
+                                    value={formData.clientName}
+                                    onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
                                     style={{
-                                        flex: '1 1 calc(50% - 4px)',
-                                        minWidth: '120px',
-                                        padding: '10px',
+                                        width: '100%',
+                                        padding: '12px',
                                         border: '2px solid #e5e7eb',
-                                        borderRadius: '8px',
+                                        borderRadius: '10px',
                                         fontSize: '14px',
                                         outline: 'none',
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <input
-                                    type="number"
-                                    min="1"
-                                    placeholder="Cant."
-                                    value={serviceQuantity}
-                                    onChange={(e) => setServiceQuantity(parseInt(e.target.value) || 1)}
-                                    style={{
-                                        flex: '1 1 calc(50% - 4px)',
-                                        minWidth: '100px',
-                                        padding: '10px',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        outline: 'none',
-                                        boxSizing: 'border-box'
-                                    }}
-                                />
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '12px', fontWeight: '500', color: '#374151' }}>Servicios *</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                                    <select
+                                        value={selectedService}
+                                        onChange={(e) => setSelectedService(e.target.value)}
+                                        style={{
+                                            flex: '1 1 100%',
+                                            minWidth: '200px',
+                                            padding: '10px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            outline: 'none',
+                                            background: 'white',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    >
+                                        <option value="">Servicio...</option>
+                                        {allServices.map((serviceName, idx) => (
+                                            <option key={idx} value={serviceName}>{serviceName}</option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Precio"
+                                        value={servicePrice}
+                                        onChange={(e) => setServicePrice(e.target.value)}
+                                        style={{
+                                            flex: '1 1 calc(50% - 4px)',
+                                            minWidth: '120px',
+                                            padding: '10px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        placeholder="Cant."
+                                        value={serviceQuantity}
+                                        onChange={(e) => setServiceQuantity(parseInt(e.target.value) || 1)}
+                                        style={{
+                                            flex: '1 1 calc(50% - 4px)',
+                                            minWidth: '100px',
+                                            padding: '10px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                    <button
+                                        onClick={handleAddService}
+                                        disabled={!selectedService || !servicePrice}
+                                        style={{
+                                            flex: '1 1 100%',
+                                            padding: '10px 16px',
+                                            background: (selectedService && servicePrice) ? 'linear-gradient(135deg, #ff6b9d, #ff8fab)' : '#e5e7eb',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            cursor: (selectedService && servicePrice) ? 'pointer' : 'not-allowed',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        Agregar Servicio
+                                    </button>
+                                </div>
+
+                                {formData.services.length > 0 && (
+                                    <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+                                        {formData.services.map((service, index) => (
+                                            <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: index < formData.services.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
+                                                <span style={{ fontSize: '14px', color: '#374151' }}>{service.quantity}x {service.name}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ff6b9d' }}>
+                                                        ${(service.price * service.quantity).toFixed(2)}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => handleRemoveService(index)}
+                                                        style={{
+                                                            background: '#fee2e2',
+                                                            color: '#dc2626',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: '#374151' }}>
+                                    <span>Subtotal:</span>
+                                    <span>${calculateTotal().subtotal.toFixed(2)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: 'bold', color: '#ff6b9d', paddingTop: '8px', borderTop: '2px solid #e5e7eb' }}>
+                                    <span>Total:</span>
+                                    <span>${calculateTotal().total.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
                                 <button
-                                    onClick={handleAddService}
-                                    disabled={!selectedService || !servicePrice}
+                                    onClick={() => setShowModal(false)}
                                     style={{
-                                        flex: '1 1 100%',
-                                        padding: '10px 16px',
-                                        background: (selectedService && servicePrice) ? 'linear-gradient(135deg, #ff6b9d, #ff8fab)' : '#e5e7eb',
-                                        color: 'white',
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: '#f3f4f6',
+                                        color: '#374151',
                                         border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: (selectedService && servicePrice) ? 'pointer' : 'not-allowed',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer',
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    Agregar Servicio
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={!formData.clientName || formData.services.length === 0}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        opacity: (!formData.clientName || formData.services.length === 0) ? 0.5 : 1
+                                    }}
+                                >
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Modal de confirmación de eliminación */}
+            {
+                showDeleteModal && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '20px'
+                    }}>
+                        <div style={{
+                            background: 'white',
+                            borderRadius: '20px',
+                            padding: '30px',
+                            maxWidth: '400px',
+                            width: '100%',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+                        }}>
+                            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                                <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    borderRadius: '50%',
+                                    background: '#fee2e2',
+                                    color: '#dc2626',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 15px auto'
+                                }}>
+                                    <Trash2 size={30} />
+                                </div>
+                                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '10px' }}>
+                                    Solicitud de Eliminación
+                                </h3>
+                                <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+                                    ¿Estás seguro de que deseas solicitar la eliminación de la factura <strong>{invoiceToDelete?.id}</strong>?
+                                </p>
+                                <p style={{ color: '#d97706', fontSize: '13px', marginTop: '10px', background: '#fffbeb', padding: '8px', borderRadius: '8px' }}>
+                                    ⚠️ Esta acción requiere aprobación del administrador.
+                                </p>
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+                                    Motivo de la eliminación *
+                                </label>
+                                <textarea
+                                    value={deleteComment}
+                                    onChange={(e) => setDeleteComment(e.target.value)}
+                                    placeholder="Ej: Error en el monto, factura duplicada..."
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        minHeight: '80px',
+                                        outline: 'none',
+                                        resize: 'vertical',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: '#f3f4f6',
+                                        color: '#374151',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleRequestDelete}
+                                    disabled={!deleteComment.trim()}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: '#ef4444',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        opacity: !deleteComment.trim() ? 0.5 : 1
+                                    }}
+                                >
+                                    Solicitar Eliminación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Modal de Historial */}
+            {
+                showHistoryModal && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '20px'
+                    }}>
+                        <div className="modal-content" style={{
+                            background: 'white',
+                            borderRadius: '20px',
+                            padding: '30px',
+                            maxWidth: '800px',
+                            width: '100%',
+                            maxHeight: '80vh',
+                            overflowY: 'auto'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <History size={24} />
+                                    Historial de Eliminaciones
+                                </h2>
+                                <button
+                                    onClick={() => setShowHistoryModal(false)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#6b7280'
+                                    }}
+                                >
+                                    <X size={24} />
                                 </button>
                             </div>
 
-                            {formData.services.length > 0 && (
-                                <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
-                                    {formData.services.map((service, index) => (
-                                        <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: index < formData.services.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
-                                            <span style={{ fontSize: '14px' }}>{service.quantity}x {service.name}</span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ff6b9d' }}>
-                                                    ${(service.price * service.quantity).toFixed(2)}
-                                                </span>
-                                                <button
-                                                    onClick={() => handleRemoveService(index)}
-                                                    style={{
-                                                        background: '#fee2e2',
-                                                        color: '#dc2626',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        width: '24px',
-                                                        height: '24px',
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <X size={14} />
-                                                </button>
+                            {deletedInvoices.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
+                                    No hay facturas eliminadas en el historial.
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gap: '15px' }}>
+                                    {deletedInvoices.map((invoice, idx) => (
+                                        <div key={idx} style={{
+                                            background: '#fef2f2',
+                                            border: '1px solid #fee2e2',
+                                            borderRadius: '12px',
+                                            padding: '16px'
+                                        }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                <div>
+                                                    <span style={{ fontWeight: 'bold', color: '#991b1b' }}>{invoice.id}</span>
+                                                    <span style={{ margin: '0 8px', color: '#ef4444' }}>•</span>
+                                                    <span style={{ color: '#7f1d1d' }}>{invoice.clientName}</span>
+                                                </div>
+                                                <div style={{ fontSize: '12px', color: '#991b1b' }}>
+                                                    Eliminado el: {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ background: 'white', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
+                                                <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: '600' }}>
+                                                    Motivo de eliminación:
+                                                </p>
+                                                <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 8px 0' }}>
+                                                    {invoice.deleteComment}
+                                                </p>
+                                                <div style={{ display: 'flex', gap: '15px', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                                                    <span>
+                                                        <strong>Solicitado por:</strong> {invoice.deletedBy || 'N/A'}
+                                                    </span>
+                                                    {invoice.approvedBy && (
+                                                        <span>
+                                                            <strong>Aprobado por:</strong> {invoice.approvedBy}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ fontSize: '12px', color: '#991b1b' }}>
+                                                <strong>Servicios:</strong> {invoice.services.map(s => `${s.quantity}x ${s.name}`).join(', ')}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
-
-                        <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                                <span>Subtotal:</span>
-                                <span>${calculateTotal().subtotal.toFixed(2)}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: 'bold', color: '#ff6b9d', paddingTop: '8px', borderTop: '2px solid #e5e7eb' }}>
-                                <span>Total:</span>
-                                <span>${calculateTotal().total.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button
-                                onClick={() => setShowModal(false)}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    background: '#f3f4f6',
-                                    color: '#374151',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={!formData.clientName || formData.services.length === 0}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                    opacity: (!formData.clientName || formData.services.length === 0) ? 0.5 : 1
-                                }}
-                            >
-                                Guardar
-                            </button>
-                        </div>
                     </div>
-                </div>
-            )}
-
-            {/* Modal de confirmación de eliminación */}
-            {showDeleteModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000,
-                    padding: '20px'
-                }}>
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '20px',
-                        padding: '30px',
-                        maxWidth: '400px',
-                        width: '100%',
-                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-                    }}>
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                            <div style={{
-                                width: '60px',
-                                height: '60px',
-                                borderRadius: '50%',
-                                background: '#fee2e2',
-                                color: '#dc2626',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 15px auto'
-                            }}>
-                                <Trash2 size={30} />
-                            </div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '10px' }}>
-                                Solicitud de Eliminación
-                            </h3>
-                            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
-                                ¿Estás seguro de que deseas solicitar la eliminación de la factura <strong>{invoiceToDelete?.id}</strong>?
-                            </p>
-                            <p style={{ color: '#d97706', fontSize: '13px', marginTop: '10px', background: '#fffbeb', padding: '8px', borderRadius: '8px' }}>
-                                ⚠️ Esta acción requiere aprobación del administrador.
-                            </p>
-                        </div>
-
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                Motivo de la eliminación *
-                            </label>
-                            <textarea
-                                value={deleteComment}
-                                onChange={(e) => setDeleteComment(e.target.value)}
-                                placeholder="Ej: Error en el monto, factura duplicada..."
-                                style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '2px solid #e5e7eb',
-                                    borderRadius: '10px',
-                                    fontSize: '14px',
-                                    minHeight: '80px',
-                                    outline: 'none',
-                                    resize: 'vertical',
-                                    boxSizing: 'border-box'
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button
-                                onClick={() => setShowDeleteModal(false)}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    background: '#f3f4f6',
-                                    color: '#374151',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleRequestDelete}
-                                disabled={!deleteComment.trim()}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    background: '#ef4444',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                    opacity: !deleteComment.trim() ? 0.5 : 1
-                                }}
-                            >
-                                Solicitar Eliminación
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal de Historial */}
-            {showHistoryModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000,
-                    padding: '20px'
-                }}>
-                    <div className="modal-content" style={{
-                        background: 'white',
-                        borderRadius: '20px',
-                        padding: '30px',
-                        maxWidth: '800px',
-                        width: '100%',
-                        maxHeight: '80vh',
-                        overflowY: 'auto'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <History size={24} />
-                                Historial de Eliminaciones
-                            </h2>
-                            <button
-                                onClick={() => setShowHistoryModal(false)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    color: '#6b7280'
-                                }}
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        {deletedInvoices.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
-                                No hay facturas eliminadas en el historial.
-                            </div>
-                        ) : (
-                            <div style={{ display: 'grid', gap: '15px' }}>
-                                {deletedInvoices.map((invoice, idx) => (
-                                    <div key={idx} style={{
-                                        background: '#fef2f2',
-                                        border: '1px solid #fee2e2',
-                                        borderRadius: '12px',
-                                        padding: '16px'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                            <div>
-                                                <span style={{ fontWeight: 'bold', color: '#991b1b' }}>{invoice.id}</span>
-                                                <span style={{ margin: '0 8px', color: '#ef4444' }}>•</span>
-                                                <span style={{ color: '#7f1d1d' }}>{invoice.clientName}</span>
-                                            </div>
-                                            <div style={{ fontSize: '12px', color: '#991b1b' }}>
-                                                Eliminado el: {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
-                                            </div>
-                                        </div>
-
-                                        <div style={{ background: 'white', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
-                                            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: '600' }}>
-                                                Motivo de eliminación:
-                                            </p>
-                                            <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 8px 0' }}>
-                                                {invoice.deleteComment}
-                                            </p>
-                                            <div style={{ display: 'flex', gap: '15px', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-                                                <span>
-                                                    <strong>Solicitado por:</strong> {invoice.deletedBy || 'N/A'}
-                                                </span>
-                                                {invoice.approvedBy && (
-                                                    <span>
-                                                        <strong>Aprobado por:</strong> {invoice.approvedBy}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div style={{ fontSize: '12px', color: '#991b1b' }}>
-                                            <strong>Servicios:</strong> {invoice.services.map(s => `${s.quantity}x ${s.name}`).join(', ')}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Modal de éxito */}
             <ConfirmationModal
@@ -1004,7 +1105,7 @@ const InvoiceManager = ({ user }) => {
                 confirmText="Entendido"
                 showCancel={false}
             />
-        </div>
+        </div >
     );
 };
 

@@ -12,6 +12,24 @@ export const useNotifications = () => {
 
 export const NotificationsProvider = ({ children }) => {
     const [pendingDeletions, setPendingDeletions] = useState([]);
+    const [notifications, setNotifications] = useState([]); // Notificaciones generales
+
+    // Agregar notificación general
+    const addNotification = (notification) => {
+        const newNotif = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            read: false,
+            ...notification
+        };
+        setNotifications(prev => [newNotif, ...prev]);
+        return newNotif.id;
+    };
+
+    // Marcar como leída/eliminada
+    const removeNotification = (id) => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+    };
 
     // Crear una nueva solicitud de eliminación
     const requestDeletion = (type, itemId, itemName, requestedBy, reason) => {
@@ -86,7 +104,10 @@ export const NotificationsProvider = ({ children }) => {
         rejectDeletion,
         isDeletionApproved,
         hasPendingDeletion,
-        getPendingCount
+        getPendingCount,
+        notifications,
+        addNotification,
+        removeNotification
     };
 
     return (

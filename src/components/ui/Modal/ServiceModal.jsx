@@ -1,13 +1,56 @@
 import React, { useEffect } from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useServices } from '../../../contexts/ServicesContext';
 import servicesData from '../../../data/servicesData';
 
 const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment }) => {
   const { t, language } = useLanguage();
+  const { services } = useServices();
 
   // Obtener los datos del servicio actual basados en el idioma y el tipo
   const currentServicesData = servicesData[language] || servicesData['es'];
-  const service = currentServicesData[serviceType];
+  const serviceFromData = currentServicesData[serviceType];
+
+  // Mapeo de tipos a categorías
+  const typeToCategory = {
+    'nails': 'Uñas',
+    'hair': 'Cabello',
+    'makeup': 'Maquillaje',
+    'facial': 'Tratamientos Faciales',
+    'waxing': 'Depilación',
+    'other': 'Otros'
+  };
+
+  // Obtener servicios reales de la categoría desde el contexto
+  const category = typeToCategory[serviceType];
+  const realServices = services.filter(s => s.category === category && s.active);
+
+  // Si hay servicios reales, usar esos; si no, usar los datos estáticos
+  let service = serviceFromData;
+
+  if (realServices.length > 0) {
+    // Si es maquillaje y hay un servicio con sub-servicios, usarlo
+    const makeupServiceWithSubs = realServices.find(s => s.subServices && s.subServices.length > 0);
+
+    if (makeupServiceWithSubs && serviceType === 'makeup') {
+      service = {
+        ...serviceFromData,
+        services: makeupServiceWithSubs.subServices.map(subService => ({
+          name: subService,
+          price: '' // No mostrar precio para sub-servicios
+        }))
+      };
+    } else {
+      // Para otras categorías, mostrar los servicios reales
+      service = {
+        ...serviceFromData,
+        services: realServices.map(s => ({
+          name: s.name,
+          price: '' // No mostrar precio aquí
+        }))
+      };
+    }
+  }
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -73,7 +116,7 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <span>{item.name}</span>
-                    <span className="service-price">{item.price}</span>
+                    {item.price && <span className="service-price">{item.price}</span>}
                   </li>
                 ))}
               </ul>

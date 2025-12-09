@@ -2,10 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Scissors, User, Phone, CheckCircle } from 'lucide-react';
 import SendService from '../../../services/send/SendService';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useServices } from '../../../contexts/ServicesContext';
+import { useClients } from '../../../contexts/ClientsContext';
+import { useAppointments } from '../../../contexts/AppointmentsContext';
 import confetti from 'canvas-confetti';
 
 export default function ContactModal({ isOpen, onClose, services, onSuccess, preSelectedService }) {
     const { t, language } = useLanguage();
+    const { getActiveServices } = useServices();
+    const { addClient, getClientByPhone, addPoints } = useClients();
+    const { addAppointment } = useAppointments();
+    const activeServices = getActiveServices();
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -175,6 +182,39 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
         sendService.sendMessage(formData);
 
         setTimeout(() => {
+            // Lógica de Puntos y Clientes
+            const existingClient = getClientByPhone(formData.phone);
+
+            if (existingClient) {
+                // Cliente existente: Sumar 1.5 puntos
+                addPoints(existingClient.id, 1.5, 'Cita Web');
+            } else {
+                // Nuevo cliente: Crear con 1.5 puntos
+                addClient({
+                    name: formData.name,
+                    phone: formData.phone,
+                    points: 1.5,
+                    history: [{
+                        date: new Date().toISOString(),
+                        action: 'Primera Cita Web',
+                        pointsAdded: 1.5,
+                        totalPoints: 1.5
+                    }]
+                });
+            }
+
+            // Guardar la cita en el sistema
+            addAppointment({
+                date: formData.date,
+                time: formData.time,
+                client: formData.name,
+                phone: formData.phone,
+                service: formData.service.name,
+                price: formData.service.price,
+                status: 'pendiente',
+                notes: 'Cita agendada desde la web'
+            });
+
             setIsLoading(false);
             setIsSubmitted(true);
             // YA NO cerramos el modal automáticamente
@@ -461,8 +501,8 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                                     <select
                                         value={formData.service.name}
                                         onChange={(e) => {
-                                            const selected = services.find(s => s.name === e.target.value);
-                                            handleInputChange('service', selected)
+                                            const selected = activeServices.find(s => s.name === e.target.value);
+                                            handleInputChange('service', selected || { name: e.target.value })
                                         }}
                                         style={{
                                             width: '100%',
@@ -476,9 +516,10 @@ export default function ContactModal({ isOpen, onClose, services, onSuccess, pre
                                         onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
                                         onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                                     >
-                                        {services.map(service => (
-                                            <option key={service.name} value={service.name}>
-                                                {service.name}: {service.price}
+                                        <option value="">{t('contactModal.selectService')}</option>
+                                        {activeServices.map(service => (
+                                            <option key={service.id || service.name} value={service.name}>
+                                                {service.name}
                                             </option>
                                         ))}
                                     </select>

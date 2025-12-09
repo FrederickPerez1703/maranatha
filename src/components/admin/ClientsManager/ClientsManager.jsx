@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import ConfirmationModal from '../../ui/ConfirmationModal/ConfirmationModal';
 import { Trash2 } from 'lucide-react';
+import { useClients } from '../../../contexts/ClientsContext';
 
 // Componente de Gestión de Clientes
 const ClientsManager = () => {
+  const { clients, addClient, updateClient, deleteClient } = useClients();
+
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Efecto para manejar la clase modal-open en el body
   useEffect(() => {
@@ -21,114 +22,6 @@ const ClientsManager = () => {
       document.body.classList.remove('modal-open');
     };
   }, [showModal, viewingClient]);
-
-  const handleLogoutClick = (id) => {
-    setShowLogoutModal(true);
-    handleConfirmLogout(id);
-  };
-
-  const handleConfirmLogout = (id) => {
-    setClients(clients.filter(client => client.id !== id));
-  };
-
-  const [clients, setClients] = useState([
-    {
-      id: 1,
-      name: 'María González',
-      email: 'maria.gonzalez@email.com',
-      phone: '+1 (555) 123-4567',
-      dateJoined: '2024-01-15',
-      lastVisit: '2025-01-28',
-      totalVisits: 12,
-      totalSpent: 420,
-      favoriteService: 'Manicura Francesa',
-      status: 'active',
-      birthday: '1990-05-15',
-      notes: 'Prefiere citas por la mañana. Alérgica al látex.',
-      preferredStaff: 'Ana',
-      loyaltyPoints: 84
-    },
-    {
-      id: 2,
-      name: 'Ana Rodríguez',
-      email: 'ana.rodriguez@email.com',
-      phone: '+1 (555) 234-5678',
-      dateJoined: '2024-03-20',
-      lastVisit: '2025-01-30',
-      totalVisits: 8,
-      totalSpent: 320,
-      favoriteService: 'Corte de Cabello',
-      status: 'active',
-      birthday: '1985-11-22',
-      notes: 'Cliente VIP. Siempre puntual.',
-      preferredStaff: 'Carmen',
-      loyaltyPoints: 64
-    },
-    {
-      id: 3,
-      name: 'Sofia López',
-      email: 'sofia.lopez@email.com',
-      phone: '+1 (555) 345-6789',
-      dateJoined: '2023-08-10',
-      lastVisit: '2025-01-25',
-      totalVisits: 25,
-      totalSpent: 1250,
-      favoriteService: 'Facial Hidratante',
-      status: 'vip',
-      birthday: '1992-07-08',
-      notes: 'Cliente desde hace tiempo. Le gusta probar servicios nuevos.',
-      preferredStaff: 'María',
-      loyaltyPoints: 250
-    },
-    {
-      id: 4,
-      name: 'Carmen Silva',
-      email: 'carmen.silva@email.com',
-      phone: '+1 (555) 456-7890',
-      dateJoined: '2024-06-12',
-      lastVisit: '2024-12-20',
-      totalVisits: 3,
-      totalSpent: 150,
-      favoriteService: 'Maquillaje de Noche',
-      status: 'inactive',
-      birthday: '1988-03-30',
-      notes: 'No ha visitado en un mes. Enviar recordatorio.',
-      preferredStaff: 'Ana',
-      loyaltyPoints: 15
-    },
-    {
-      id: 5,
-      name: 'Isabella Martinez',
-      email: 'isabella.martinez@email.com',
-      phone: '+1 (555) 567-8901',
-      dateJoined: '2025-01-20',
-      lastVisit: '2025-01-29',
-      totalVisits: 2,
-      totalSpent: 85,
-      favoriteService: 'Pedicura Spa',
-      status: 'new',
-      birthday: '1995-12-10',
-      notes: 'Cliente nueva. Muy satisfecha con el servicio.',
-      preferredStaff: 'Carmen',
-      loyaltyPoints: 17
-    },
-    {
-      id: 6,
-      name: 'Valentina Torres',
-      email: 'valentina.torres@email.com',
-      phone: '+1 (555) 678-9012',
-      dateJoined: '2023-11-05',
-      lastVisit: '2025-01-31',
-      totalVisits: 18,
-      totalSpent: 890,
-      favoriteService: 'Coloración Completa',
-      status: 'vip',
-      birthday: '1987-09-25',
-      notes: 'Siempre trae amigas nuevas. Excelente referidora.',
-      preferredStaff: 'María',
-      loyaltyPoints: 178
-    }
-  ]);
 
   const [newClient, setNewClient] = useState({
     name: '',
@@ -153,52 +46,45 @@ const ClientsManager = () => {
 
   const staffMembers = ['Ana', 'Carmen', 'María', 'Sofia'];
 
+  // Función auxiliar para determinar el estado visual basado en datos del cliente
+  const getClientStatus = (client) => {
+    if (client.isVip) return 'vip';
+    return client.status || 'active';
+  };
+
   const filteredClients = clients
     .filter(client => {
-      const matchesFilter = filter === 'all' || client.status === filter;
+      const status = getClientStatus(client);
+      const matchesFilter = filter === 'all' || status === filter;
       const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
         client.phone.includes(searchTerm);
       return matchesFilter && matchesSearch;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'totalSpent': return b.totalSpent - a.totalSpent;
-        case 'totalVisits': return b.totalVisits - a.totalVisits;
-        case 'lastVisit': return new Date(b.lastVisit) - new Date(a.lastVisit);
-        case 'dateJoined': return new Date(b.dateJoined) - new Date(a.dateJoined);
+        case 'totalSpent': return (b.totalSpent || 0) - (a.totalSpent || 0);
+        case 'totalVisits': return (b.history?.length || 0) - (a.history?.length || 0);
+        case 'lastVisit': return new Date(b.lastVisit || 0) - new Date(a.lastVisit || 0);
+        case 'dateJoined': return new Date(b.createdAt) - new Date(a.createdAt);
         default: return a.name.localeCompare(b.name);
       }
     });
 
   const handleSaveClient = () => {
+    if (!newClient.name || !newClient.phone) {
+      alert("Nombre y teléfono son obligatorios");
+      return;
+    }
+
     if (editingClient) {
-      setClients(clients.map(client =>
-        client.id === editingClient.id
-          ? {
-            ...newClient,
-            id: editingClient.id,
-            dateJoined: editingClient.dateJoined,
-            totalVisits: editingClient.totalVisits,
-            totalSpent: editingClient.totalSpent,
-            lastVisit: editingClient.lastVisit,
-            loyaltyPoints: editingClient.loyaltyPoints
-          }
-          : client
-      ));
+      updateClient(editingClient.id, newClient);
     } else {
-      const id = Math.max(...clients.map(c => c.id)) + 1;
-      const today = new Date().toISOString().split('T')[0];
-      setClients([...clients, {
+      addClient({
         ...newClient,
-        id,
-        dateJoined: today,
-        lastVisit: today,
-        totalVisits: 0,
-        totalSpent: 0,
-        loyaltyPoints: 0,
-        favoriteService: 'N/A'
-      }]);
+        totalSpent: 0, // Inicializar
+        points: 0
+      });
     }
     setShowModal(false);
     setEditingClient(null);
@@ -221,43 +107,47 @@ const ClientsManager = () => {
     setEditingClient(client);
     setNewClient({
       name: client.name,
-      email: client.email,
+      email: client.email || '',
       phone: client.phone,
-      birthday: client.birthday,
-      notes: client.notes,
-      preferredStaff: client.preferredStaff,
-      status: client.status
+      birthday: client.birthday || '',
+      notes: client.notes || '',
+      preferredStaff: client.preferredStaff || '',
+      status: client.status || 'active'
     });
     setShowModal(true);
   };
 
   const handleDelete = (id) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
-      setClients(clients.filter(client => client.id !== id));
+      deleteClient(id);
     }
   };
 
   const getClientStats = () => {
     const total = clients.length;
-    const active = clients.filter(c => c.status === 'active').length;
-    const vip = clients.filter(c => c.status === 'vip').length;
-    const newClients = clients.filter(c => c.status === 'new').length;
-    const totalRevenue = clients.reduce((sum, c) => sum + c.totalSpent, 0);
-    const avgSpent = totalRevenue / total;
+    const active = clients.filter(c => !c.isVip && c.status !== 'inactive').length; // Aproximación
+    const vip = clients.filter(c => c.isVip).length;
+    const newClients = clients.filter(c => {
+      const date = new Date(c.createdAt);
+      const now = new Date();
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).length;
 
-    return { total, active, vip, newClients, totalRevenue, avgSpent: avgSpent.toFixed(0) };
+    return { total, active, vip, newClients };
   };
 
   const stats = getClientStats();
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('es-ES');
   };
 
   const getClientSegment = (client) => {
-    if (client.totalSpent > 800) return 'VIP';
-    if (client.totalVisits > 10) return 'Leal';
-    if (client.totalVisits < 3) return 'Nuevo';
+    if (client.isVip) return 'VIP';
+    const visits = client.history?.length || 0;
+    if (visits > 10) return 'Leal';
+    if (visits < 3) return 'Nuevo';
     return 'Regular';
   };
 
@@ -266,7 +156,11 @@ const ClientsManager = () => {
       <div className="clients-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h2 style={{ color: '#ff6b9d', fontSize: '28px', margin: 0 }}>Gestión de Clientes</h2>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setEditingClient(null);
+            resetNewClient();
+            setShowModal(true);
+          }}
           style={{
             background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
             color: 'white',
@@ -333,34 +227,6 @@ const ClientsManager = () => {
             {stats.newClients}
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>Nuevos Este Mes</div>
-        </div>
-
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '15px',
-          boxShadow: '0 10px 30px rgba(255, 107, 157, 0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>💰</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#9333ea', marginBottom: '5px' }}>
-            {stats.totalRevenue}
-          </div>
-          <div style={{ fontSize: '14px', color: '#666' }}>Ingresos Totales</div>
-        </div>
-
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '15px',
-          boxShadow: '0 10px 30px rgba(255, 107, 157, 0.1)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>📊</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '5px' }}>
-            {stats.avgSpent}
-          </div>
-          <div style={{ fontSize: '14px', color: '#666' }}>Gasto Promedio</div>
         </div>
       </div>
 
@@ -443,158 +309,163 @@ const ClientsManager = () => {
         padding: '25px',
         boxShadow: '0 10px 30px rgba(255, 107, 157, 0.1)'
       }}>
-        <div style={{ display: 'grid', gap: '15px' }}>
-          {filteredClients.map(client => {
-            const status = statusConfig[client.status];
-            const segment = getClientSegment(client);
+        {clients.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            <div style={{ fontSize: '48px', marginBottom: '10px' }}>👥</div>
+            <p>No hay clientes registrados aún.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: '15px' }}>
+            {filteredClients.map(client => {
+              const statusKey = getClientStatus(client);
+              const status = statusConfig[statusKey] || statusConfig.active;
+              const segment = getClientSegment(client);
 
-            return (
-              <div key={client.id} className="client-row" style={{
-                display: 'grid',
-                gridTemplateColumns: '60px 2fr 1fr 1fr 1fr 180px',
-                alignItems: 'center',
-                padding: '20px',
-                background: '#f8f9fa',
-                borderRadius: '15px',
-                border: '2px solid #f0f0f0',
-                gap: '20px',
-                transition: 'all 0.3s ease'
-              }}
-                onMouseOver={(e) => {
-                  e.target.closest('div').style.transform = 'translateY(-2px)';
-                  e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.closest('div').style.transform = 'translateY(0)';
-                  e.target.closest('div').style.boxShadow = 'none';
-                }}>
-
-                <div style={{
-                  display: 'flex',
+              return (
+                <div key={client.id} className="client-row" style={{
+                  display: 'grid',
+                  gridTemplateColumns: '60px 2fr 1fr 100px 1fr 180px',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
-                  color: 'white',
-                  fontSize: '18px',
-                  fontWeight: 'bold'
-                }}>
-                  {client.name.charAt(0)}
-                </div>
-
-                <div>
-                  <div style={{ fontWeight: 'bold', color: '#333', marginBottom: '5px', fontSize: '16px' }}>
-                    {client.name}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '3px' }}>
-                    📧 {client.email}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '3px' }}>
-                    📞 {client.phone}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#999' }}>
-                    🎂 {formatDate(client.birthday)}
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#9333ea', marginBottom: '5px' }}>
-                    {client.totalVisits}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>visitas</div>
-                  <div style={{
-                    fontSize: '11px',
-                    marginTop: '5px',
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    background: segment === 'VIP' ? '#f59e0b15' : segment === 'Leal' ? '#10b98115' : '#3b82f615',
-                    color: segment === 'VIP' ? '#f59e0b' : segment === 'Leal' ? '#10b981' : '#3b82f6'
+                  padding: '20px',
+                  background: '#f8f9fa',
+                  borderRadius: '15px',
+                  border: '2px solid #f0f0f0',
+                  gap: '20px',
+                  transition: 'all 0.3s ease'
+                }}
+                  onMouseOver={(e) => {
+                    e.target.closest('div').style.transform = 'translateY(-2px)';
+                    e.target.closest('div').style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.15)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.closest('div').style.transform = 'translateY(0)';
+                    e.target.closest('div').style.boxShadow = 'none';
                   }}>
-                    {segment}
-                  </div>
-                </div>
 
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981', marginBottom: '5px' }}>
-                    ${client.totalSpent}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>gastado</div>
-                  <div style={{ fontSize: '11px', color: '#f59e0b', marginTop: '5px' }}>
-                    ⭐ {client.loyaltyPoints} pts
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>
-                    {formatDate(client.lastVisit)}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
-                    Última visita
-                  </div>
                   <div style={{
-                    padding: '3px 8px',
-                    borderRadius: '10px',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    background: status.bg,
-                    color: status.color
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
+                    color: 'white',
+                    fontSize: '18px',
+                    fontWeight: 'bold'
                   }}>
-                    {status.label}
+                    {client.name.charAt(0)}
+                  </div>
+
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#333', marginBottom: '5px', fontSize: '16px' }}>
+                      {client.name}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '3px' }}>
+                      📧 {client.email || 'N/A'}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '3px' }}>
+                      📞 {client.phone}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#999' }}>
+                      🎂 {formatDate(client.birthday)}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#9333ea', marginBottom: '5px' }}>
+                      {client.history?.length || 0}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>visitas</div>
+                    <div style={{
+                      fontSize: '11px',
+                      marginTop: '5px',
+                      padding: '2px 8px',
+                      borderRadius: '10px',
+                      background: segment === 'VIP' ? '#f59e0b15' : segment === 'Leal' ? '#10b98115' : '#3b82f615',
+                      color: segment === 'VIP' ? '#f59e0b' : segment === 'Leal' ? '#10b981' : '#3b82f6'
+                    }}>
+                      {segment}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#f59e0b', marginBottom: '5px' }}>
+                      ⭐ {client.points || 0}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>puntos</div>
+                  </div>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>
+                      {formatDate(client.lastVisit)}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#666', marginBottom: '5px' }}>
+                      Última visita
+                    </div>
+                    <div style={{
+                      padding: '3px 8px',
+                      borderRadius: '10px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: status.bg,
+                      color: status.color
+                    }}>
+                      {status.label}
+                    </div>
+                  </div>
+
+                  <div className="client-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setViewingClient(client)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: '#3b82f615',
+                        color: '#3b82f6',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      👁️ Ver
+                    </button>
+                    <button
+                      onClick={() => handleEdit(client)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: '#9333ea15',
+                        color: '#9333ea',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(client.id)}
+                      style={{
+                        padding: '8px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: '#ef444415',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
-
-                <div className="client-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => setViewingClient(client)}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: '#3b82f615',
-                      color: '#3b82f6',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    👁️ Ver
-                  </button>
-                  <button
-                    onClick={() => handleEdit(client)}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: '#9333ea15',
-                      color: '#9333ea',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    ✏️ Editar
-                  </button>
-                  <button
-                    onClick={() => handleLogoutClick(client.id)}
-                    style={{
-                      padding: '8px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      background: '#ef444415',
-                      color: '#ef4444',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Modal para Añadir/Editar Cliente */}
@@ -668,7 +539,7 @@ const ClientsManager = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '8px' }}>
-                    Email *
+                    Email
                   </label>
                   <input
                     type="email"
@@ -777,7 +648,6 @@ const ClientsManager = () => {
                 >
                   <option value="new">🆕 Nuevo</option>
                   <option value="active">✅ Activo</option>
-                  <option value="vip">⭐ VIP</option>
                   <option value="inactive">⏸️ Inactivo</option>
                 </select>
               </div>
@@ -805,7 +675,7 @@ const ClientsManager = () => {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
                 <button
                   onClick={() => {
                     setShowModal(false);
@@ -814,12 +684,11 @@ const ClientsManager = () => {
                   }}
                   style={{
                     flex: 1,
-                    padding: '15px',
+                    padding: '14px',
+                    borderRadius: '12px',
                     border: '2px solid #f0f0f0',
-                    borderRadius: '10px',
                     background: 'white',
                     color: '#666',
-                    fontSize: '16px',
                     fontWeight: 'bold',
                     cursor: 'pointer'
                   }}
@@ -828,272 +697,25 @@ const ClientsManager = () => {
                 </button>
                 <button
                   onClick={handleSaveClient}
-                  disabled={!newClient.name || !newClient.email || !newClient.phone}
                   style={{
                     flex: 1,
-                    padding: '15px',
+                    padding: '14px',
+                    borderRadius: '12px',
                     border: 'none',
-                    borderRadius: '10px',
-                    background: (!newClient.name || !newClient.email || !newClient.phone)
-                      ? '#ccc'
-                      : 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
+                    background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
                     color: 'white',
-                    fontSize: '16px',
                     fontWeight: 'bold',
-                    cursor: (!newClient.name || !newClient.email || !newClient.phone) ? 'not-allowed' : 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(255, 107, 157, 0.3)'
                   }}
                 >
-                  {editingClient ? 'Actualizar' : 'Crear'} Cliente
+                  {editingClient ? 'Guardar Cambios' : 'Crear Cliente'}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* Modal para Ver Detalles del Cliente */}
-      {viewingClient && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => setViewingClient(null)}>
-          <div className="modal-content" style={{
-            background: 'white',
-            borderRadius: '20px',
-            padding: '30px',
-            width: '90%',
-            maxWidth: '600px',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  fontWeight: 'bold'
-                }}>
-                  {viewingClient.name.charAt(0)}
-                </div>
-                <div>
-                  <h3 style={{ color: '#ff6b9d', fontSize: '24px', margin: 0, marginBottom: '5px' }}>
-                    {viewingClient.name}
-                  </h3>
-                  <div style={{
-                    padding: '5px 12px',
-                    borderRadius: '15px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    background: statusConfig[viewingClient.status].bg,
-                    color: statusConfig[viewingClient.status].color,
-                    display: 'inline-block'
-                  }}>
-                    {statusConfig[viewingClient.status].label}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setViewingClient(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#999'
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="view-client-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
-              {/* Información Personal */}
-              <div style={{
-                background: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '15px',
-                border: '2px solid #f0f0f0'
-              }}>
-                <h4 style={{ color: '#333', marginBottom: '15px', fontSize: '16px' }}>📋 Información Personal</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Email:</span>
-                    <div style={{ fontSize: '14px', color: '#333' }}>{viewingClient.email}</div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Teléfono:</span>
-                    <div style={{ fontSize: '14px', color: '#333' }}>{viewingClient.phone}</div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Cumpleaños:</span>
-                    <div style={{ fontSize: '14px', color: '#333' }}>{formatDate(viewingClient.birthday)}</div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Cliente desde:</span>
-                    <div style={{ fontSize: '14px', color: '#333' }}>{formatDate(viewingClient.dateJoined)}</div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Personal preferido:</span>
-                    <div style={{ fontSize: '14px', color: '#333' }}>{viewingClient.preferredStaff || 'No especificado'}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Estadísticas */}
-              <div style={{
-                background: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '15px',
-                border: '2px solid #f0f0f0'
-              }}>
-                <h4 style={{ color: '#333', marginBottom: '15px', fontSize: '16px' }}>📊 Estadísticas</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px',
-                    background: 'white',
-                    borderRadius: '8px'
-                  }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>Total Visitas:</span>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#9333ea' }}>{viewingClient.totalVisits}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px',
-                    background: 'white',
-                    borderRadius: '8px'
-                  }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>Total Gastado:</span>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981' }}>${viewingClient.totalSpent}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px',
-                    background: 'white',
-                    borderRadius: '8px'
-                  }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>Puntos Lealtad:</span>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#f59e0b' }}>⭐ {viewingClient.loyaltyPoints}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px',
-                    background: 'white',
-                    borderRadius: '8px'
-                  }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>Promedio por Visita:</span>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>
-                      ${viewingClient.totalVisits > 0 ? (viewingClient.totalSpent / viewingClient.totalVisits).toFixed(0) : 0}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notas y Preferencias */}
-            <div style={{
-              background: '#f8f9fa',
-              padding: '20px',
-              borderRadius: '15px',
-              border: '2px solid #f0f0f0',
-              marginBottom: '30px'
-            }}>
-              <h4 style={{ color: '#333', marginBottom: '15px', fontSize: '16px' }}>📝 Notas y Preferencias</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div>
-                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Servicio Favorito:</span>
-                  <div style={{ fontSize: '14px', color: '#333', marginTop: '5px' }}>{viewingClient.favoriteService}</div>
-                </div>
-                <div>
-                  <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>Notas:</span>
-                  <div style={{
-                    fontSize: '14px',
-                    color: '#333',
-                    marginTop: '5px',
-                    background: 'white',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    fontStyle: 'italic'
-                  }}>
-                    "{viewingClient.notes || 'Sin notas adicionales.'}"
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <button
-                onClick={() => {
-                  setViewingClient(null);
-                  handleEdit(viewingClient);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '15px',
-                  border: 'none',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #9333ea, #b794f4)',
-                  color: 'white',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                ✏️ Editar Cliente
-              </button>
-              <button
-                onClick={() => setViewingClient(null)}
-                style={{
-                  flex: 1,
-                  padding: '15px',
-                  border: '2px solid #f0f0f0',
-                  borderRadius: '10px',
-                  background: 'white',
-                  color: '#666',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <ConfirmationModal
-        isOpen={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
-        onConfirm={handleConfirmLogout}
-        title="¿Esta seguro que desea eliminar este cliente?"
-        message=""
-        type="warning"
-        confirmText="Sí, Eliminar"
-        cancelText="Cancelar"
-      />
     </div>
   );
 };

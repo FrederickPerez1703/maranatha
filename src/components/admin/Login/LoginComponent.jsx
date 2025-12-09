@@ -12,14 +12,14 @@ const LoginComponent = ({ onLogin }) => {
       roles: ["admin"]
     },
     {
-      username: "alfre",
+      username: "ana",
       password: "1234",
-      roles: ["stylist", "accounting"]
+      roles: ["stylist", "accounting", "reception"]
     },
     {
-      username: "lia",
+      username: "mariela",
       password: "1234",
-      roles: ["reception", "accounting"]
+      roles: ["reception", "accounting", "stylist"]
     },
     {
       username: "contabilidad",
