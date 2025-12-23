@@ -6,40 +6,30 @@ import Modal from '../ui/Modal/ServiceModal';
 import ContactModal from '../ui/Modal/ContactModal';
 import Toast from '../ui/Toast/Toast';
 import '../../App.css';
-import servicesData from '../../data/servicesData';
 import Footer from '../ui/Footer/Footer';
 import { useLanguage } from '../../context/LanguageContext';
+import { useServices } from '../../contexts/ServicesContext';
 
 
 function LandingPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [overview, setOverview] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState(''); // Stores the 'type' (e.g. 'nails')
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [currentService, setCurrentService] = useState(null);
   const [showBackButton, setShowBackButton] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [preSelectedService, setPreSelectedService] = useState(null);
 
-  const { language, t } = useLanguage();
-  const currentServicesData = servicesData[language] || servicesData['es'];
+  const { t } = useLanguage();
+  // We don't need to fetch services here just to pass them to ContactModal,
+  // because ContactModal uses the Context directly.
 
   const openServiceModal = (type) => {
     setCurrentService(type);
     setSelectedCategory(type);
     setModalOpen(true);
   };
-
-  const getAllServices = () => {
-    return Object.values(currentServicesData).reduce((acc, category) => {
-      return [...acc, ...category.services];
-    }, []);
-  };
-
-  const selectedServices = selectedCategory
-    ? currentServicesData[selectedCategory]?.services || []
-    : getAllServices();
 
   const openModal = (type) => {
     if (type === 'booking') {
@@ -87,7 +77,6 @@ function LandingPage() {
       <ContactModal
         isOpen={contactModalOpen}
         onClose={closeContactModal}
-        services={selectedServices}
         onSuccess={handleBookingSuccess}
         preSelectedService={preSelectedService}
       />

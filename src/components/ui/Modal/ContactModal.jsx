@@ -7,7 +7,7 @@ import { useClients } from '../../../contexts/ClientsContext';
 import { useAppointments } from '../../../contexts/AppointmentsContext';
 import confetti from 'canvas-confetti';
 
-export default function ContactModal({ isOpen, onClose, services, onSuccess, preSelectedService }) {
+export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedService }) {
     const { t, language } = useLanguage();
     const { getActiveServices } = useServices();
     const { addClient, getClientByPhone, addPoints } = useClients();
