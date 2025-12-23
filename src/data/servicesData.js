@@ -36,7 +36,8 @@ const servicesData = {
         { name: "Tratamiento Keratina" },
         { name: "Peinado Especial" },
         { name: "Extensiones" },
-        { name: "Trenzas" }
+        { name: "Trenzas" },
+        { name: "Tinte de Cabello" }
       ],
       benefits: [
         { icon: "✂️", title: "Técnicas", desc: "Modernas" },
@@ -80,7 +81,8 @@ const servicesData = {
         { name: "Maquillaje XV Años" },
         { name: "Maquillaje Graduación" },
         { name: "Prueba de Maquillaje" },
-        { name: "Clase de Automaquillaje" }
+        { name: "Clase de Automaquillaje" },
+        { name: "Maquillaje Profesional" }
       ],
       benefits: [
         { icon: "🎨", title: "Técnicas", desc: "Profesionales" },
@@ -129,7 +131,8 @@ const servicesData = {
         { name: "Keratin Treatment" },
         { name: "Special Styling" },
         { name: "Extensions" },
-        { name: "Braids" }
+        { name: "Braids" },
+        { name: "Hair Dye" }
       ],
       benefits: [
         { icon: "✂️", title: "Techniques", desc: "Modern" },
@@ -173,7 +176,8 @@ const servicesData = {
         { name: "Sweet 16 Makeup" },
         { name: "Graduation Makeup" },
         { name: "Makeup Trial" },
-        { name: "Self-makeup Class" }
+        { name: "Self-makeup Class" },
+        { name: "Professional Makeup" }
       ],
       benefits: [
         { icon: "🎨", title: "Techniques", desc: "Professional" },
