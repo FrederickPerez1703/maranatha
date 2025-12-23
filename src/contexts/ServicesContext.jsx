@@ -44,77 +44,107 @@ export const ServicesProvider = ({ children }) => {
     }, [categories]);
 
     // Cargar servicios desde localStorage al iniciar
+    // Cargar servicios desde localStorage al iniciar
     useEffect(() => {
         const savedServices = localStorage.getItem('salonServices');
+
+        // Servicios por defecto
+        const defaultServices = [
+            {
+                id: 'service-1',
+                name: 'Manicura',
+                category: 'Uñas',
+                duration: 45,
+                description: 'Manicura completa con esmaltado',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-2',
+                name: 'Pedicura',
+                category: 'Uñas',
+                duration: 60,
+                description: 'Pedicura completa con esmaltado',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-3',
+                name: 'Corte de Cabello',
+                category: 'Cabello',
+                duration: 45,
+                description: 'Corte de cabello profesional',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-4',
+                name: 'Tinte de Cabello',
+                category: 'Cabello',
+                duration: 120,
+                description: 'Tinte completo de cabello',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-5',
+                name: 'Maquillaje Profesional',
+                category: 'Maquillaje',
+                duration: 60,
+                description: 'Maquillaje profesional',
+                active: true,
+                subServices: [
+                    'Maquillaje de Día',
+                    'Maquillaje de Noche',
+                    'Maquillaje de Novia',
+                    'Maquillaje XV Años',
+                    'Maquillaje Graduación',
+                    'Prueba de Maquillaje'
+                ],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-6',
+                name: 'Trenzas',
+                category: 'Cabello',
+                duration: 90,
+                description: 'Estilos de trenzas variados',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            }
+        ];
+
         if (savedServices) {
             try {
-                const parsedServices = JSON.parse(savedServices);
+                let parsedServices = JSON.parse(savedServices);
+
+                // Verificar si falta el servicio de Trenzas y agregarlo si es necesario
+                const trenzasExists = parsedServices.some(s => s.name === 'Trenzas');
+
+                // Eliminar 'Trenza' singular si existe para evitar duplicados
+                parsedServices = parsedServices.filter(s => s.name !== 'Trenza');
+
+                if (!trenzasExists) {
+                    const trenzasService = defaultServices.find(s => s.name === 'Trenzas');
+                    if (trenzasService) {
+                        parsedServices.push(trenzasService);
+                    }
+                }
+
+                // Actualizar localStorage inmediatamente para persistir los cambios
+                localStorage.setItem('salonServices', JSON.stringify(parsedServices));
+
                 setServices(parsedServices);
             } catch (error) {
                 console.error('Error al cargar servicios:', error);
                 setServices([]);
             }
         } else {
-            // Servicios iniciales por defecto (solo la primera vez)
-            const defaultServices = [
-                {
-                    id: 'service-1',
-                    name: 'Manicura',
-                    category: 'Uñas',
-                    duration: 45,
-                    description: 'Manicura completa con esmaltado',
-                    active: true,
-                    subServices: [],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'service-2',
-                    name: 'Pedicura',
-                    category: 'Uñas',
-                    duration: 60,
-                    description: 'Pedicura completa con esmaltado',
-                    active: true,
-                    subServices: [],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'service-3',
-                    name: 'Corte de Cabello',
-                    category: 'Cabello',
-                    duration: 45,
-                    description: 'Corte de cabello profesional',
-                    active: true,
-                    subServices: [],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'service-4',
-                    name: 'Tinte de Cabello',
-                    category: 'Cabello',
-                    duration: 120,
-                    description: 'Tinte completo de cabello',
-                    active: true,
-                    subServices: [],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'service-5',
-                    name: 'Maquillaje Profesional',
-                    category: 'Maquillaje',
-                    duration: 60,
-                    description: 'Maquillaje profesional',
-                    active: true,
-                    subServices: [
-                        'Maquillaje de Día',
-                        'Maquillaje de Noche',
-                        'Maquillaje de Novia',
-                        'Maquillaje XV Años',
-                        'Maquillaje Graduación',
-                        'Prueba de Maquillaje'
-                    ],
-                    createdAt: new Date().toISOString()
-                }
-            ];
             setServices(defaultServices);
             localStorage.setItem('salonServices', JSON.stringify(defaultServices));
         }

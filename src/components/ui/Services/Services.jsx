@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useServices } from '../../../contexts/ServicesContext';
+import servicesData from '../../../data/servicesData';
 
 export default function Services({ openServiceModal }) {
   const { t, language } = useLanguage();
@@ -29,6 +30,27 @@ export default function Services({ openServiceModal }) {
     'Otros': '💎'
   };
 
+  // Helper para traducir nombres de servicios
+  const getTranslatedServiceName = (originalName, categoryName) => {
+    if (language === 'es') return originalName;
+
+    const type = categoryToType[categoryName];
+    if (!type) return originalName;
+
+    // Buscar en los datos estáticos en español
+    const esServices = servicesData['es'][type]?.services;
+    if (!esServices) return originalName;
+
+    const index = esServices.findIndex(s => s.name === originalName);
+
+    // Devolver equivalente en idioma actual
+    if (index !== -1 && servicesData[language][type]?.services[index]) {
+      return servicesData[language][type].services[index].name;
+    }
+
+    return originalName;
+  };
+
   // Crear array de CATEGORÍAS para mostrar (no servicios individuales)
   const displayServices = [];
 
@@ -38,13 +60,23 @@ export default function Services({ openServiceModal }) {
   priorityCategories.forEach(category => {
     if (servicesByCategory[category] && servicesByCategory[category].some(s => s.active)) {
       const activeServicesInCategory = servicesByCategory[category].filter(s => s.active);
-      const serviceNames = activeServicesInCategory.map(s => s.name).join(', ');
+
+      // Traducir los nombres de los servicios
+      const serviceNames = activeServicesInCategory
+        .map(s => getTranslatedServiceName(s.name, category))
+        .join(', ');
+
+      const type = categoryToType[category];
+      // Obtener el título traducido si está disponible
+      const translatedTitle = type && servicesData[language][type]
+        ? servicesData[language][type].title
+        : category;
 
       displayServices.push({
         icon: categoryIcons[category],
-        title: category,
+        title: translatedTitle,
         desc: serviceNames.length > 60 ? serviceNames.substring(0, 60) + '...' : serviceNames,
-        type: categoryToType[category]
+        type: type
       });
     }
   });

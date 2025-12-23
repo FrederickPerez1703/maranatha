@@ -5,11 +5,13 @@ const servicesData = {
       title: "Cuidado de Uñas",
       subtitle: "Transformamos tus manos y pies con técnicas profesionales",
       services: [
+        { name: "Manicura" },
         { name: "Manicura Clásica" },
         { name: "Manicura Francesa" },
         { name: "Uñas Acrílicas" },
         { name: "Gel Polish" },
         { name: "Nail Art Personalizado" },
+        { name: "Pedicura" },
         { name: "Pedicura Spa" },
         { name: "Pedicura + Manicura" }
       ],
@@ -33,7 +35,8 @@ const servicesData = {
         { name: "Mechas/Highlights" },
         { name: "Tratamiento Keratina" },
         { name: "Peinado Especial" },
-        { name: "Extensiones" }
+        { name: "Extensiones" },
+        { name: "Trenzas" }
       ],
       benefits: [
         { icon: "✂️", title: "Técnicas", desc: "Modernas" },
@@ -95,11 +98,13 @@ const servicesData = {
       title: "Nail Care",
       subtitle: "Transform your hands and feet with professional techniques",
       services: [
+        { name: "Manicure" },
         { name: "Classic Manicure" },
         { name: "French Manicure" },
         { name: "Acrylic Nails" },
         { name: "Gel Polish" },
         { name: "Custom Nail Art" },
+        { name: "Pedicure" },
         { name: "Spa Pedicure" },
         { name: "Pedicure + Manicure" }
       ],
@@ -123,7 +128,8 @@ const servicesData = {
         { name: "Highlights" },
         { name: "Keratin Treatment" },
         { name: "Special Styling" },
-        { name: "Extensions" }
+        { name: "Extensions" },
+        { name: "Braids" }
       ],
       benefits: [
         { icon: "✂️", title: "Techniques", desc: "Modern" },

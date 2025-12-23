@@ -5,6 +5,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { useServices } from '../../../contexts/ServicesContext';
 import { useClients } from '../../../contexts/ClientsContext';
 import { useAppointments } from '../../../contexts/AppointmentsContext';
+import servicesData from '../../../data/servicesData';
 import confetti from 'canvas-confetti';
 
 export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedService }) {
@@ -20,6 +21,41 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
         date: '',
         time: ''
     });
+
+    // Mapeo de categorías a tipos para traducción
+    const categoryToType = {
+        'Uñas': 'nails',
+        'Cabello': 'hair',
+        'Maquillaje': 'makeup',
+        'Tratamientos Faciales': 'facial',
+        'Depilación': 'waxing',
+        'Otros': 'other'
+    };
+
+    // Helper para traducir nombres de servicios
+    const getTranslatedServiceName = (originalName) => {
+        if (language === 'es') return originalName;
+
+        // Buscar en qué categoría está este servicio
+        const serviceObj = activeServices.find(s => s.name === originalName);
+        if (!serviceObj) return originalName;
+
+        const type = categoryToType[serviceObj.category];
+        if (!type) return originalName;
+
+        // Buscar en los datos estáticos en español
+        const esServices = servicesData['es'][type]?.services;
+        if (!esServices) return originalName;
+
+        const index = esServices.findIndex(s => s.name === originalName);
+
+        // Devolver equivalente en idioma actual
+        if (index !== -1 && servicesData[language][type]?.services[index]) {
+            return servicesData[language][type].services[index].name;
+        }
+
+        return originalName;
+    };
 
     useEffect(() => {
         if (preSelectedService) {
@@ -501,8 +537,17 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
                                     <select
                                         value={formData.service.name}
                                         onChange={(e) => {
-                                            const selected = activeServices.find(s => s.name === e.target.value);
-                                            handleInputChange('service', selected || { name: e.target.value })
+                                            // Al seleccionar, debemos buscar el servicio por su nombre TRADUCIDO
+                                            // y mapearlo de vuelta al objeto de servicio original si es posible,
+                                            // o simplemente guardar el nombre seleccionado.
+
+                                            const selectedTranslatedName = e.target.value;
+                                            // Encontrar el servicio original cuyo nombre traducido coincida
+                                            const selectedService = activeServices.find(s =>
+                                                getTranslatedServiceName(s.name) === selectedTranslatedName
+                                            );
+
+                                            handleInputChange('service', selectedService || { name: selectedTranslatedName })
                                         }}
                                         style={{
                                             width: '100%',
@@ -518,8 +563,8 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
                                     >
                                         <option value="">{t('contactModal.selectService')}</option>
                                         {activeServices.map(service => (
-                                            <option key={service.id || service.name} value={service.name}>
-                                                {service.name}
+                                            <option key={service.id || service.name} value={getTranslatedServiceName(service.name)}>
+                                                {getTranslatedServiceName(service.name)}
                                             </option>
                                         ))}
                                     </select>

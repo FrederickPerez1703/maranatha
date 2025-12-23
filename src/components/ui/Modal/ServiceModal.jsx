@@ -25,6 +25,24 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
   const category = typeToCategory[serviceType];
   const realServices = services.filter(s => s.category === category && s.active);
 
+  // Helper para traducir nombres de servicios dinámicos
+  const getTranslatedServiceName = (originalName, type) => {
+    if (language === 'es') return originalName;
+
+    // Buscar el índice del servicio en los datos estáticos en español
+    const esServices = servicesData['es'][type]?.services;
+    if (!esServices) return originalName;
+
+    const index = esServices.findIndex(s => s.name === originalName);
+
+    // Si se encuentra, devolver el correspondiente en el idioma actual (inglés)
+    if (index !== -1 && servicesData[language][type]?.services[index]) {
+      return servicesData[language][type].services[index].name;
+    }
+
+    return originalName;
+  };
+
   // Si hay servicios reales, usar esos; si no, usar los datos estáticos
   let service = serviceFromData;
 
@@ -36,7 +54,7 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
       service = {
         ...serviceFromData,
         services: makeupServiceWithSubs.subServices.map(subService => ({
-          name: subService,
+          name: getTranslatedServiceName(subService, serviceType),
           price: '' // No mostrar precio para sub-servicios
         }))
       };
@@ -45,7 +63,7 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
       service = {
         ...serviceFromData,
         services: realServices.map(s => ({
-          name: s.name,
+          name: getTranslatedServiceName(s.name, serviceType),
           price: '' // No mostrar precio aquí
         }))
       };
