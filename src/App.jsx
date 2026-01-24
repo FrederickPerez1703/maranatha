@@ -4,6 +4,7 @@ import About from './components/Home/About';
 import BeautySalonDashboard from './components/admin/BeautySalonDashboard/BeautySalonDashboard';
 import InstallPWA from './components/InstallPWA/InstallPWA';
 import InstallPWAiOS from './components/InstallPWA/InstallPWAiOS';
+import ReloadPrompt from './components/ReloadPrompt/ReloadPrompt';
 import { NotificationsProvider } from './contexts/NotificationsContext';
 import { InvoicesProvider } from './contexts/InvoicesContext';
 import { ServicesProvider } from './contexts/ServicesContext';
@@ -25,6 +26,7 @@ function App() {
                 </Routes>
                 <InstallPWA />
                 <InstallPWAiOS />
+                <ReloadPrompt />
               </Router>
             </ServicesProvider>
           </ClientsProvider>
