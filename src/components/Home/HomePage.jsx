@@ -9,6 +9,7 @@ import '../../App.css';
 import Footer from '../ui/Footer/Footer';
 import { useLanguage } from '../../context/LanguageContext';
 import { useServices } from '../../contexts/ServicesContext';
+import LocationSection from './Location/LocationSection';
 
 
 function LandingPage() {
@@ -68,6 +69,7 @@ function LandingPage() {
       />
       <Hero />
       <Services openServiceModal={openServiceModal} />
+      <LocationSection />
       <Modal
         isOpen={modalOpen}
         serviceType={currentService}
