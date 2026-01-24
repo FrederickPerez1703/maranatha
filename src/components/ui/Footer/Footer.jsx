@@ -157,10 +157,10 @@ export default function Footer() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Phone size={20} style={{ color: '#ff6b9d', flexShrink: 0 }} />
-                <a href="tel:+12645832914" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
+                <a href="tel:+12645820476" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
                   onMouseOut={(e) => e.currentTarget.style.color = '#b0b0b0'}>
-                  +1 (264) 583-2914
+                  +1 (264) 582-0476
                 </a>
               </div>
 

@@ -6,6 +6,7 @@ import servicesData from '../../../data/servicesData';
 const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment }) => {
   const { t, language } = useLanguage();
   const { services } = useServices();
+  const [showAllServices, setShowAllServices] = React.useState(false);
 
   // Obtener los datos del servicio actual basados en el idioma y el tipo
   const currentServicesData = servicesData[language] || servicesData['es'];
@@ -71,6 +72,9 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
   }
 
   useEffect(() => {
+    if (isOpen) {
+      setShowAllServices(false);
+    }
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
     };
@@ -122,7 +126,7 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
                 {t('serviceModal.selectInstruction')}
               </p>
               <ul className="service-list">
-                {service.services.map((item, index) => (
+                {service.services.slice(0, showAllServices ? service.services.length : 6).map((item, index) => (
                   <li
                     key={index}
                     onClick={() => {
@@ -138,6 +142,48 @@ const ServiceModal = ({ isOpen, serviceType, onClose, openScheduleAppointment })
                   </li>
                 ))}
               </ul>
+              {service.services.length > 6 && (
+                <button
+                  onClick={() => setShowAllServices(!showAllServices)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ff6b9d';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#ff6b9d';
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    margin: '15px auto 0',
+                    padding: '8px 20px',
+                    background: 'transparent',
+                    border: '1px solid #ff6b9d',
+                    borderRadius: '25px',
+                    color: '#ff6b9d',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease',
+                    outline: 'none',
+                    width: 'fit-content'
+                  }}
+                >
+                  {showAllServices
+                    ? (language === 'en' ? 'Show less' : 'Ver menos')
+                    : (language === 'en' ? 'Show more services' : 'Ver más servicios')}
+                  <span style={{
+                    display: 'inline-block',
+                    transform: showAllServices ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s ease'
+                  }}>
+                    ▼
+                  </span>
+                </button>
+              )}
             </div>
             <div className="detail-section">
               <h3>{t('serviceModal.serviceInfo')}</h3>

@@ -110,17 +110,128 @@ export default function Services({ openServiceModal }) {
 
   // Mostrar CATEGORÍAS (no servicios individuales)
   return (
-    <section className="services" id="services">
+    <section className="services" id="services" style={{ padding: '4rem 0' }}>
       <div className="container">
-        <h2>{t('services.title')}</h2>
-        <div className="services-grid">
-          {displayServices.map((s, i) => (
-            <div className="service-card" key={i} onClick={() => openServiceModal(s.type)}>
-              <span className="service-icon">{s.icon}</span>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-            </div>
-          ))}
+        <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem', fontWeight: 'bold', color: '#333' }}>
+          {t('services.title')}
+        </h2>
+        <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          {displayServices.map((s, i) => {
+            // Convertir la descripción de texto plano a un array de tags para visualización moderna
+            const serviceTags = s.desc.split(', ').slice(0, 4);
+            const hasMore = s.desc.split(', ').length > 4;
+
+            return (
+              <div
+                className="service-card"
+                key={i}
+                onClick={() => openServiceModal(s.type)}
+                style={{
+                  background: 'white',
+                  borderRadius: '20px',
+                  padding: '2rem',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid rgba(255, 107, 157, 0.1)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-10px)';
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(255, 107, 157, 0.15)';
+                  e.currentTarget.querySelector('.arrow-icon').style.transform = 'translateX(5px)';
+                  e.currentTarget.querySelector('.icon-bg').style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
+                  e.currentTarget.querySelector('.arrow-icon').style.transform = 'translateX(0)';
+                  e.currentTarget.querySelector('.icon-bg').style.transform = 'scale(1)';
+                }}
+              >
+                {/* Decorative background blob */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-50px',
+                  right: '-50px',
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(255, 107, 157, 0.2) 0%, rgba(255, 255, 255, 0) 70%)',
+                  zIndex: 0
+                }} />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 1 }}>
+                  <div className="icon-bg" style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '16px',
+                    background: 'rgba(255, 107, 157, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '30px',
+                    transition: 'transform 0.3s ease'
+                  }}>
+                    {s.icon}
+                  </div>
+                  <div className="arrow-icon" style={{
+                    color: '#ff6b9d',
+                    fontSize: '20px',
+                    transition: 'transform 0.3s ease'
+                  }}>
+                    ➜
+                  </div>
+                </div>
+
+                <div style={{ zIndex: 1 }}>
+                  <h3 style={{
+                    fontSize: '1.5rem',
+                    marginBottom: '1rem',
+                    color: '#333',
+                    fontWeight: '700',
+                    lineHeight: '1.2',
+                    minHeight: '3.6rem', // Force 2 lines of height for alignment
+                    display: 'flex',
+                    alignItems: 'flex-end' // Align text to bottom of the reserved space (optional, or center)
+                  }}>
+                    {s.title}
+                  </h3>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {serviceTags.map((tag, tagIndex) => (
+                      <span key={tagIndex} style={{
+                        background: '#f8f9fa',
+                        color: '#666',
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '0.85rem',
+                        border: '1px solid #eee'
+                      }}>
+                        {tag.replace('...', '')}
+                      </span>
+                    ))}
+                    {hasMore && (
+                      <span style={{
+                        background: 'rgba(255, 107, 157, 0.1)',
+                        color: '#ff6b9d',
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '0.85rem',
+                        fontWeight: '600'
+                      }}>
+                        + {language === 'es' ? 'más' : 'more'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

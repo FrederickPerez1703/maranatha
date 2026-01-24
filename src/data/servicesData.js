@@ -13,7 +13,16 @@ const servicesData = {
         { name: "Nail Art Personalizado" },
         { name: "Pedicura" },
         { name: "Pedicura Spa" },
-        { name: "Pedicura + Manicura" }
+        { name: "Pedicura + Manicura" },
+        { name: "Pedicure normal" },
+        { name: "Pedicure spa" },
+        { name: "Manicure normal" },
+        { name: "Manicure spa" },
+        { name: "Pintado en Gel" },
+        { name: "Retoque de uñas de los pies" },
+        { name: "Postura de 2 uñas en los pies" },
+        { name: "Postura de uñas Full Cover" },
+        { name: "Retoque de uñas" }
       ],
       benefits: [
         { icon: "✨", title: "Duración", desc: "Hasta 3 semanas" },
@@ -37,7 +46,15 @@ const servicesData = {
         { name: "Peinado Especial" },
         { name: "Extensiones" },
         { name: "Trenzas" },
-        { name: "Tinte de Cabello" }
+        { name: "Tinte de Cabello" },
+        { name: "Trenzas africanas largas" },
+        { name: "Trenzas africanas cortar" },
+        { name: "Trenzas africanas pegadas" },
+        { name: "Solo peinada" },
+        { name: "Solo Lavado" },
+        { name: "Rizos suave" },
+        { name: "Rizos de agua" },
+        { name: "Rizos hondas" }
       ],
       benefits: [
         { icon: "✂️", title: "Técnicas", desc: "Modernas" },
@@ -72,7 +89,7 @@ const servicesData = {
     },
     makeup: {
       icon: "💄",
-      title: "Maquillaje Profesional",
+      title: "Cuidado de la piel",
       subtitle: "Resalta tu belleza natural para ocasiones especiales",
       services: [
         { name: "Maquillaje de Día" },
@@ -82,7 +99,11 @@ const servicesData = {
         { name: "Maquillaje Graduación" },
         { name: "Prueba de Maquillaje" },
         { name: "Clase de Automaquillaje" },
-        { name: "Maquillaje Profesional" }
+        { name: "Maquillaje Profesional" },
+        { name: "Corte de cejas" },
+        { name: "Tintado de cejas" },
+        { name: "Facial normal" },
+        { name: "Facial profundo" }
       ],
       benefits: [
         { icon: "🎨", title: "Técnicas", desc: "Profesionales" },
@@ -108,7 +129,16 @@ const servicesData = {
         { name: "Custom Nail Art" },
         { name: "Pedicure" },
         { name: "Spa Pedicure" },
-        { name: "Pedicure + Manicure" }
+        { name: "Pedicure + Manicure" },
+        { name: "Normal Pedicure" },
+        { name: "Spa Pedicure" },
+        { name: "Normal Manicure" },
+        { name: "Spa Manicure" },
+        { name: "Gel Polish Application" },
+        { name: "Toenail Refill" },
+        { name: "2 Toenail Application" },
+        { name: "Full Cover Nail Application" },
+        { name: "Nail Refill" }
       ],
       benefits: [
         { icon: "✨", title: "Duration", desc: "Up to 3 weeks" },
@@ -132,7 +162,15 @@ const servicesData = {
         { name: "Special Styling" },
         { name: "Extensions" },
         { name: "Braids" },
-        { name: "Hair Dye" }
+        { name: "Hair Dye" },
+        { name: "Long African Braids" },
+        { name: "Cut African Braids" },
+        { name: "Cornrows" },
+        { name: "Styling Only" },
+        { name: "Wash Only" },
+        { name: "Soft Curls" },
+        { name: "Water Curls" },
+        { name: "Loose Waves" }
       ],
       benefits: [
         { icon: "✂️", title: "Techniques", desc: "Modern" },
@@ -167,7 +205,7 @@ const servicesData = {
     },
     makeup: {
       icon: "💄",
-      title: "Professional Makeup",
+      title: "Skin Care",
       subtitle: "Highlight your natural beauty for special occasions",
       services: [
         { name: "Day Makeup" },
@@ -177,7 +215,11 @@ const servicesData = {
         { name: "Graduation Makeup" },
         { name: "Makeup Trial" },
         { name: "Self-makeup Class" },
-        { name: "Professional Makeup" }
+        { name: "Professional Makeup" },
+        { name: "Eyebrow Shaping" },
+        { name: "Eyebrow Tinting" },
+        { name: "Basic Facial" },
+        { name: "Deep Facial" }
       ],
       benefits: [
         { icon: "🎨", title: "Techniques", desc: "Professional" },

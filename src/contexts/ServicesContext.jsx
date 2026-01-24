@@ -116,6 +116,216 @@ export const ServicesProvider = ({ children }) => {
                 active: true,
                 subServices: [],
                 createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-7',
+                name: 'Trenzas africanas largas',
+                category: 'Cabello',
+                duration: 180,
+                description: 'Trenzas africanas estilo largo',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-8',
+                name: 'Trenzas africanas cortar',
+                category: 'Cabello',
+                duration: 60,
+                description: 'Corte y mantenimiento de trenzas',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-9',
+                name: 'Trenzas africanas pegadas',
+                category: 'Cabello',
+                duration: 120,
+                description: 'Trenzas pegadas al cuero cabelludo (Cornrows)',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-10',
+                name: 'Solo peinada',
+                category: 'Cabello',
+                duration: 45,
+                description: 'Servicio de solo peinado',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-11',
+                name: 'Solo Lavado',
+                category: 'Cabello',
+                duration: 30,
+                description: 'Servicio de solo lavado',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-12',
+                name: 'Rizos suave',
+                category: 'Cabello',
+                duration: 60,
+                description: 'Ondas suaves y naturales',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-13',
+                name: 'Rizos de agua',
+                category: 'Cabello',
+                duration: 90,
+                description: 'Rizos definidos efecto húmedo',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-14',
+                name: 'Rizos hondas',
+                category: 'Cabello',
+                duration: 75,
+                description: 'Ondas marcadas y glamurosas',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-15',
+                name: 'Pedicure normal',
+                category: 'Uñas',
+                duration: 45,
+                description: 'Pedicure estándar',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-16',
+                name: 'Pedicure spa',
+                category: 'Uñas',
+                duration: 60,
+                description: 'Pedicure relajante estilo spa',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-17',
+                name: 'Manicure normal',
+                category: 'Uñas',
+                duration: 40,
+                description: 'Manicure estándar',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-18',
+                name: 'Manicure spa',
+                category: 'Uñas',
+                duration: 55,
+                description: 'Manicure relajante estilo spa',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-19',
+                name: 'Pintado en Gel',
+                category: 'Uñas',
+                duration: 30,
+                description: 'Aplicación de esmalte en gel',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-20',
+                name: 'Retoque de uñas de los pies',
+                category: 'Uñas',
+                duration: 45,
+                description: 'Mantenimiento para uñas de pies',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-21',
+                name: 'Postura de 2 uñas en los pies',
+                category: 'Uñas',
+                duration: 20,
+                description: 'Reconstrucción de 2 uñas en pies',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-22',
+                name: 'Postura de uñas Full Cover',
+                category: 'Uñas',
+                duration: 90,
+                description: 'Sistema Full Cover completo',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-23',
+                name: 'Retoque de uñas',
+                category: 'Uñas',
+                duration: 60,
+                description: 'Relleno y mantenimiento de uñas',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-24',
+                name: 'Corte de cejas',
+                category: 'Maquillaje',
+                duration: 15,
+                description: 'Perfilado y corte de cejas',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-25',
+                name: 'Tintado de cejas',
+                category: 'Maquillaje',
+                duration: 30,
+                description: 'Tintado semi-permanente de cejas',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-26',
+                name: 'Facial normal',
+                category: 'Maquillaje',
+                duration: 45,
+                description: 'Limpieza facial básica',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'service-27',
+                name: 'Facial profundo',
+                category: 'Maquillaje',
+                duration: 60,
+                description: 'Limpieza facial profunda con extracciones',
+                active: true,
+                subServices: [],
+                createdAt: new Date().toISOString()
             }
         ];
 
@@ -135,6 +345,41 @@ export const ServicesProvider = ({ children }) => {
                         parsedServices.push(trenzasService);
                     }
                 }
+
+                // Verificar y agregar los nuevos servicios de trenzas africanas y peinados
+                const newServicesToAdd = [
+                    'Trenzas africanas largas',
+                    'Trenzas africanas cortar',
+                    'Trenzas africanas pegadas',
+                    'Solo peinada',
+                    'Solo Lavado',
+                    'Rizos suave',
+                    'Rizos de agua',
+                    'Rizos hondas',
+                    'Pedicure normal',
+                    'Pedicure spa',
+                    'Manicure normal',
+                    'Manicure spa',
+                    'Pintado en Gel',
+                    'Retoque de uñas de los pies',
+                    'Postura de 2 uñas en los pies',
+                    'Postura de uñas Full Cover',
+                    'Retoque de uñas',
+                    'Corte de cejas',
+                    'Tintado de cejas',
+                    'Facial normal',
+                    'Facial profundo'
+                ];
+
+                newServicesToAdd.forEach(serviceName => {
+                    const exists = parsedServices.some(s => s.name === serviceName);
+                    if (!exists) {
+                        const newService = defaultServices.find(s => s.name === serviceName);
+                        if (newService) {
+                            parsedServices.push(newService);
+                        }
+                    }
+                });
 
                 // Actualizar localStorage inmediatamente para persistir los cambios
                 localStorage.setItem('salonServices', JSON.stringify(parsedServices));
