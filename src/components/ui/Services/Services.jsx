@@ -1,11 +1,13 @@
 import React from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useServices } from '../../../contexts/ServicesContext';
+import { useTheme } from '../../../context/ThemeContext';
 import servicesData from '../../../data/servicesData';
 
 export default function Services({ openServiceModal }) {
   const { t, language } = useLanguage();
   const { getServicesByCategory } = useServices();
+  const { theme } = useTheme();
 
   // Obtener servicios activos agrupados por categoría
   const servicesByCategory = getServicesByCategory();
@@ -112,7 +114,7 @@ export default function Services({ openServiceModal }) {
   return (
     <section className="services" id="services" style={{ padding: '4rem 0' }}>
       <div className="container">
-        <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem', fontWeight: 'bold', color: '#333' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem', fontWeight: 'bold', color: theme === 'dark' ? '#ffffff' : '#333' }}>
           {t('services.title')}
         </h2>
         <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
