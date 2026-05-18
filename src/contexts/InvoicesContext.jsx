@@ -26,6 +26,12 @@ export const InvoicesProvider = ({ children }) => {
         return saved ? JSON.parse(saved) : [];
     });
 
+    // Fecha del último reinicio del total
+    const [lastResetDate, setLastResetDate] = useState(() => {
+        const saved = localStorage.getItem('maranatha-last-reset');
+        return saved || new Date().toISOString();
+    });
+
     // Persistencia
     useEffect(() => {
         localStorage.setItem('maranatha-invoices', JSON.stringify(invoices));
@@ -34,6 +40,65 @@ export const InvoicesProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('maranatha-deleted-invoices', JSON.stringify(deletedInvoices));
     }, [deletedInvoices]);
+
+    useEffect(() => {
+        localStorage.setItem('maranatha-last-reset', lastResetDate);
+    }, [lastResetDate]);
+
+    // Reiniciar total manualmente o automáticamente
+    const resetTotal = (requestedBy = 'admin') => {
+        const paidInvoices = invoices.filter(inv => inv.status === 'paid');
+        if (paidInvoices.length > 0) {
+            const newlyDeleted = paidInvoices.map(inv => ({
+                ...inv,
+                deletedAt: new Date().toISOString(),
+                deleteComment: 'Reinicio del total generado (facturas pagadas archivadas)',
+                deletedBy: requestedBy,
+                approvedBy: 'Sistema/Admin',
+                isResetArchive: true
+            }));
+
+            // Actualizar el historial primero
+            setDeletedInvoices(prevDeleted => {
+                const filteredNew = newlyDeleted.filter(newInv =>
+                    !prevDeleted.some(prev => prev.id === newInv.id && prev.deletedAt === newInv.deletedAt)
+                );
+                const updatedHistory = [...filteredNew, ...prevDeleted];
+                // Persistencia inmediata para garantizar que no se pierdan
+                localStorage.setItem('maranatha-deleted-invoices', JSON.stringify(updatedHistory));
+                return updatedHistory;
+            });
+
+            // Luego filtrar de facturas activas
+            setInvoices(prevInvoices => {
+                const updatedActive = prevInvoices.filter(inv => inv.status !== 'paid');
+                localStorage.setItem('maranatha-invoices', JSON.stringify(updatedActive));
+                return updatedActive;
+            });
+        }
+        const newResetDate = new Date().toISOString();
+        setLastResetDate(newResetDate);
+        localStorage.setItem('maranatha-last-reset', newResetDate);
+    };
+
+    // Reinicio automático todos los domingos al iniciar la app
+    useEffect(() => {
+        const now = new Date();
+        
+        // Obtener el inicio del domingo de la semana actual en hora local
+        const currentDay = now.getDay();
+        const diffToSunday = now.getDate() - currentDay;
+        const currentSunday = new Date(now);
+        currentSunday.setDate(diffToSunday);
+        currentSunday.setHours(0, 0, 0, 0);
+
+        const lastReset = new Date(lastResetDate);
+
+        // Si el último reinicio ocurrió antes del inicio de este domingo, se ejecuta el reinicio
+        if (lastReset < currentSunday) {
+            resetTotal('Sistema (Automático - Domingo)');
+        }
+    }, []);
 
     // Lógica para procesar eliminaciones aprobadas
     useEffect(() => {
@@ -59,7 +124,13 @@ export const InvoicesProvider = ({ children }) => {
                     approvedBy: 'admin' // Idealmente vendría de la notificación
                 };
 
-                setDeletedInvoices(prev => [deletedInvoice, ...prev]);
+                setDeletedInvoices(prev => {
+                    // Evitar duplicados por Strict Mode o doble procesamiento
+                    if (prev.some(inv => inv.id === deletedInvoice.id && inv.deletedAt === deletedInvoice.deletedAt)) {
+                        return prev;
+                    }
+                    return [deletedInvoice, ...prev];
+                });
 
                 // Eliminar de activas
                 setInvoices(prev => prev.filter(inv => inv.id !== notification.itemId));
@@ -69,7 +140,7 @@ export const InvoicesProvider = ({ children }) => {
 
     // Funciones auxiliares
     const addInvoice = (invoice) => {
-        setInvoices(prev => [invoice, ...prev]);
+        setInvoices(prev => [{ ...invoice, createdAt: new Date().toISOString() }, ...prev]);
     };
 
     const updateInvoice = (updatedInvoice) => {
@@ -88,12 +159,18 @@ export const InvoicesProvider = ({ children }) => {
         }));
     };
 
+    // Facturas pagadas desde el último reinicio (para el total generado)
+    const weeklyPaidInvoices = invoices.filter(inv => inv.status === 'paid');
+
     const value = {
         invoices,
         deletedInvoices,
         addInvoice,
         updateInvoice,
         toggleInvoiceStatus,
+        resetTotal,
+        weeklyPaidInvoices,
+        lastResetDate,
         setInvoices // Por si se necesita acceso directo
     };
 

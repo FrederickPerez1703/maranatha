@@ -5,6 +5,9 @@ import ClientsManager from '../ClientsManager/ClientsManager';
 import ServicesManager from '../ServicesManager/ServicesManager';
 import InvoiceManager from '../InvoiceManager/InvoiceManager';
 import ReportsManager from '../ReportsManager/ReportsManager';
+import EventsManager from '../EventsManager/EventsManager';
+import ReviewsManager from '../ReviewsManager/ReviewsManager';
+import FeatureFlagsManager from '../FeatureFlagsManager/FeatureFlagsManager';
 import AdminManager from '../AdminManager/AdminManager';
 import Alert from '../../ui/Alert/Alert';
 import { useState, useEffect } from 'react';
@@ -52,6 +55,30 @@ const Dashboard = ({ onLogout, user }) => {
             type="permission"
             title="Acceso Denegado"
             message={`Hola ${user.username}, no tienes los permisos necesarios para ver la sección de servicios. Por favor, contacta al administrador si necesitas acceso.`}
+          />;
+      case 'events':
+        return hasRole('admin')
+          ? <EventsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para gestionar eventos. Solo administradores pueden acceder.`}
+          />;
+      case 'reviews':
+        return hasRole('admin')
+          ? <ReviewsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para moderar reseñas. Solo administradores pueden acceder.`}
+          />;
+      case 'features':
+        return hasRole('admin')
+          ? <FeatureFlagsManager />
+          : <Alert
+            type="permission"
+            title="Acceso Denegado"
+            message={`Hola ${user.username}, no tienes los permisos necesarios para gestionar funcionalidades. Solo administradores pueden acceder.`}
           />;
       case 'invoices':
         return hasRole('admin') || hasRole('accounting')

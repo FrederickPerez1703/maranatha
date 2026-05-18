@@ -1,60 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { useReviews } from '../../../contexts/ReviewsContext'; // Import context
 import { Star, Heart, MapPin, Navigation } from 'lucide-react';
 import './LocationSection.css';
 
 export default function LocationSection() {
     const { t, language } = useLanguage();
     const { theme } = useTheme();
-
-    // Fake persistence for reviews
-    const [reviews, setReviews] = useState(() => {
-        const saved = localStorage.getItem('userReviews');
-        return saved ? JSON.parse(saved) : [
-            { id: 1, name: 'María G.', rating: 5, comment: 'Excelente servicio, muy profesional', likes: 12, date: '2025-01-15' },
-            { id: 2, name: 'Sarah J.', rating: 5, comment: 'Best salon in Anguilla!', likes: 8, date: '2025-01-20' }
-        ];
-    });
+    const { reviews, addReview, toggleLike } = useReviews(); // Use context methods
 
     const [newReview, setNewReview] = useState({ name: '', comment: '', rating: 5 });
     const [showReviewForm, setShowReviewForm] = useState(false);
+
+    // Only keep likedReviews local to the user/device to track what THEY liked
     const [likedReviews, setLikedReviews] = useState(() => {
         const saved = localStorage.getItem('likedReviews');
         return saved ? JSON.parse(saved) : [];
     });
 
     useEffect(() => {
-        localStorage.setItem('userReviews', JSON.stringify(reviews));
-    }, [reviews]);
-
-    useEffect(() => {
         localStorage.setItem('likedReviews', JSON.stringify(likedReviews));
     }, [likedReviews]);
 
     const handleLike = (reviewId) => {
-        if (likedReviews.includes(reviewId)) return;
-
-        setReviews(prev => prev.map(r =>
-            r.id === reviewId ? { ...r, likes: r.likes + 1 } : r
-        ));
-        setLikedReviews(prev => [...prev, reviewId]);
+        toggleLike(reviewId, likedReviews, setLikedReviews);
     };
 
     const handleSubmitReview = (e) => {
         e.preventDefault();
         if (!newReview.name || !newReview.comment) return;
 
-        const review = {
-            id: Date.now(),
-            name: newReview.name,
-            rating: newReview.rating,
-            comment: newReview.comment,
-            likes: 0,
-            date: new Date().toISOString().split('T')[0]
-        };
-
-        setReviews(prev => [review, ...prev]);
+        addReview(newReview);
         setNewReview({ name: '', comment: '', rating: 5 });
         setShowReviewForm(false);
     };

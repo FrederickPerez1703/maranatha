@@ -3,13 +3,33 @@ import { useInvoices } from '../../../contexts/InvoicesContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+// Helper to parse date string without timezone shift (keeps it in local midnight)
+const parseLocalDate = (dateStr) => {
+  if (!dateStr) return new Date();
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  }
+  return new Date(dateStr);
+};
+
 // Componente de Reportes
 const ReportsManager = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [selectedReport, setSelectedReport] = useState('revenue');
 
   // Obtener facturas del contexto
-  const { invoices } = useInvoices();
+  const { invoices, deletedInvoices = [] } = useInvoices();
+
+  // Combinar facturas activas pagadas e históricas pagadas (del reinicio)
+  const allPaidInvoices = useMemo(() => {
+    const activePaid = invoices.filter(inv => inv.status === 'paid');
+    const archivedPaid = deletedInvoices.filter(inv => 
+      inv.status === 'paid' && 
+      (inv.isResetArchive || inv.deleteComment === 'Reinicio del total generado (facturas pagadas archivadas)')
+    );
+    return [...activePaid, ...archivedPaid];
+  }, [invoices, deletedInvoices]);
 
   // Calcular datos reales basados en las facturas
   const reportsData = useMemo(() => {
@@ -18,7 +38,7 @@ const ReportsManager = () => {
     const currentYear = now.getFullYear();
 
     // Filtrar facturas pagadas
-    const paidInvoices = invoices.filter(inv => inv.status === 'paid');
+    const paidInvoices = allPaidInvoices;
 
     // Agrupar por período
     const weeklyData = {};
@@ -27,7 +47,7 @@ const ReportsManager = () => {
     const yearlyData = {};
 
     paidInvoices.forEach(invoice => {
-      const invoiceDate = new Date(invoice.date);
+      const invoiceDate = parseLocalDate(invoice.date);
       const month = invoiceDate.getMonth();
       const year = invoiceDate.getFullYear();
       const quarter = Math.floor(month / 3);
@@ -131,7 +151,7 @@ const ReportsManager = () => {
       year: yearArray.length > 0 ? yearArray : [{ period: 'Sin datos', value: 0, appointments: 0 }],
       services: servicesArray.length > 0 ? servicesArray : [{ service: 'Sin datos', count: 0, revenue: 0, percentage: 0 }]
     };
-  }, [invoices]);
+  }, [allPaidInvoices]);
 
   const getCurrentData = () => {
     return reportsData[selectedPeriod] || reportsData.week;
@@ -184,8 +204,8 @@ const ReportsManager = () => {
         ['Ingresos Totales', `$${getTotalRevenue().toLocaleString('es-ES', { minimumFractionDigits: 2 })}`],
         ['Total de Facturas', getTotalAppointments().toString()],
         ['Promedio por Factura', `$${getAveragePerAppointment()}`],
-        ['Facturas Totales en Sistema', invoices.length.toString()],
-        ['Facturas Pagadas', invoices.filter(inv => inv.status === 'paid').length.toString()],
+        ['Facturas Totales en Sistema', (invoices.length + (deletedInvoices || []).length).toString()],
+        ['Facturas Pagadas', allPaidInvoices.length.toString()],
         ['Facturas Pendientes', invoices.filter(inv => inv.status === 'pending').length.toString()]
       ];
 
@@ -254,10 +274,10 @@ const ReportsManager = () => {
       doc.setFontSize(14);
       doc.text('Detalle de Facturas Pagadas', 14, 20);
 
-      const paidInvoices = invoices.filter(inv => inv.status === 'paid');
+      const paidInvoices = allPaidInvoices;
       const invoicesTableData = paidInvoices.map(invoice => [
         invoice.id,
-        new Date(invoice.date).toLocaleDateString('es-ES'),
+        parseLocalDate(invoice.date).toLocaleDateString('es-ES'),
         invoice.clientName,
         `$${invoice.total.toLocaleString('es-ES', { minimumFractionDigits: 2 })}`
       ]);
@@ -311,7 +331,7 @@ const ReportsManager = () => {
     <div style={{ padding: '20px' }}>
       <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
         <h2 style={{ color: '#ff6b9d', fontSize: '28px', margin: 0 }}>Reportes y Análisis</h2>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
@@ -321,7 +341,8 @@ const ReportsManager = () => {
               border: '2px solid #f0f0f0',
               background: 'white',
               fontSize: '14px',
-              outline: 'none'
+              outline: 'none',
+              cursor: 'pointer'
             }}
           >
             <option value="week">Esta Semana</option>
@@ -338,13 +359,36 @@ const ReportsManager = () => {
               border: '2px solid #f0f0f0',
               background: 'white',
               fontSize: '14px',
-              outline: 'none'
+              outline: 'none',
+              cursor: 'pointer'
             }}
           >
             <option value="revenue">Ingresos</option>
             <option value="services">Servicios</option>
             <option value="clients">Clientes</option>
           </select>
+          <button
+            onClick={exportToPDF}
+            style={{
+              padding: '10px 18px',
+              background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 15px rgba(255, 107, 157, 0.2)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+          >
+            📊 Exportar PDF
+          </button>
         </div>
       </div>
 
@@ -441,7 +485,7 @@ const ReportsManager = () => {
                       alignItems: 'center',
                       gap: '15px'
                     }}>
-                      <div style={{
+                      <div className="hide-mobile" style={{
                         width: '150px',
                         height: '8px',
                         background: '#f0f0f0',
@@ -485,7 +529,7 @@ const ReportsManager = () => {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <div style={{
+                    <div className="hide-mobile" style={{
                       width: '100px',
                       height: '8px',
                       background: '#f0f0f0',

@@ -11,7 +11,7 @@ const InvoiceManager = ({ user }) => {
     // Contexto de notificaciones
     const { requestDeletion, hasPendingDeletion, notifications, removeNotification } = useNotifications();
     // Contexto de facturas
-    const { invoices, deletedInvoices, addInvoice, updateInvoice, toggleInvoiceStatus } = useInvoices();
+    const { invoices, deletedInvoices, addInvoice, updateInvoice, toggleInvoiceStatus, resetTotal, weeklyPaidInvoices } = useInvoices();
     // Contexto de servicios
     const { getActiveServices } = useServices();
 
@@ -26,6 +26,7 @@ const InvoiceManager = ({ user }) => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showWarningModal, setShowWarningModal] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [warningMessage, setWarningMessage] = useState('');
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -34,6 +35,7 @@ const InvoiceManager = ({ user }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
         clientName: '',
+        paymentMethod: 'Efectivo',
         services: []
     });
     const [selectedService, setSelectedService] = useState('');
@@ -51,6 +53,7 @@ const InvoiceManager = ({ user }) => {
         setEditingInvoice(null);
         setFormData({
             clientName: appointment.client,
+            paymentMethod: 'Efectivo',
             services: [{
                 name: appointment.service,
                 price: price,
@@ -145,6 +148,10 @@ const InvoiceManager = ({ user }) => {
                 <span>$${invoice.total.toFixed(2)}</span>
               </div>
             </div>
+            <div class="flex" style="margin-top: 8px; font-size: 13px; font-weight: bold;">
+              <span>MÉTODO DE PAGO:</span>
+              <span>${(invoice.paymentMethod || 'Efectivo').toUpperCase()}</span>
+            </div>
           </div>
           <div class="center section" style="font-size: 14px;">
             <div style="display: inline-block; padding: 6px 14px; border: 2px solid #000; font-weight: bold;">
@@ -172,6 +179,7 @@ const InvoiceManager = ({ user }) => {
         setEditingInvoice(invoice);
         setFormData({
             clientName: invoice.clientName,
+            paymentMethod: invoice.paymentMethod || 'Efectivo',
             services: [...invoice.services]
         });
         setShowModal(true);
@@ -179,7 +187,7 @@ const InvoiceManager = ({ user }) => {
 
     const openCreateModal = () => {
         setEditingInvoice(null);
-        setFormData({ clientName: '', services: [] });
+        setFormData({ clientName: '', paymentMethod: 'Efectivo', services: [] });
         setShowModal(true);
     };
 
@@ -212,6 +220,14 @@ const InvoiceManager = ({ user }) => {
         setFormData({ ...formData, services: formData.services.filter((_, i) => i !== index) });
     };
 
+    const handleEditService = (index) => {
+        const service = formData.services[index];
+        setSelectedService(service.name);
+        setServicePrice(service.price.toString());
+        setServiceQuantity(service.quantity);
+        setFormData({ ...formData, services: formData.services.filter((_, i) => i !== index) });
+    };
+
     const calculateTotal = () => {
         const subtotal = formData.services.reduce((sum, s) => sum + s.price * s.quantity, 0);
         return { subtotal, total: subtotal };
@@ -239,8 +255,9 @@ const InvoiceManager = ({ user }) => {
                 total
             });
         } else {
-            // Generar ID único basado en el ID más alto existente
-            const maxId = invoices.reduce((max, inv) => {
+            // Generar ID único basado en el ID más alto de activas e históricas
+            const allExisting = [...invoices, ...deletedInvoices];
+            const maxId = allExisting.reduce((max, inv) => {
                 const num = parseInt(inv.id.replace('INV-', ''));
                 return num > max ? num : max;
             }, 0);
@@ -353,15 +370,38 @@ const InvoiceManager = ({ user }) => {
                                 padding: '12px 20px',
                                 background: 'linear-gradient(135deg, #10b981, #059669)',
                                 borderRadius: '12px',
-                                display: 'inline-block',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '15px',
                                 boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
                             }}>
-                                <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', fontWeight: '500', marginBottom: '4px' }}>
-                                    Total Generado ({invoices.filter(inv => inv.status === 'paid').length} facturas pagadas)
+                                <div>
+                                    <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', fontWeight: '500', marginBottom: '4px' }}>
+                                        Total Generado ({weeklyPaidInvoices.length} facturas pagadas)
+                                    </div>
+                                    <div style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+                                        ${weeklyPaidInvoices.reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
+                                    </div>
                                 </div>
-                                <div style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
-                                    ${invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
-                                </div>
+                                <button
+                                    onClick={() => setShowResetModal(true)}
+                                    style={{
+                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                                        color: 'white',
+                                        padding: '8px 14px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.35)'}
+                                    onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                                    title="Reiniciar Total Manualmente"
+                                >
+                                    🔄 Reiniciar
+                                </button>
                             </div>
                         )}
                     </div>
@@ -529,10 +569,23 @@ const InvoiceManager = ({ user }) => {
                                         <Calendar size={16} />
                                         {new Date(invoice.date).toLocaleDateString('es-ES')}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <User size={16} />
-                                        {invoice.clientName}
-                                    </div>
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                         <User size={16} />
+                                         {invoice.clientName}
+                                     </div>
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                         <span style={{
+                                             fontSize: '11px',
+                                             padding: '3px 8px',
+                                             borderRadius: '12px',
+                                             background: '#f3f4f6',
+                                             color: '#4b5563',
+                                             fontWeight: '600',
+                                             letterSpacing: '0.3px'
+                                         }}>
+                                             💵 {invoice.paymentMethod || 'Efectivo'}
+                                         </span>
+                                     </div>
                                 </div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
@@ -676,7 +729,7 @@ const InvoiceManager = ({ user }) => {
                         zIndex: 1000,
                         padding: '20px'
                     }}>
-                        <div className="modal-content" style={{
+                        <div style={{
                             background: 'white',
                             borderRadius: '20px',
                             padding: '30px',
@@ -691,10 +744,9 @@ const InvoiceManager = ({ user }) => {
 
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
-                                    Nombre del Cliente *
+                                    Nombre del Personal *
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.clientName}
                                     onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
                                     style={{
@@ -704,9 +756,40 @@ const InvoiceManager = ({ user }) => {
                                         borderRadius: '10px',
                                         fontSize: '14px',
                                         outline: 'none',
-                                        boxSizing: 'border-box'
+                                        boxSizing: 'border-box',
+                                        background: 'white',
+                                        cursor: 'pointer'
                                     }}
-                                />
+                                >
+                                    <option value="">Seleccionar personal...</option>
+                                    <option value="Ana">Ana</option>
+                                    <option value="Mariela">Mariela</option>
+                                    <option value="Rubi">Rubi</option>
+                                </select>
+                            </div>
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
+                                    Método de Pago *
+                                </label>
+                                <select
+                                    value={formData.paymentMethod || 'Efectivo'}
+                                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box',
+                                        background: 'white',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                </select>
                             </div>
 
                             <div style={{ marginBottom: '20px' }}>
@@ -732,24 +815,49 @@ const InvoiceManager = ({ user }) => {
                                             <option key={idx} value={serviceName}>{serviceName}</option>
                                         ))}
                                     </select>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="Precio"
-                                        value={servicePrice}
-                                        onChange={(e) => setServicePrice(e.target.value)}
-                                        style={{
-                                            flex: '1 1 calc(50% - 4px)',
-                                            minWidth: '120px',
-                                            padding: '10px',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '8px',
+                                    <div style={{
+                                        position: 'relative',
+                                        flex: '1 1 calc(50% - 4px)',
+                                        minWidth: '120px'
+                                    }}>
+                                        <span style={{
+                                            position: 'absolute',
+                                            left: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            color: !selectedService ? '#9ca3af' : '#4b5563',
+                                            fontWeight: 'bold',
                                             fontSize: '14px',
-                                            outline: 'none',
-                                            boxSizing: 'border-box'
-                                        }}
-                                    />
+                                            pointerEvents: 'none'
+                                        }}>
+                                            $
+                                        </span>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            placeholder="Precio"
+                                            value={servicePrice}
+                                            disabled={!selectedService}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                                                    setServicePrice(val);
+                                                }
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 10px 10px 24px',
+                                                border: '2px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                                fontSize: '14px',
+                                                outline: 'none',
+                                                boxSizing: 'border-box',
+                                                background: !selectedService ? '#f3f4f6' : 'white',
+                                                cursor: !selectedService ? 'not-allowed' : 'text',
+                                                color: !selectedService ? '#9ca3af' : '#1f2937'
+                                            }}
+                                        />
+                                    </div>
                                     <input
                                         type="number"
                                         min="1"
@@ -795,7 +903,27 @@ const InvoiceManager = ({ user }) => {
                                                         ${(service.price * service.quantity).toFixed(2)}
                                                     </span>
                                                     <button
-                                                        onClick={() => handleRemoveService(index)}
+                                                        type="button"
+                                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEditService(index); }}
+                                                        style={{
+                                                            background: '#e0f2fe',
+                                                            color: '#0284c7',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        title="Editar servicio"
+                                                    >
+                                                        <Edit2 size={14} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveService(index); }}
                                                         style={{
                                                             background: '#fee2e2',
                                                             color: '#dc2626',
@@ -808,6 +936,7 @@ const InvoiceManager = ({ user }) => {
                                                             alignItems: 'center',
                                                             justifyContent: 'center'
                                                         }}
+                                                        title="Eliminar servicio"
                                                     >
                                                         <X size={14} />
                                                     </button>
@@ -1027,21 +1156,23 @@ const InvoiceManager = ({ user }) => {
                                 </div>
                             ) : (
                                 <div style={{ display: 'grid', gap: '15px' }}>
-                                    {deletedInvoices.map((invoice, idx) => (
+                                    {deletedInvoices.map((invoice, idx) => {
+                                        const isReinicio = invoice.status === 'paid';
+                                        return (
                                         <div key={idx} style={{
-                                            background: '#fef2f2',
-                                            border: '1px solid #fee2e2',
+                                            background: isReinicio ? '#f0fdf4' : '#fef2f2',
+                                            border: `1px solid ${isReinicio ? '#dcfce7' : '#fee2e2'}`,
                                             borderRadius: '12px',
                                             padding: '16px'
                                         }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                 <div>
-                                                    <span style={{ fontWeight: 'bold', color: '#991b1b' }}>{invoice.id}</span>
-                                                    <span style={{ margin: '0 8px', color: '#ef4444' }}>•</span>
-                                                    <span style={{ color: '#7f1d1d' }}>{invoice.clientName}</span>
+                                                    <span style={{ fontWeight: 'bold', color: isReinicio ? '#166534' : '#991b1b' }}>{invoice.id}</span>
+                                                    <span style={{ margin: '0 8px', color: isReinicio ? '#22c55e' : '#ef4444' }}>•</span>
+                                                    <span style={{ color: isReinicio ? '#14532d' : '#7f1d1d', fontWeight: '500' }}>{invoice.clientName} ({isReinicio ? 'Archivada Paga' : 'Eliminada'})</span>
                                                 </div>
-                                                <div style={{ fontSize: '12px', color: '#991b1b' }}>
-                                                    Eliminado el: {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
+                                                <div style={{ fontSize: '12px', color: isReinicio ? '#166534' : '#991b1b' }}>
+                                                    {isReinicio ? 'Archivado el: ' : 'Eliminado el: '} {new Date(invoice.deletedAt).toLocaleDateString('es-ES', {
                                                         year: 'numeric',
                                                         month: 'long',
                                                         day: 'numeric',
@@ -1051,9 +1182,9 @@ const InvoiceManager = ({ user }) => {
                                                 </div>
                                             </div>
 
-                                            <div style={{ background: 'white', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
+                                            <div style={{ background: 'white', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: isReinicio ? '1px solid #e6f4ea' : '1px solid #fbebeb' }}>
                                                 <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: '600' }}>
-                                                    Motivo de eliminación:
+                                                    {isReinicio ? 'Detalle del Reinicio / Comentario:' : 'Motivo de eliminación:'}
                                                 </p>
                                                 <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 8px 0' }}>
                                                     {invoice.deleteComment}
@@ -1070,11 +1201,12 @@ const InvoiceManager = ({ user }) => {
                                                 </div>
                                             </div>
 
-                                            <div style={{ fontSize: '12px', color: '#991b1b' }}>
+                                            <div style={{ fontSize: '12px', color: isReinicio ? '#166534' : '#991b1b' }}>
                                                 <strong>Servicios:</strong> {invoice.services.map(s => `${s.quantity}x ${s.name}`).join(', ')}
                                             </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -1104,6 +1236,22 @@ const InvoiceManager = ({ user }) => {
                 type="warning"
                 confirmText="Entendido"
                 showCancel={false}
+            />
+
+            {/* Modal de confirmación de reinicio */}
+            <ConfirmationModal
+                isOpen={showResetModal}
+                onClose={() => setShowResetModal(false)}
+                onConfirm={() => {
+                    resetTotal(currentUser);
+                    setShowResetModal(false);
+                }}
+                title="Reiniciar Total Generado"
+                message="¿Estás seguro de que quieres reiniciar el total generado? Las facturas pagadas se borrarán de la lista activa y se guardarán en el historial."
+                type="warning"
+                confirmText="Sí, reiniciar"
+                cancelText="Cancelar"
+                showCancel={true}
             />
         </div >
     );

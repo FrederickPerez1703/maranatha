@@ -10,9 +10,12 @@ import Footer from '../ui/Footer/Footer';
 import { useLanguage } from '../../context/LanguageContext';
 import { useServices } from '../../contexts/ServicesContext';
 import LocationSection from './Location/LocationSection';
+import EventsSection from './Events/EventsSection';
+import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
 
 
 function LandingPage() {
+  const { features } = useFeatureFlags();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(''); // Stores the 'type' (e.g. 'nails')
@@ -69,7 +72,10 @@ function LandingPage() {
       />
       <Hero />
       <Services openServiceModal={openServiceModal} />
-      <LocationSection />
+
+      {features.EVENTS_SECTION && <EventsSection />}
+      {features.LOCATION_SECTION && <LocationSection />}
+
       <Modal
         isOpen={modalOpen}
         serviceType={currentService}
