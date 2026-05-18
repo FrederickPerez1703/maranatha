@@ -1,0 +1,166 @@
+/* =============================================================================
+   CONFIRMATION MODAL - Estilos específicos del componente
+   ============================================================================= */
+
+.confirmation-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    padding: var(--spacing-5);
+    animation: fadeIn 0.25s ease;
+}
+
+.confirmation-modal-content {
+    background: var(--color-white);
+    border-radius: var(--radius-3xl);
+    width: 90%;
+    max-width: 440px;
+    box-shadow: var(--shadow-2xl);
+    animation: confirmModalEnter 0.3s ease-out;
+    overflow: hidden;
+    position: relative;
+}
+
+.confirmation-modal-close {
+    position: absolute;
+    top: var(--spacing-5);
+    right: var(--spacing-5);
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: var(--radius-lg);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    color: var(--color-gray-500);
+    z-index: 10;
+}
+
+.confirmation-modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: rotate(90deg);
+}
+
+.confirmation-modal-body {
+    padding: 50px 40px 40px;
+    text-align: center;
+}
+
+.confirmation-modal-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto var(--spacing-6);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.confirmation-modal-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-white);
+    opacity: 0.3;
+}
+
+.confirmation-modal-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-800);
+    margin: 0 0 var(--spacing-3) 0;
+    letter-spacing: -0.5px;
+    line-height: var(--line-height-tight);
+}
+
+.confirmation-modal-message {
+    font-size: var(--font-size-base);
+    color: var(--color-gray-500);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--spacing-8) 0;
+    font-weight: var(--font-weight-normal);
+}
+
+.confirmation-modal-actions {
+    display: grid;
+    gap: var(--spacing-3);
+}
+
+.confirmation-modal-actions.has-cancel {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Variantes de iconos */
+.confirmation-modal-icon.icon-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
+}
+
+.confirmation-modal-icon.icon-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);
+}
+
+.confirmation-modal-icon.icon-logout {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    box-shadow: 0 10px 40px rgba(255, 107, 157, 0.4);
+}
+
+.confirmation-modal-icon.icon-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+}
+
+/* Animación del icono */
+@keyframes iconPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .confirmation-modal-content {
+        width: 95%;
+        max-width: 95%;
+    }
+
+    .confirmation-modal-body {
+        padding: 40px 24px 32px;
+    }
+
+    .confirmation-modal-actions.has-cancel {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animación de entrada del modal - sin scale para evitar desplazamiento */
+@keyframes confirmModalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

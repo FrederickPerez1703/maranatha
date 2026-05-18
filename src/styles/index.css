@@ -1,0 +1,21 @@
+/* =============================================================================
+   DESIGN SYSTEM - En Maranatha Salón de Belleza
+   =============================================================================
+   Este archivo importa todos los estilos del Design System.
+   Importa este archivo en main.jsx o index.css
+   ============================================================================= */
+
+/* Design Tokens - Variables CSS base */
+@import './tokens.css';
+
+/* Componentes de Formularios */
+@import './forms.css';
+
+/* Componentes de Botones */
+@import './buttons.css';
+
+/* Componentes UI (Cards, Badges, Alerts, Modales, etc.) */
+@import './components.css';
+
+/* Clases Utilitarias */
+@import './utilities.css';
