@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Responsivo - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff6b9d;
+            margin-bottom: 30px;
+        }
+
+        .device-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .device-btn {
+            padding: 12px 24px;
+            border: 2px solid #ff6b9d;
+            background: white;
+            color: #ff6b9d;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn:hover {
+            background: #ff6b9d;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .device-btn.active {
+            background: #ff6b9d;
+            color: white;
+        }
+
+        .iframe-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            transition: all 0.5s ease;
+        }
+
+        .device-info {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .instructions h2 {
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎨 Test de Responsividad - Panel Admin</h1>
+
+        <div class="instructions">
+            <h2>📱 Instrucciones</h2>
+            <p>Haz clic en los botones para ver cómo se adapta el panel de administración a diferentes dispositivos.</p>
+            <p>También puedes usar las DevTools de tu navegador (F12) para probar otros tamaños.</p>
+        </div>
+
+        <div class="device-selector">
+            <button class="device-btn" onclick="setDevice('mobile', 375, 667)">
+                📱 iPhone SE<br><small>375px</small>
+            </button>
+            <button class="device-btn" onclick="setDevice('mobile-large', 414, 896)">
+                📱 iPhone 12<br><small>414px</small>
+            </button>
+            <button class="device-btn" onclick="setDevice('tablet', 768, 1024)">
+                📱 iPad<br><small>768px</small>
+            </button>
+            <button class="device-btn" onclick="setDevice('tablet-large', 1024, 768)">
+                💻 iPad Pro<br><small>1024px</small>
+            </button>
+            <button class="device-btn active" onclick="setDevice('desktop', 1920, 1080)">
+                🖥️ Desktop<br><small>1920px</small>
+            </button>
+        </div>
+
+        <div class="device-info" id="deviceInfo">
+            Desktop - 1920px × 1080px
+        </div>
+
+        <div class="iframe-container" id="iframeContainer">
+            <iframe id="adminFrame" src="http://localhost:5173/admin" width="1920" height="1080"
+                title="Admin Panel Preview">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        function setDevice(name, width, height) {
+            const iframe = document.getElementById('adminFrame');
+            const container = document.getElementById('iframeContainer');
+            const info = document.getElementById('deviceInfo');
+
+            // Update iframe size
+            iframe.style.width = width + 'px';
+            iframe.style.height = height + 'px';
+
+            // Update container max-width
+            container.style.maxWidth = (width + 40) + 'px';
+
+            // Update info text
+            const deviceNames = {
+                'mobile': 'iPhone SE',
+                'mobile-large': 'iPhone 12',
+                'tablet': 'iPad',
+                'tablet-large': 'iPad Pro',
+                'desktop': 'Desktop'
+            };
+
+            info.textContent = `${deviceNames[name]} - ${width}px × ${height}px`;
+
+            // Update active button
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.device-btn').classList.add('active');
+        }
+
+        // Check if server is running
+        window.addEventListener('load', () => {
+            const iframe = document.getElementById('adminFrame');
+            iframe.onerror = () => {
+                alert('⚠️ Asegúrate de que el servidor de desarrollo esté corriendo (npm run dev)');
+            };
+        });
+    </script>
+</body>
+
+</html>
