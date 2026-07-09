@@ -3,7 +3,7 @@ export const FEATURES = {
     LOCATION_SECTION: true,
 
     // Enables the new Events section
-    EVENTS_SECTION: true,
+    EVENTS_SECTION: false,
 
     // Future flags can be added here
     // PROMOTIONS_SECTION: false
