@@ -36,34 +36,39 @@ export default function Footer() {
 
   return (
     <footer style={{
-      background: 'linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%)',
+      background: '#111827',
       color: 'white',
-      paddingTop: '4rem',
-      paddingBottom: '2rem'
+      paddingTop: '5rem',
+      paddingBottom: '2rem',
+      borderTop: '1px solid rgba(255, 77, 128, 0.15)',
+      fontFamily: 'Outfit, sans-serif'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
         {/* Main Footer Content */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
           {/* About Section */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem' }}>
               <span style={{ fontSize: '2rem' }}>🌸</span>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                margin: 0,
-                background: 'linear-gradient(135deg, #ff6b9d, #ffa4c0)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
-                En Maranatha
-              </h3>
+              <div>
+                <h3 style={{
+                  fontSize: '1.4rem',
+                  fontWeight: '800',
+                  margin: 0,
+                  color: 'white',
+                  fontFamily: 'Outfit, sans-serif'
+                }}>
+                  En Maranatha
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: '600', letterSpacing: '1px' }}>
+                  BELLEZA & BIENESTAR
+                </span>
+              </div>
             </div>
-            <p style={{ color: '#b0b0b0', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--color-gray-400)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2rem' }}>
               {t('footer.aboutText')}
             </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
               {socialMedia.map((social) => (
                 <a
                   key={social.name}
@@ -71,10 +76,11 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    width: '40px',
-                    height: '40px',
+                    width: '38px',
+                    height: '38px',
                     borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: 'rgba(255, 77, 128, 0.1)',
+                    color: 'var(--color-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -83,15 +89,17 @@ export default function Footer() {
                     cursor: 'pointer'
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.background = social.color;
+                    e.currentTarget.style.background = 'var(--color-primary)';
+                    e.currentTarget.style.color = '#ffffff';
                     e.currentTarget.style.transform = 'translateY(-3px)';
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.background = 'rgba(255, 77, 128, 0.1)';
+                    e.currentTarget.style.color = 'var(--color-primary)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  <social.icon size={20} />
+                  <social.icon size={18} />
                 </a>
               ))}
             </div>
@@ -99,7 +107,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1.5rem', color: '#ff6b9d' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1.5rem', color: '#ffffff', fontFamily: 'Outfit, sans-serif' }}>
               {t('footer.links')}
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -108,9 +116,9 @@ export default function Footer() {
                   {link.isRoute ? (
                     <Link
                       to={`/${link.id}`}
-                      style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block' }}
-                      onMouseOver={(e) => { e.currentTarget.style.color = '#ff6b9d'; e.currentTarget.style.transform = 'translateX(5px)'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.color = '#b0b0b0'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                      style={{ color: 'var(--color-gray-400)', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block', fontSize: '0.9rem' }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.transform = 'translateX(5px)'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = 'var(--color-gray-400)'; e.currentTarget.style.transform = 'translateX(0)'; }}
                     >
                       {link.name}
                     </Link>
@@ -118,9 +126,9 @@ export default function Footer() {
                     <a
                       href={`#${link.id}`}
                       onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
-                      style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block' }}
-                      onMouseOver={(e) => { e.currentTarget.style.color = '#ff6b9d'; e.currentTarget.style.transform = 'translateX(5px)'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.color = '#b0b0b0'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                      style={{ color: 'var(--color-gray-400)', textDecoration: 'none', transition: 'all 0.3s ease', display: 'inline-block', fontSize: '0.9rem' }}
+                      onMouseOver={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.transform = 'translateX(5px)'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.color = 'var(--color-gray-400)'; e.currentTarget.style.transform = 'translateX(0)'; }}
                     >
                       {link.name}
                     </a>
@@ -132,13 +140,13 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1.5rem', color: '#ff6b9d' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1.5rem', color: '#ffffff', fontFamily: 'Outfit, sans-serif' }}>
               {t('services.title')}
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {services.map((service, idx) => (
-                <li key={idx} style={{ marginBottom: '0.75rem', color: '#b0b0b0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff6b9d' }}></span>
+                <li key={idx} style={{ marginBottom: '0.75rem', color: 'var(--color-gray-400)', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-primary)' }}></span>
                   {service}
                 </li>
               ))}
@@ -147,28 +155,28 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1.5rem', color: '#ff6b9d' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1.5rem', color: '#ffffff', fontFamily: 'Outfit, sans-serif' }}>
               {t('footer.contact')}
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <MapPin size={20} style={{ color: '#ff6b9d', marginTop: '2px', flexShrink: 0 }} />
-                <span style={{ color: '#b0b0b0', lineHeight: '1.5' }}>Long bay, Anguilla.</span>
+                <MapPin size={18} style={{ color: 'var(--color-primary)', marginTop: '2px', flexShrink: 0 }} />
+                <span style={{ color: 'var(--color-gray-400)', lineHeight: '1.5' }}>Long bay, Anguilla.</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Phone size={20} style={{ color: '#ff6b9d', flexShrink: 0 }} />
-                <a href="tel:+12645820476" style={{ color: '#b0b0b0', textDecoration: 'none', transition: 'color 0.3s ease' }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#b0b0b0'}>
+                <Phone size={18} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+                <a href="tel:+12645820476" style={{ color: 'var(--color-gray-400)', textDecoration: 'none', transition: 'color 0.3s ease' }}
+                  onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                  onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-gray-400)'}>
                   +1 (264) 582-0476
                 </a>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <Clock size={20} style={{ color: '#ff6b9d', marginTop: '2px', flexShrink: 0 }} />
-                <div style={{ color: '#b0b0b0', lineHeight: '1.5' }}>
+                <Clock size={18} style={{ color: 'var(--color-primary)', marginTop: '2px', flexShrink: 0 }} />
+                <div style={{ color: 'var(--color-gray-400)', lineHeight: '1.5' }}>
                   <div>{language === 'es' ? 'Lun - Sáb' : 'Mon - Sat'}: 9:00 AM - 6:30 PM</div>
-                  <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{language === 'es' ? 'Domingo: Cerrado' : 'Sunday: Closed'}</div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>{language === 'es' ? 'Domingo: Cerrado' : 'Sunday: Closed'}</div>
                 </div>
               </div>
             </div>
@@ -176,22 +184,53 @@ export default function Footer() {
         </div>
 
         {/* Newsletter Section */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 139, 171, 0.1))', borderRadius: '20px', padding: '2rem', marginBottom: '3rem', border: '1px solid rgba(255, 107, 157, 0.2)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
-            <h4 style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: 0, color: '#ff6b9d' }}>
-              ✨ {t('footer.newsletterTitle')}
+        <div style={{ 
+          background: 'linear-gradient(135deg, rgba(255, 77, 128, 0.08) 0%, rgba(255, 77, 128, 0.02) 100%)', 
+          borderRadius: '24px', 
+          padding: '2.5rem', 
+          marginBottom: '4rem', 
+          border: '1px solid rgba(255, 77, 128, 0.15)',
+          textAlign: 'center'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <h4 style={{ fontSize: '1.4rem', fontWeight: '800', margin: 0, color: '#ffffff', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              ✉️ {t('footer.newsletterTitle')}
             </h4>
-            <p style={{ color: '#b0b0b0', margin: 0, maxWidth: '500px' }}>
+            <p style={{ color: 'var(--color-gray-400)', margin: 0, maxWidth: '540px', fontSize: '0.95rem', lineHeight: '1.6' }}>
               {t('footer.newsletterDesc')}
             </p>
-            <div style={{ display: 'flex', gap: '0.5rem', width: '100%', maxWidth: '500px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <input type="email" placeholder={t('footer.newsletterPlaceholder')} style={{ flex: 1, minWidth: '250px', padding: '12px 20px', borderRadius: '50px', border: '2px solid rgba(255, 107, 157, 0.3)', background: 'rgba(255, 255, 255, 0.05)', color: 'white', fontSize: '1rem', outline: 'none', transition: 'all 0.3s ease' }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#ff6b9d'}
-                onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 107, 157, 0.3)'}
+            <div style={{ display: 'flex', gap: '0.5rem', width: '100%', maxWidth: '500px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '0.5rem' }}>
+              <input type="email" placeholder={t('footer.newsletterPlaceholder')} style={{ 
+                flex: 1, 
+                minWidth: '250px', 
+                padding: '12px 24px', 
+                borderRadius: '50px', 
+                border: '1px solid rgba(255, 77, 128, 0.2)', 
+                background: 'rgba(255, 255, 255, 0.03)', 
+                color: 'white', 
+                fontSize: '0.95rem', 
+                outline: 'none', 
+                transition: 'all 0.3s ease',
+                fontFamily: 'Outfit, sans-serif'
+              }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255, 77, 128, 0.2)'}
               />
-              <button style={{ padding: '12px 30px', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)', color: 'white', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(255, 107, 157, 0.3)' }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 107, 157, 0.4)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 107, 157, 0.3)'; }}
+              <button style={{ 
+                padding: '12px 32px', 
+                borderRadius: '50px', 
+                border: 'none', 
+                background: 'var(--gradient-primary)', 
+                color: 'white', 
+                fontWeight: '700', 
+                fontSize: '0.95rem', 
+                cursor: 'pointer', 
+                transition: 'all 0.3s ease', 
+                boxShadow: '0 4px 15px rgba(255, 77, 128, 0.25)',
+                fontFamily: 'Outfit, sans-serif'
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 77, 128, 0.35)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 77, 128, 0.25)'; }}
               >
                 {t('footer.subscribeBtn')}
               </button>
@@ -200,19 +239,19 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <p style={{ margin: 0, color: '#888', fontSize: '0.9rem' }}>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <p style={{ margin: 0, color: 'var(--color-gray-500)', fontSize: '0.85rem' }}>
             © {currentYear} En Maranatha. {t('footer.rights')}
           </p>
           <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <a href="#" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.3s ease' }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#888'}>
+            <a href="#" style={{ color: 'var(--color-gray-500)', textDecoration: 'none', fontSize: '0.85rem', transition: 'color 0.3s ease' }}
+              onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+              onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-gray-500)'}>
               {t('footer.privacy')}
             </a>
-            <a href="#" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.3s ease' }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#ff6b9d'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#888'}>
+            <a href="#" style={{ color: 'var(--color-gray-500)', textDecoration: 'none', fontSize: '0.85rem', transition: 'color 0.3s ease' }}
+              onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+              onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-gray-500)'}>
               {t('footer.terms')}
             </a>
           </div>

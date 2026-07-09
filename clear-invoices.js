@@ -5,7 +5,6 @@ console.log('🧹 Limpiando localStorage de facturas...');
 
 // Limpiar facturas
 localStorage.removeItem('maranatha-invoices');
-
 console.log('✅ localStorage limpiado');
 console.log('🔄 Recarga la página para empezar de cero');
 

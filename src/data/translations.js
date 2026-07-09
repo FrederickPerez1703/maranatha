@@ -12,15 +12,27 @@ export const translations = {
         hero: {
             title: "Realza Tu Belleza Natural",
             subtitle: "Descubre una experiencia de belleza única con nuestros servicios profesionales de estilismo y cuidado personal.",
-            cta: "Ver Servicios"
+            cta: "Ver Servicios",
+            feature1: "Profesionales Calificados",
+            feature2: "Productos Naturales",
+            feature3: "Atención Personalizada"
         },
         services: {
-            title: "Nuestros Servicios",
-            subtitle: "Experiencias diseñadas para ti",
-            nails: "Cuidado de Uñas",
-            hair: "Peluquería",
-            facial: "Tratamientos Faciales",
-            makeup: "Maquillaje",
+            subhead: "NUESTROS SERVICIOS",
+            title: "Belleza y Bienestar para Ti",
+            subtitle: "Ofrecemos una amplia gama de servicios diseñados para realizar tu belleza natural.",
+            nailsTitle: "Manicura & Pedicura",
+            nailsDesc: "Cuidado profesional para unas uñas perfectas y saludables.",
+            hairTitle: "Peluquería",
+            hairDesc: "Cortes, peinados y coloración con estilos modernos.",
+            facialTitle: "Tratamientos Faciales",
+            facialDesc: "Limpieza, hidratación y rejuvenecimiento para tu piel.",
+            makeupTitle: "Maquillaje Profesional",
+            makeupDesc: "Para ocasiones especiales y eventos importantes.",
+            relaxTitle: "Relajación",
+            relaxDesc: "Masajes y terapias para tu bienestar físico y mental.",
+            premiumTitle: "Premium",
+            premiumDesc: "Servicios VIP y experiencias exclusivas.",
             viewDetails: "Ver Detalles"
         },
         serviceModal: {
@@ -81,15 +93,27 @@ export const translations = {
         hero: {
             title: "Enhance Your Natural Beauty",
             subtitle: "Discover a unique beauty experience with our professional styling and personal care services.",
-            cta: "View Services"
+            cta: "View Services",
+            feature1: "Qualified Professionals",
+            feature2: "Natural Products",
+            feature3: "Personalized Service"
         },
         services: {
-            title: "Our Services",
-            subtitle: "Experiences designed for you",
-            nails: "Nail Care",
-            hair: "Hair Styling",
-            facial: "Facials",
-            makeup: "Makeup",
+            subhead: "OUR SERVICES",
+            title: "Beauty & Wellness for You",
+            subtitle: "We offer a wide range of services designed to enhance your natural beauty.",
+            nailsTitle: "Manicure & Pedicure",
+            nailsDesc: "Professional care for perfect and healthy nails.",
+            hairTitle: "Hair Styling",
+            hairDesc: "Modern cuts, styling and professional hair coloring.",
+            facialTitle: "Facial Treatments",
+            facialDesc: "Cleansing, deep hydration and rejuvenation for your skin.",
+            makeupTitle: "Professional Makeup",
+            makeupDesc: "For special occasions and important events.",
+            relaxTitle: "Relaxation",
+            relaxDesc: "Massages and spa therapies for physical and mental well-being.",
+            premiumTitle: "Premium",
+            premiumDesc: "VIP services and exclusive luxury experiences.",
             viewDetails: "View Details"
         },
         serviceModal: {

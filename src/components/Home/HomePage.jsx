@@ -11,6 +11,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useServices } from '../../contexts/ServicesContext';
 import LocationSection from './Location/LocationSection';
 import EventsSection from './Events/EventsSection';
+import TestimonialsSection from '../ui/Testimonials/TestimonialsSection';
 import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
 
 
@@ -75,6 +76,8 @@ function LandingPage() {
 
       {features.EVENTS_SECTION && <EventsSection />}
       {features.LOCATION_SECTION && <LocationSection />}
+
+      <TestimonialsSection />
 
       <Modal
         isOpen={modalOpen}

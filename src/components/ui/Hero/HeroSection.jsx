@@ -1,44 +1,67 @@
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function Hero() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
-  const beautyItems = [
-    { icon: '💅', title: language === 'es' ? 'Manicura & Pedicura' : 'Manicure & Pedicure', desc: language === 'es' ? 'Cuidado profesional para tus uñas' : 'Professional nail care' },
-    { icon: '💇‍♀️', title: language === 'es' ? 'Peluquería' : 'Hair Styling', desc: language === 'es' ? 'Cortes y peinados modernos' : 'Modern cuts and styles' },
-    { icon: '✨', title: language === 'es' ? 'Tratamientos' : 'Treatments', desc: language === 'es' ? 'Faciales y cuidado de la piel' : 'Facials and skin care' },
-    { icon: '💄', title: language === 'es' ? 'Maquillaje' : 'Makeup', desc: language === 'es' ? 'Para ocasiones especiales' : 'For special occasions' },
-    { icon: '🌸', title: language === 'es' ? 'Relajación' : 'Relaxation', desc: language === 'es' ? 'Masajes y terapias' : 'Massages and therapies' },
-    { icon: '💎', title: language === 'es' ? 'Premium' : 'Premium', desc: language === 'es' ? 'Servicios VIP exclusivos' : 'Exclusive VIP services' }
+  // Split title to highlight the last two words ("Belleza Natural" / "Natural Beauty")
+  const titleText = t('hero.title');
+  const words = titleText.split(' ');
+  const mainTitle = words.slice(0, -2).join(' ');
+  const highlightedTitle = words.slice(-2).join(' ');
+
+  const heroFeatures = [
+    { icon: '🌸', text: t('hero.feature1') },
+    { icon: '🍃', text: t('hero.feature2') },
+    { icon: '💖', text: t('hero.feature3') }
   ];
 
   return (
     <section className="hero" id="home">
-      <div className="floating-elements">
-        <div className="floating-item">💄</div>
-        <div className="floating-item">✨</div>
-        <div className="floating-item">💅</div>
+      {/* Decorative background gradients */}
+      <div className="hero-bg-blobs">
+        <div className="hero-blob blob-1"></div>
+        <div className="hero-blob blob-2"></div>
       </div>
 
       <div className="container">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>{t('hero.title')}</h1>
-            <p>
+            <h1>
+              {mainTitle} <br />
+              <span className="text-highlight">{highlightedTitle}</span>
+            </h1>
+            <p className="hero-subtitle-p">
               {t('hero.subtitle')}
             </p>
-            <a href="#services" className="hero-button">{t('hero.cta')}</a>
+            <a href="#services" className="hero-cta-button-main">
+              {t('hero.cta')}
+              <span className="arrow">→</span>
+            </a>
+
+            {/* Feature badges underneath */}
+            <div className="hero-features-list">
+              {heroFeatures.map((feat, idx) => (
+                <div className="hero-feature-item" key={idx}>
+                  <span className="feature-icon-wrapper">{feat.icon}</span>
+                  <span className="feature-text">{feat.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="hero-visual">
-            <div className="beauty-items">
-              {beautyItems.map((item, idx) => (
-                <div className="beauty-item" key={idx}>
-                  <span className="icon">{item.icon}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.desc}</p>
-                </div>
-              ))}
+            <div className="hero-image-wrapper">
+              <div className="hero-image-circle">
+                <img 
+                  src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800" 
+                  alt="Maranatha Beauty" 
+                  className="hero-img"
+                />
+              </div>
+              {/* Overlay floral elements representing mockup 3D overlap */}
+              <span className="flower-overlay flower-1">🌸</span>
+              <span className="flower-overlay flower-2">🌸</span>
+              <span className="flower-overlay flower-3">🌺</span>
             </div>
           </div>
         </div>

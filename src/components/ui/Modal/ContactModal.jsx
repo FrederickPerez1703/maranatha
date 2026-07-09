@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Scissors, User, Phone, CheckCircle } from 'lucide-react';
+import { Calendar, Scissors, User, Phone, CheckCircle, X, Clock, Star, Sparkles, ChevronLeft } from 'lucide-react';
 import SendService from '../../../services/send/SendService';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useServices } from '../../../contexts/ServicesContext';
@@ -8,61 +8,97 @@ import { useAppointments } from '../../../contexts/AppointmentsContext';
 import servicesData from '../../../data/servicesData';
 import confetti from 'canvas-confetti';
 
+/* ─── Inline styles helpers ─── */
+const inputBase = {
+    width: '100%',
+    padding: '12px 16px',
+    border: '1.5px solid #e5e7eb',
+    borderRadius: '12px',
+    fontSize: '15px',
+    outline: 'none',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    background: '#ffffff',
+    color: '#111827',
+    fontFamily: 'Outfit, sans-serif',
+    boxSizing: 'border-box',
+};
+
+const selectBase = {
+    ...inputBase,
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    cursor: 'pointer',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ff4d80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 14px center',
+    paddingRight: '40px',
+};
+
+const labelStyle = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '6px',
+    fontFamily: 'Outfit, sans-serif',
+    letterSpacing: '0.01em',
+};
+
+const sectionHeadStyle = {
+    fontSize: '14px',
+    fontWeight: '700',
+    color: '#ff4d80',
+    marginBottom: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    fontFamily: 'Outfit, sans-serif',
+};
+
 export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedService }) {
     const { t, language } = useLanguage();
     const { getActiveServices } = useServices();
     const { addClient, getClientByPhone, addPoints } = useClients();
     const { addAppointment } = useAppointments();
     const activeServices = getActiveServices();
+
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
-        service: { name: "", price: "" },
+        service: { name: '', price: '' },
         date: '',
-        time: ''
+        time: '',
     });
 
-    // Mapeo de categorías a tipos para traducción
     const categoryToType = {
         'Uñas': 'nails',
         'Cabello': 'hair',
         'Maquillaje': 'makeup',
         'Tratamientos Faciales': 'facial',
         'Depilación': 'waxing',
-        'Otros': 'other'
+        'Otros': 'other',
     };
 
-    // Helper para traducir nombres de servicios
     const getTranslatedServiceName = (originalName) => {
         if (language === 'es') return originalName;
-
-        // Buscar en qué categoría está este servicio
         const serviceObj = activeServices.find(s => s.name === originalName);
         if (!serviceObj) return originalName;
-
         const type = categoryToType[serviceObj.category];
         if (!type) return originalName;
-
-        // Buscar en los datos estáticos en español
         const esServices = servicesData['es'][type]?.services;
         if (!esServices) return originalName;
-
         const index = esServices.findIndex(s => s.name === originalName);
-
-        // Devolver equivalente en idioma actual
         if (index !== -1 && servicesData[language][type]?.services[index]) {
             return servicesData[language][type].services[index].name;
         }
-
         return originalName;
     };
 
     useEffect(() => {
         if (preSelectedService) {
-            setFormData(prev => ({
-                ...prev,
-                service: preSelectedService
-            }));
+            setFormData(prev => ({ ...prev, service: preSelectedService }));
         }
     }, [preSelectedService, isOpen]);
 
@@ -78,76 +114,46 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
         return new Date(year, month - 1, day);
     };
 
-    // Verificar si el salón está cerrado
     const checkIfClosed = (selectedDate) => {
         if (!selectedDate) return false;
-
         const now = new Date();
         const selected = getLocalDateFromInput(selectedDate);
         const isToday = selected.toDateString() === now.toDateString();
-
         if (isToday) {
-            const currentHour = now.getHours();
-            const currentMinutes = now.getMinutes();
-            const currentTimeInMinutes = currentHour * 60 + currentMinutes;
-            const closingTime = 18 * 60 + 30; // 6:30 PM
-
-            return currentTimeInMinutes >= closingTime;
+            const cur = now.getHours() * 60 + now.getMinutes();
+            return cur >= 18 * 60 + 30;
         }
-
         return false;
     };
 
-    // Generar opciones de tiempo disponibles
     const generateTimeOptions = (selectedDate) => {
         const options = [];
         const now = new Date();
         const selected = selectedDate ? getLocalDateFromInput(selectedDate) : null;
         const isToday = selected && selected.toDateString() === now.toDateString();
-
-        const currentHour = now.getHours();
-        const currentMinutes = now.getMinutes();
+        const curMin = now.getHours() * 60 + now.getMinutes();
 
         for (let hour = 9; hour < 19; hour++) {
             for (let min = 0; min < 60; min += 30) {
-                // Si es hoy, filtrar horas que ya pasaron
-                if (isToday) {
-                    const timeInMinutes = hour * 60 + min;
-                    const currentTimeInMinutes = currentHour * 60 + currentMinutes;
-
-                    // Agregar 30 minutos de buffer para preparación
-                    if (timeInMinutes <= currentTimeInMinutes + 30) {
-                        continue; // Saltar esta hora
-                    }
-                }
-
+                if (isToday && hour * 60 + min <= curMin + 30) continue;
                 const hour12 = hour % 12 === 0 ? 12 : hour % 12;
                 const period = hour < 12 ? 'AM' : 'PM';
-                const formattedHour = hour.toString().padStart(2, '0');
-                const formattedMin = min.toString().padStart(2, '0');
-                const value = `${formattedHour}:${formattedMin}`;
-                const label = `${hour12}:${formattedMin} ${period}`;
+                const value = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+                const label = `${hour12}:${min.toString().padStart(2, '0')} ${period}`;
                 options.push(<option key={value} value={value}>{label}</option>);
             }
         }
-
         return options;
     };
 
-    // Actualizar horarios disponibles cuando cambia la fecha
     useEffect(() => {
         if (formData.date) {
             const closed = checkIfClosed(formData.date);
             setIsClosed(closed);
-
             if (!closed) {
                 const times = generateTimeOptions(formData.date);
                 setAvailableTimes(times);
-
-                // Si no hay horas disponibles, resetear la hora seleccionada
-                if (times.length === 0) {
-                    setFormData(prev => ({ ...prev, time: '' }));
-                }
+                if (times.length === 0) setFormData(prev => ({ ...prev, time: '' }));
             } else {
                 setAvailableTimes([]);
                 setFormData(prev => ({ ...prev, time: '' }));
@@ -155,91 +161,47 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
         }
     }, [formData.date]);
 
-    // Función para disparar confeti (4 segundos)
     const fireConfetti = () => {
         const duration = 4000;
-        const animationEnd = Date.now() + duration;
+        const end = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
-
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
-
-        const interval = setInterval(function () {
-            const timeLeft = animationEnd - Date.now();
-
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
-
-            const particleCount = 50 * (timeLeft / duration);
-
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                colors: ['#ff6b9d', '#ff8fab', '#ffc0cb', '#ff1493', '#ff69b4']
-            });
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                colors: ['#ff6b9d', '#ff8fab', '#ffc0cb', '#ff1493', '#ff69b4']
-            });
+        const rand = (min, max) => Math.random() * (max - min) + min;
+        const interval = setInterval(() => {
+            const left = end - Date.now();
+            if (left <= 0) return clearInterval(interval);
+            const pc = 50 * (left / duration);
+            confetti({ ...defaults, particleCount: pc, origin: { x: rand(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#ff4d80', '#ff7ea3', '#ffc0cb', '#ff1493', '#ff69b4'] });
+            confetti({ ...defaults, particleCount: pc, origin: { x: rand(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#ff4d80', '#ff7ea3', '#ffc0cb', '#ff1493', '#ff69b4'] });
         }, 250);
     };
 
-    // Función para cerrar el modal
     const handleClose = () => {
         if (isSubmitted) {
-            // Disparar confeti
             fireConfetti();
-            // Notificar al padre para mostrar el toast
             if (onSuccess) onSuccess();
         }
-
-        // Cerrar el modal y resetear
         onClose();
         setIsSubmitted(false);
-        setFormData({
-            name: '',
-            phone: '',
-            service: { name: "", price: "" },
-            date: '',
-            time: ''
-        });
+        setFormData({ name: '', phone: '', service: { name: '', price: '' }, date: '', time: '' });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
-
-        console.log('Datos de la cita:', formData);
         sendService.sendMessage(formData);
 
         setTimeout(() => {
-            // Lógica de Puntos y Clientes
-            const existingClient = getClientByPhone(formData.phone);
-
-            if (existingClient) {
-                // Cliente existente: Sumar 1.5 puntos
-                addPoints(existingClient.id, 1.5, 'Cita Web');
+            const existing = getClientByPhone(formData.phone);
+            if (existing) {
+                addPoints(existing.id, 1.5, 'Cita Web');
             } else {
-                // Nuevo cliente: Crear con 1.5 puntos
                 addClient({
                     name: formData.name,
                     phone: formData.phone,
                     points: 1.5,
-                    history: [{
-                        date: new Date().toISOString(),
-                        action: 'Primera Cita Web',
-                        pointsAdded: 1.5,
-                        totalPoints: 1.5
-                    }]
+                    history: [{ date: new Date().toISOString(), action: 'Primera Cita Web', pointsAdded: 1.5, totalPoints: 1.5 }],
                 });
             }
-
-            // Guardar la cita en el sistema
             addAppointment({
                 date: formData.date,
                 time: formData.time,
@@ -248,14 +210,10 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
                 service: formData.service.name,
                 price: formData.service.price,
                 status: 'pendiente',
-                notes: 'Cita agendada desde la web'
+                notes: 'Cita agendada desde la web',
             });
-
             setIsLoading(false);
             setIsSubmitted(true);
-            // YA NO cerramos el modal automáticamente
-            // YA NO mostramos la notificación aquí
-            // El usuario debe cerrar manualmente con el botón X
         }, 1000);
     };
 
@@ -263,18 +221,15 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Bloquear scroll del body cuando el modal está abierto
+    /* Scroll lock */
     useEffect(() => {
         if (isOpen) {
-            // Guardar el scroll actual
             const scrollY = window.scrollY;
-            // Bloquear scroll
             document.body.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollY}px`;
             document.body.style.width = '100%';
         } else {
-            // Restaurar scroll
             const scrollY = document.body.style.top;
             document.body.style.overflow = '';
             document.body.style.position = '';
@@ -282,8 +237,6 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
             document.body.style.width = '';
             window.scrollTo(0, parseInt(scrollY || '0') * -1);
         }
-
-        // Cleanup al desmontar
         return () => {
             document.body.style.overflow = '';
             document.body.style.position = '';
@@ -294,490 +247,437 @@ export default function ContactModal({ isOpen, onClose, onSuccess, preSelectedSe
 
     if (!isOpen) return null;
 
+    const isFormValid = formData.name && formData.phone && formData.service.name && formData.date && formData.time;
+
+    /* ─── SUCCESS SCREEN ─── */
+    if (isSubmitted) {
+        return (
+            <div style={{
+                position: 'fixed', inset: 0,
+                backgroundColor: 'rgba(0,0,0,0.65)',
+                backdropFilter: 'blur(10px)',
+                zIndex: 9999,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '20px',
+                animation: 'cmFadeIn 0.3s ease-out',
+            }}>
+                <div onClick={e => e.stopPropagation()} style={{
+                    background: '#ffffff',
+                    borderRadius: '24px',
+                    maxWidth: '480px',
+                    width: '100%',
+                    padding: '48px 40px',
+                    textAlign: 'center',
+                    position: 'relative',
+                    boxShadow: '0 30px 60px rgba(255,77,128,0.25)',
+                    animation: 'cmSlideUp 0.4s ease-out',
+                }}>
+                    {/* Close */}
+                    <button onClick={handleClose} style={{
+                        position: 'absolute', top: '16px', right: '16px',
+                        background: 'rgba(255,77,128,0.08)', border: 'none',
+                        borderRadius: '50%', width: '36px', height: '36px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: '#ff4d80', transition: 'all 0.2s',
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,128,0.18)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,77,128,0.08)'; e.currentTarget.style.transform = 'rotate(0deg)'; }}
+                    >
+                        <X size={18} />
+                    </button>
+
+                    {/* Success icon */}
+                    <div style={{
+                        width: '90px', height: '90px', borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 24px auto',
+                        boxShadow: '0 8px 25px rgba(16,185,129,0.25)',
+                    }}>
+                        <CheckCircle size={48} color="#10b981" strokeWidth={2} />
+                    </div>
+
+                    <h2 style={{ fontSize: '26px', fontWeight: '800', color: '#111827', marginBottom: '8px', fontFamily: 'Outfit, sans-serif' }}>
+                        {language === 'es' ? '¡Cita Agendada! 🎉' : 'Appointment Booked! 🎉'}
+                    </h2>
+                    <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '24px', fontFamily: 'Outfit, sans-serif' }}>
+                        {language === 'es' ? 'Hemos recibido tu solicitud. Te contactaremos para confirmar.' : 'We received your request. We will contact you to confirm.'}
+                    </p>
+
+                    {/* Summary card */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+                        border: '1.5px solid #bbf7d0',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        marginBottom: '28px',
+                        textAlign: 'left',
+                    }}>
+                        {[
+                            { icon: <User size={15} />, label: language === 'es' ? 'Cliente' : 'Client', value: formData.name },
+                            { icon: <Scissors size={15} />, label: language === 'es' ? 'Servicio' : 'Service', value: `${formData.service.name}${formData.service.price ? ` · ${formData.service.price}` : ''}` },
+                            {
+                                icon: <Calendar size={15} />, label: language === 'es' ? 'Fecha' : 'Date',
+                                value: formData.date ? getLocalDateFromInput(formData.date).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : ''
+                            },
+                            {
+                                icon: <Clock size={15} />, label: language === 'es' ? 'Hora' : 'Time',
+                                value: formData.time ? new Date(`1970-01-01T${formData.time}`).toLocaleTimeString(language === 'es' ? 'es-ES' : 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : ''
+                            },
+                        ].map((row, i) => (
+                            <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: i < 3 ? '10px' : 0 }}>
+                                <span style={{ color: '#10b981', flexShrink: 0 }}>{row.icon}</span>
+                                <span style={{ fontSize: '13px', color: '#15803d', fontFamily: 'Outfit, sans-serif' }}>
+                                    <strong>{row.label}:</strong> {row.value}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <button onClick={handleClose} style={{
+                        width: '100%', padding: '14px',
+                        background: 'linear-gradient(135deg, #ff4d80, #ff7ea3)',
+                        color: 'white', border: 'none', borderRadius: '50px',
+                        fontWeight: '700', fontSize: '16px', cursor: 'pointer',
+                        fontFamily: 'Outfit, sans-serif',
+                        boxShadow: '0 4px 15px rgba(255,77,128,0.3)',
+                        transition: 'all 0.3s ease',
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(255,77,128,0.4)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(255,77,128,0.3)'; }}
+                    >
+                        {language === 'es' ? 'Cerrar' : 'Close'}
+                    </button>
+
+                    <style>{`
+                        @keyframes cmFadeIn { from{opacity:0} to{opacity:1} }
+                        @keyframes cmSlideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+                    `}</style>
+                </div>
+            </div>
+        );
+    }
+
+    /* ─── MAIN FORM MODAL ─── */
     return (
         <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
+            position: 'fixed', inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(10px)',
             zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '20px',
-            animation: 'fadeIn 0.3s ease-out'
-        }}
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                    backgroundColor: 'white',
-                    borderRadius: '20px',
-                    maxWidth: '650px',
-                    width: '100%',
-                    maxHeight: '90vh',
-                    overflow: 'auto',
-                    position: 'relative',
-                    boxShadow: '0 25px 50px -12px rgba(255, 107, 157, 0.4)',
-                    animation: 'slideUp 0.4s ease-out'
+            animation: 'cmFadeIn 0.3s ease-out',
+        }}>
+            <div onClick={e => e.stopPropagation()} style={{
+                background: '#ffffff',
+                borderRadius: '24px',
+                maxWidth: '900px',
+                width: '100%',
+                maxHeight: '92vh',
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: '0 30px 70px rgba(255,77,128,0.2)',
+                animation: 'cmSlideUp 0.4s ease-out',
+                display: 'flex',
+                flexDirection: 'row',
+            }}>
+
+                {/* ── LEFT PANEL: Form ── */}
+                <div style={{
+                    flex: '1 1 auto',
+                    overflowY: 'auto',
+                    padding: '40px 36px',
+                    minWidth: 0,
                 }}>
 
-                {/* Close Button */}
-                <button
-                    onClick={handleClose}
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        background: 'rgba(255, 107, 157, 0.1)',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        color: '#ff6b9d',
-                        fontSize: '24px',
-                        fontWeight: '300',
-                        zIndex: 10
-                    }}
-                    onMouseOver={(e) => {
-                        e.target.style.background = 'rgba(255, 107, 157, 0.2)';
-                        e.target.style.transform = 'rotate(90deg)';
-                    }}
-                    onMouseOut={(e) => {
-                        e.target.style.background = 'rgba(255, 107, 157, 0.1)';
-                        e.target.style.transform = 'rotate(0deg)';
-                    }}
-                >
-                    ×
-                </button>
-
-                {isSubmitted ? (
-                    <div style={{ padding: '60px 40px', textAlign: 'center' }}>
-                        <CheckCircle style={{ margin: '0 auto 20px auto', height: '80px', width: '80px', color: '#10b981' }} />
-                        <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937', marginBottom: '12px' }}>
-                            {t('contactModal.successTitle')}
-                        </h2>
-                        <p style={{ color: '#6b7280', marginBottom: '20px', fontSize: '16px' }}>
-                            {language === 'es' ? 'Hemos recibido tu solicitud de cita para' : 'We have received your appointment request for'} <strong style={{ color: '#ff6b9d' }}>{formData.service.name}</strong> ({formData.service.price})
-                        </p>
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
                         <div style={{
-                            backgroundColor: '#f0fdf4',
-                            border: '1px solid #bbf7d0',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            marginBottom: '20px'
+                            width: '46px', height: '46px', borderRadius: '14px',
+                            background: 'linear-gradient(135deg, #ff4d80, #ff7ea3)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 4px 12px rgba(255,77,128,0.35)',
+                            flexShrink: 0,
                         }}>
-                            <p style={{ fontSize: '15px', color: '#15803d', marginBottom: '8px' }}>
-                                <strong>📅 {t('contactModal.date')}:</strong> {getLocalDateFromInput(formData.date).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })} {language === 'es' ? 'a las' : 'at'} {' '}
-                                {new Date(`1970-01-01T${formData.time}`).toLocaleTimeString(language === 'es' ? 'es-ES' : 'en-US', {
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                })}
-                            </p>
-                            <p style={{ fontSize: '15px', color: '#15803d' }}>
-                                <strong>👤 {language === 'es' ? 'Cliente' : 'Client'}:</strong> {formData.name}
-                            </p>
+                            <Calendar size={22} color="white" />
                         </div>
-                        <p style={{ fontSize: '14px', color: '#6b7280' }}>
-                            {t('contactModal.successMessage')}
-                        </p>
-                    </div>
-                ) : (
-                    <div style={{ padding: '40px' }}>
-                        {/* Header */}
-                        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-                            <Scissors style={{ margin: '0 auto 16px auto', height: '48px', width: '48px', color: '#ff6b9d' }} />
-                            <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                        <div>
+                            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#111827', margin: 0, fontFamily: 'Outfit, sans-serif' }}>
                                 {t('contactModal.title')}
                             </h1>
-                            <p style={{ color: '#6b7280' }}>{t('contactModal.subtitle')}</p>
+                            <p style={{ fontSize: '13px', color: '#9ca3af', margin: 0, fontFamily: 'Outfit, sans-serif' }}>
+                                {t('contactModal.subtitle')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Close button */}
+                    <button onClick={handleClose} style={{
+                        position: 'absolute', top: '18px', right: '18px',
+                        background: 'rgba(255,77,128,0.08)', border: 'none', borderRadius: '50%',
+                        width: '36px', height: '36px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: '#ff4d80', transition: 'all 0.2s', zIndex: 10,
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,128,0.18)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,77,128,0.08)'; e.currentTarget.style.transform = 'rotate(0deg)'; }}
+                    >
+                        <X size={18} />
+                    </button>
+
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+                        {/* ── Section: Client Info ── */}
+                        <div>
+                            <div style={sectionHeadStyle}>
+                                <div style={{ width: '22px', height: '22px', background: 'rgba(255,77,128,0.1)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <User size={13} color="#ff4d80" />
+                                </div>
+                                {t('contactModal.clientInfo')}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                <div>
+                                    <label style={labelStyle}>{t('contactModal.name')} *</label>
+                                    <input
+                                        type="text" required value={formData.name}
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(v) && (v.match(/ /g) || []).length <= 5) {
+                                                handleInputChange('name', v);
+                                                if (v.length > 0) e.target.style.borderColor = '#10b981';
+                                            }
+                                        }}
+                                        placeholder={t('contactModal.name')}
+                                        style={inputBase}
+                                        onFocus={e => { e.target.style.borderColor = '#ff4d80'; e.target.style.boxShadow = '0 0 0 3px rgba(255,77,128,0.1)'; }}
+                                        onBlur={e => { if (!formData.name) { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; } }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>{t('contactModal.phone')} *</label>
+                                    <input
+                                        type="tel" required value={formData.phone}
+                                        onChange={e => { if (/^[0-9\s()+-]*$/.test(e.target.value)) handleInputChange('phone', e.target.value); }}
+                                        placeholder="+1 (555) 123-4567"
+                                        style={inputBase}
+                                        onFocus={e => { e.target.style.borderColor = '#ff4d80'; e.target.style.boxShadow = '0 0 0 3px rgba(255,77,128,0.1)'; }}
+                                        onBlur={e => {
+                                            const d = e.target.value.replace(/\D/g, '');
+                                            if (d.length >= 10) { e.target.style.borderColor = '#10b981'; e.target.style.boxShadow = 'none'; }
+                                            else if (d.length > 0) { e.target.style.borderColor = '#ef4444'; e.target.style.boxShadow = 'none'; }
+                                            else { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            {/* Información del cliente */}
-                            <div>
-                                <h2 style={{
-                                    fontSize: '18px',
-                                    fontWeight: '600',
-                                    color: '#1f2937',
-                                    marginBottom: '16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <User style={{ height: '20px', width: '20px', color: '#ff6b9d' }} />
-                                    {t('contactModal.clientInfo')}
-                                </h2>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    <div>
-                                        <label style={{
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            {t('contactModal.name')} *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.name}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                const soloLetrasYEspacios = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(value);
-                                                const espacios = (value.match(/ /g) || []).length;
+                        {/* ── Divider ── */}
+                        <div style={{ borderTop: '1px solid #f3f4f6' }} />
 
-                                                if (soloLetrasYEspacios && espacios <= 5) {
-                                                    handleInputChange('name', value);
-                                                    if (value.length > 0) {
-                                                        e.target.style.borderColor = '#10b981';
-                                                    }
-                                                }
-                                            }}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 16px',
-                                                border: '1px solid #d1d5db',
-                                                borderRadius: '8px',
-                                                fontSize: '16px',
-                                                outline: 'none',
-                                                transition: 'border-color 0.2s'
-                                            }}
-                                            placeholder={t('contactModal.name')}
-                                            onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            {t('contactModal.phone')} *
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            required
-                                            value={formData.phone}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                const phoneRegex = /^[0-9\s()+-]*$/;
-                                                if (phoneRegex.test(value)) {
-                                                    handleInputChange('phone', value);
-                                                }
-                                            }}
-                                            onBlur={(e) => {
-                                                const value = e.target.value;
-                                                const digitsOnly = value.replace(/\D/g, '');
-                                                if (digitsOnly.length >= 10) {
-                                                    e.target.style.borderColor = '#10b981';
-                                                } else if (digitsOnly.length > 0) {
-                                                    e.target.style.borderColor = '#ef4444';
-                                                } else {
-                                                    e.target.style.borderColor = '#d1d5db';
-                                                }
-                                            }}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 16px',
-                                                border: '1px solid #d1d5db',
-                                                borderRadius: '8px',
-                                                fontSize: '16px',
-                                                outline: 'none'
-                                            }}
-                                            placeholder="+1 (555) 123-4567"
-                                            onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                        />
-                                    </div>
+                        {/* ── Section: Service ── */}
+                        <div>
+                            <div style={sectionHeadStyle}>
+                                <div style={{ width: '22px', height: '22px', background: 'rgba(255,77,128,0.1)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Scissors size={13} color="#ff4d80" />
                                 </div>
+                                {t('contactModal.service')}
                             </div>
+                            <label style={labelStyle}>{t('contactModal.selectService')} *</label>
+                            <select
+                                value={formData.service.name}
+                                onChange={e => {
+                                    const name = e.target.value;
+                                    const svc = activeServices.find(s => getTranslatedServiceName(s.name) === name);
+                                    handleInputChange('service', svc || { name, price: '' });
+                                }}
+                                style={selectBase}
+                                onFocus={e => { e.target.style.borderColor = '#ff4d80'; e.target.style.boxShadow = '0 0 0 3px rgba(255,77,128,0.1)'; }}
+                                onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+                            >
+                                <option value="">{t('contactModal.selectService')}</option>
+                                {activeServices.map(s => (
+                                    <option key={s.id || s.name} value={getTranslatedServiceName(s.name)}>
+                                        {getTranslatedServiceName(s.name)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                            {/* Servicio */}
-                            <div>
-                                <h2 style={{
-                                    fontSize: '18px',
-                                    fontWeight: '600',
-                                    color: '#1f2937',
-                                    marginBottom: '16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <Scissors style={{ height: '20px', width: '20px', color: '#ff6b9d' }} />
-                                    {t('contactModal.service')}
-                                </h2>
+                        {/* ── Divider ── */}
+                        <div style={{ borderTop: '1px solid #f3f4f6' }} />
+
+                        {/* ── Section: Date & Time ── */}
+                        <div>
+                            <div style={sectionHeadStyle}>
+                                <div style={{ width: '22px', height: '22px', background: 'rgba(255,77,128,0.1)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Calendar size={13} color="#ff4d80" />
+                                </div>
+                                {t('contactModal.date')} & {t('contactModal.time')}
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                                 <div>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#374151',
-                                        marginBottom: '8px'
-                                    }}>
-                                        {t('contactModal.selectService')} *
-                                    </label>
-                                    <select
-                                        value={formData.service.name}
-                                        onChange={(e) => {
-                                            // Al seleccionar, debemos buscar el servicio por su nombre TRADUCIDO
-                                            // y mapearlo de vuelta al objeto de servicio original si es posible,
-                                            // o simplemente guardar el nombre seleccionado.
-
-                                            const selectedTranslatedName = e.target.value;
-                                            // Encontrar el servicio original cuyo nombre traducido coincida
-                                            const selectedService = activeServices.find(s =>
-                                                getTranslatedServiceName(s.name) === selectedTranslatedName
-                                            );
-
-                                            handleInputChange('service', selectedService || { name: selectedTranslatedName })
-                                        }}
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 10px',
-                                            border: '1px solid #d1d5db',
-                                            borderRadius: '8px',
-                                            fontSize: '16px',
-                                            backgroundColor: 'white',
-                                            outline: 'none'
-                                        }}
-                                        onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                        onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                    >
-                                        <option value="">{t('contactModal.selectService')}</option>
-                                        {activeServices.map(service => (
-                                            <option key={service.id || service.name} value={getTranslatedServiceName(service.name)}>
-                                                {getTranslatedServiceName(service.name)}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <label style={labelStyle}>{t('contactModal.date')} *</label>
+                                    <input
+                                        type="date" required value={formData.date}
+                                        onChange={e => handleInputChange('date', e.target.value)}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        style={{ ...inputBase, cursor: 'pointer' }}
+                                        onFocus={e => { e.target.style.borderColor = '#ff4d80'; e.target.style.boxShadow = '0 0 0 3px rgba(255,77,128,0.1)'; }}
+                                        onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+                                    />
                                 </div>
-                            </div>
-
-                            {/* Fecha y Hora */}
-                            <div>
-                                <h2 style={{
-                                    fontSize: '18px',
-                                    fontWeight: '600',
-                                    color: '#1f2937',
-                                    marginBottom: '16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <Calendar style={{ height: '20px', width: '20px', color: '#ff6b9d' }} />
-                                    {t('contactModal.date')} & {t('contactModal.time')}
-                                </h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div>
-                                        <label style={{
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            {t('contactModal.date')} *
-                                        </label>
-                                        <input
-                                            type="date"
-                                            required
-                                            value={formData.date}
-                                            onChange={(e) => handleInputChange('date', e.target.value)}
-                                            min={new Date().toISOString().split('T')[0]}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 10px',
-                                                border: '1px solid #d1d5db',
-                                                borderRadius: '8px',
-                                                fontSize: '16px',
-                                                backgroundColor: 'white',
-                                                outline: 'none'
-                                            }}
-                                            onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            {t('contactModal.time')} *
-                                        </label>
-                                        {isClosed ? (
-                                            <div style={{
-                                                padding: '12px 16px',
-                                                border: '2px solid #fbbf24',
-                                                borderRadius: '8px',
-                                                backgroundColor: '#fef3c7',
-                                                textAlign: 'center'
-                                            }}>
-                                                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#92400e' }}>
-                                                    🕐 {language === 'es' ? 'Estamos Cerrados' : 'We are Closed'}
-                                                </p>
-                                                <p style={{ margin: 0, fontSize: '12px', color: '#78350f' }}>
-                                                    {language === 'es'
-                                                        ? 'Por favor, agenda tu cita para mañana'
-                                                        : 'Please schedule your appointment for tomorrow'}
-                                                </p>
-                                            </div>
-                                        ) : availableTimes.length === 0 && formData.date ? (
-                                            <div style={{
-                                                padding: '12px 16px',
-                                                border: '2px solid #fbbf24',
-                                                borderRadius: '8px',
-                                                backgroundColor: '#fef3c7',
-                                                textAlign: 'center'
-                                            }}>
-                                                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#92400e' }}>
-                                                    ⏰ {language === 'es' ? 'No hay horarios disponibles hoy' : 'No times available today'}
-                                                </p>
-                                                <p style={{ margin: 0, fontSize: '12px', color: '#78350f' }}>
-                                                    {language === 'es'
-                                                        ? 'Por favor, selecciona otro día'
-                                                        : 'Please select another day'}
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <select
-                                                value={formData.time}
-                                                onChange={(e) => handleInputChange('time', e.target.value)}
-                                                required
-                                                disabled={!formData.date || isClosed}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '12px 10px',
-                                                    border: '1px solid #d1d5db',
-                                                    borderRadius: '8px',
-                                                    fontSize: '16px',
-                                                    backgroundColor: (!formData.date || isClosed) ? '#f3f4f6' : 'white',
-                                                    outline: 'none',
-                                                    cursor: (!formData.date || isClosed) ? 'not-allowed' : 'pointer',
-                                                    opacity: (!formData.date || isClosed) ? 0.6 : 1
-                                                }}
-                                                onFocus={(e) => e.target.style.borderColor = '#ff6b9d'}
-                                                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                            >
-                                                <option value="">{t('contactModal.selectTime')}</option>
-                                                {availableTimes}
-                                            </select>
-                                        )}
-                                    </div>
-                                </div>
-                                {!isClosed && (
-                                    <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-                                        ⏰ {t('contactModal.businessHours')}: 9:00 AM - 6:30 PM
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Botón de envío */}
-                            <div style={{ paddingTop: '16px' }}>
-                                <button
-                                    type="submit"
-                                    disabled={!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading}
-                                    style={{
-                                        width: '100%',
-                                        padding: '16px 24px',
-                                        background: 'linear-gradient(135deg, #ff6b9d, #ff8fab)',
-                                        color: 'white',
-                                        fontWeight: '600',
-                                        borderRadius: '50px',
-                                        border: 'none',
-                                        cursor: (!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 'not-allowed' : 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '8px',
-                                        fontSize: '16px',
-                                        transition: 'all 0.3s',
-                                        opacity: (!formData.name || !formData.phone || !formData.service.name || !formData.date || !formData.time || isLoading) ? 0.5 : 1,
-                                        boxShadow: '0 4px 15px rgba(255, 107, 157, 0.3)'
-                                    }}
-                                    onMouseOver={(e) => {
-                                        if (!e.target.disabled) {
-                                            e.target.style.transform = 'translateY(-2px)';
-                                            e.target.style.boxShadow = '0 8px 25px rgba(255, 107, 157, 0.4)';
-                                        }
-                                    }}
-                                    onMouseOut={(e) => {
-                                        if (!e.target.disabled) {
-                                            e.target.style.transform = 'translateY(0)';
-                                            e.target.style.boxShadow = '0 4px 15px rgba(255, 107, 157, 0.3)';
-                                        }
-                                    }}
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <div style={{
-                                                width: '20px',
-                                                height: '20px',
-                                                border: '3px solid rgba(255,255,255,0.3)',
-                                                borderTop: '3px solid white',
-                                                borderRadius: '50%',
-                                                animation: 'spin 1s linear infinite'
-                                            }} />
-                                            {t('contactModal.sending')}
-                                        </>
+                                <div>
+                                    <label style={labelStyle}>{t('contactModal.time')} *</label>
+                                    {isClosed ? (
+                                        <div style={{ padding: '12px 14px', border: '1.5px solid #fbbf24', borderRadius: '12px', background: '#fef3c7', textAlign: 'center' }}>
+                                            <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: '700', color: '#92400e', fontFamily: 'Outfit, sans-serif' }}>🕐 {language === 'es' ? 'Estamos Cerrados' : 'We are Closed'}</p>
+                                            <p style={{ margin: 0, fontSize: '11px', color: '#78350f', fontFamily: 'Outfit, sans-serif' }}>{language === 'es' ? 'Agenda para mañana' : 'Schedule for tomorrow'}</p>
+                                        </div>
+                                    ) : availableTimes.length === 0 && formData.date ? (
+                                        <div style={{ padding: '12px 14px', border: '1.5px solid #fbbf24', borderRadius: '12px', background: '#fef3c7', textAlign: 'center' }}>
+                                            <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: '700', color: '#92400e', fontFamily: 'Outfit, sans-serif' }}>⏰ {language === 'es' ? 'Sin horarios hoy' : 'No times today'}</p>
+                                            <p style={{ margin: 0, fontSize: '11px', color: '#78350f', fontFamily: 'Outfit, sans-serif' }}>{language === 'es' ? 'Selecciona otro día' : 'Select another day'}</p>
+                                        </div>
                                     ) : (
-                                        <>
-                                            <Calendar style={{ height: '20px', width: '20px' }} />
-                                            {t('contactModal.bookBtn')}
-                                        </>
+                                        <select
+                                            value={formData.time}
+                                            onChange={e => handleInputChange('time', e.target.value)}
+                                            required disabled={!formData.date || isClosed}
+                                            style={{
+                                                ...selectBase,
+                                                background: (!formData.date || isClosed) ? '#f9fafb' : '#ffffff',
+                                                opacity: (!formData.date || isClosed) ? 0.6 : 1,
+                                                cursor: (!formData.date || isClosed) ? 'not-allowed' : 'pointer',
+                                            }}
+                                            onFocus={e => { e.target.style.borderColor = '#ff4d80'; e.target.style.boxShadow = '0 0 0 3px rgba(255,77,128,0.1)'; }}
+                                            onBlur={e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+                                        >
+                                            <option value="">{t('contactModal.selectTime')}</option>
+                                            {availableTimes}
+                                        </select>
                                     )}
-                                </button>
+                                </div>
                             </div>
-
-                            <div style={{ textAlign: 'center' }}>
-                                <p style={{ fontSize: '12px', color: '#6b7280' }}>
-                                    * {t('contactModal.requiredFields')}
+                            {!isClosed && (
+                                <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <Clock size={12} /> {t('contactModal.businessHours')}: 9:00 AM – 6:30 PM
                                 </p>
-                            </div>
-                        </form>
+                            )}
+                        </div>
+
+                        {/* ── Submit ── */}
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={!isFormValid || isLoading}
+                                style={{
+                                    width: '100%', padding: '15px 24px',
+                                    background: isFormValid ? 'linear-gradient(135deg, #ff4d80, #ff7ea3)' : '#e5e7eb',
+                                    color: isFormValid ? 'white' : '#9ca3af',
+                                    border: 'none', borderRadius: '50px',
+                                    fontWeight: '700', fontSize: '16px',
+                                    cursor: isFormValid && !isLoading ? 'pointer' : 'not-allowed',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                                    transition: 'all 0.3s',
+                                    boxShadow: isFormValid ? '0 4px 18px rgba(255,77,128,0.35)' : 'none',
+                                    fontFamily: 'Outfit, sans-serif',
+                                }}
+                                onMouseEnter={e => { if (isFormValid && !isLoading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,77,128,0.45)'; } }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isFormValid ? '0 4px 18px rgba(255,77,128,0.35)' : 'none'; }}
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <div style={{ width: '18px', height: '18px', border: '2.5px solid rgba(255,255,255,0.3)', borderTop: '2.5px solid white', borderRadius: '50%', animation: 'cmSpin 1s linear infinite' }} />
+                                        {t('contactModal.sending')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Calendar size={18} />
+                                        {t('contactModal.bookBtn')}
+                                    </>
+                                )}
+                            </button>
+                            <p style={{ textAlign: 'center', fontSize: '12px', color: '#9ca3af', marginTop: '10px', fontFamily: 'Outfit, sans-serif' }}>
+                                * {t('contactModal.requiredFields')}
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                {/* ── RIGHT PANEL: Decorative (hidden on mobile) ── */}
+                <div style={{
+                    width: '310px',
+                    flexShrink: 0,
+                    background: 'linear-gradient(160deg, #fff0f5 0%, #ffe8f0 50%, #ffd6e7 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '40px 28px',
+                    textAlign: 'center',
+                    borderLeft: '1px solid #fce7f3',
+                    position: 'relative',
+                    overflow: 'hidden',
+                }} className="cm-deco-panel">
+                    {/* Decorative blobs */}
+                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,77,128,0.08)' }} />
+                    <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '90px', height: '90px', borderRadius: '50%', background: 'rgba(255,77,128,0.06)' }} />
+
+                    {/* Image placeholder */}
+                    <div style={{
+                        width: '160px', height: '160px', borderRadius: '50%',
+                        overflow: 'hidden',
+                        marginBottom: '24px',
+                        border: '4px solid white',
+                        boxShadow: '0 8px 30px rgba(255,77,128,0.2)',
+                        position: 'relative',
+                        zIndex: 1,
+                    }}>
+                        <img
+                            src="https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&q=80&w=400"
+                            alt="Nail beauty"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
                     </div>
-                )}
+
+                    <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#111827', margin: '0 0 8px', fontFamily: 'Outfit, sans-serif', lineHeight: '1.3', position: 'relative', zIndex: 1 }}>
+                        {language === 'es' ? 'Tu bienestar es nuestra ' : 'Your wellbeing is our '}
+                        <span style={{ color: '#ff4d80' }}>{language === 'es' ? 'prioridad' : 'priority'}</span>
+                    </h3>
+                    <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '28px', fontFamily: 'Outfit, sans-serif', lineHeight: '1.5', position: 'relative', zIndex: 1 }}>
+                        {language === 'es' ? 'Déjanos consentirte y disfruta de la mejor experiencia.' : 'Let us pamper you and enjoy the best experience.'}
+                    </p>
+
+                    {/* Benefits */}
+                    {[
+                        { icon: <Star size={14} />, text: language === 'es' ? 'Profesionales Expertos' : 'Expert Professionals' },
+                        { icon: <Sparkles size={14} />, text: language === 'es' ? 'Productos de Calidad' : 'Quality Products' },
+                        { icon: <CheckCircle size={14} />, text: language === 'es' ? 'Atención Personalizada' : 'Personalized Care' },
+                    ].map((b, i) => (
+                        <div key={i} style={{
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            width: '100%', marginBottom: i < 2 ? '12px' : 0,
+                            background: 'rgba(255,255,255,0.7)',
+                            padding: '10px 14px', borderRadius: '12px',
+                            boxShadow: '0 2px 8px rgba(255,77,128,0.08)',
+                            position: 'relative', zIndex: 1,
+                        }}>
+                            <div style={{ color: '#ff4d80', flexShrink: 0 }}>{b.icon}</div>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: '#374151', fontFamily: 'Outfit, sans-serif' }}>{b.text}</span>
+                        </div>
+                    ))}
+                </div>
 
                 <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          @keyframes slideUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+                    @keyframes cmFadeIn { from{opacity:0} to{opacity:1} }
+                    @keyframes cmSlideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+                    @keyframes cmSpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+                    @media (max-width: 680px) {
+                        .cm-deco-panel { display: none !important; }
+                    }
+                `}</style>
             </div>
         </div>
     );
